@@ -31,6 +31,7 @@
 - 当前阶段应使用 0 / 1 / 2 名执行工程师，还是额外加入 Axiom；
 - TeleAgent Prompt 必须结构化、低歧义、分步骤并带验收；
 - 正式任务的 Task ID、任务状态与幂等执行规则；
+- restricted-content hard gate；
 - 一步一验收与 `PASS / HOLD / NEEDS_CORRECTION`；
 - 多 Agent 只有在真正独立时才并行；
 - one Writer / isolated worktree；
@@ -59,11 +60,12 @@
 1. `README.md`
 2. `NEW-SESSION-BOOTSTRAP.md`
 3. `ENGINEERING-STANDARDS.md`
-4. `AGENT-OPERATING-MODEL.md`
-5. `TASK-LIFECYCLE-STANDARD.md`
-6. `PROMPT-HANDOFF-STANDARD.md`
-7. `GIT-GITHUB-STANDARD.md`
-8. `CODEX-RULES.md`
+4. `RESTRICTED-CONTENT-STANDARD.md`
+5. `AGENT-OPERATING-MODEL.md`
+6. `TASK-LIFECYCLE-STANDARD.md`
+7. `PROMPT-HANDOFF-STANDARD.md`
+8. `GIT-GITHUB-STANDARD.md`
+9. `CODEX-RULES.md`
 
 涉及知识沉淀、工程流程演进或长期决策时，再读取 `KNOWLEDGE-ACCUMULATION.md`、`decisions/` 和相关 `patterns/`。
 
@@ -73,6 +75,7 @@
 | --- | --- |
 | `NEW-SESSION-BOOTSTRAP.md` | 新 ChatGPT / Agent 会话如何自动进入 Curator 项目经理模式 |
 | `ENGINEERING-STANDARDS.md` | 跨项目总工程原则、执行节奏与 Definition of Done |
+| `RESTRICTED-CONTENT-STANDARD.md` | Owner 指定的跨项目不可放宽内容禁令与验收 gate |
 | `AGENT-OPERATING-MODEL.md` | Curator / Axiom / Mason / Rivet 的角色、路由、工程师数量与并行规则 |
 | `TASK-LIFECYCLE-STANDARD.md` | 正式任务的 Task ID、状态机、幂等执行与重复发送恢复规则 |
 | `PROMPT-HANDOFF-STANDARD.md` | 给执行 Agent 的 Prompt、GitHub-native handoff 与人工 handoff 兜底规范 |
@@ -90,6 +93,7 @@
 - 默认让 Mason / Rivet 承担大部分明确、可执行的工程工作；Axiom 只进入真正需要深水能力的任务。
 - Curator 负责项目经理、架构协调、任务拆解、工程师配置、技术判断、最终 Review 与合并决策。
 - 用户作为项目负责人，主要负责传递任务与结果，不需要在 Agent 之间替系统做技术方案选择。
+- restricted-content hard gate 是不可被项目级规则放宽的全局约束，任何命中都不能 `PASS`。
 - 正式工程任务用 Task ID 串联 Prompt、执行、Git 结果与 Review，并以 Task ID 做幂等键避免重复施工。
 - Prompt 草稿、实际发送、Agent 执行和 Curator 验收是不同状态，不允许混为一谈。
 - 每次只推进清晰的一步；上一阶段未验收前，不把下一阶段建立在未确认结果上。
