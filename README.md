@@ -28,11 +28,14 @@
 
 - Curator / Axiom / Mason / Rivet 的角色与职责；
 - Mason / Rivet 为默认主力、Axiom 负责深水任务的能力路由；
+- 当前阶段应使用 0 / 1 / 2 名执行工程师，还是额外加入 Axiom；
 - TeleAgent Prompt 必须结构化、低歧义、分步骤并带验收；
+- 正式任务的 Task ID、任务状态与幂等执行规则；
 - 一步一验收与 `PASS / HOLD / NEEDS_CORRECTION`；
 - 多 Agent 只有在真正独立时才并行；
 - one Writer / isolated worktree；
 - GitHub remote 与 exact SHA 为工程事实基线；
+- GitHub-native handoff 优先，不让 Owner 搬运长技术 handoff；
 - 高风险工作需要 exact-SHA Review；
 - 用户主要负责目标、优先级和任务/结果传递，技术判断由 Curator 负责。
 
@@ -57,9 +60,10 @@
 2. `NEW-SESSION-BOOTSTRAP.md`
 3. `ENGINEERING-STANDARDS.md`
 4. `AGENT-OPERATING-MODEL.md`
-5. `PROMPT-HANDOFF-STANDARD.md`
-6. `GIT-GITHUB-STANDARD.md`
-7. `CODEX-RULES.md`
+5. `TASK-LIFECYCLE-STANDARD.md`
+6. `PROMPT-HANDOFF-STANDARD.md`
+7. `GIT-GITHUB-STANDARD.md`
+8. `CODEX-RULES.md`
 
 涉及知识沉淀、工程流程演进或长期决策时，再读取 `KNOWLEDGE-ACCUMULATION.md`、`decisions/` 和相关 `patterns/`。
 
@@ -69,8 +73,9 @@
 | --- | --- |
 | `NEW-SESSION-BOOTSTRAP.md` | 新 ChatGPT / Agent 会话如何自动进入 Curator 项目经理模式 |
 | `ENGINEERING-STANDARDS.md` | 跨项目总工程原则、执行节奏与 Definition of Done |
-| `AGENT-OPERATING-MODEL.md` | Curator / Axiom / Mason / Rivet 的角色、路由与并行规则 |
-| `PROMPT-HANDOFF-STANDARD.md` | 给执行 Agent 的任务 Prompt 与回传格式 |
+| `AGENT-OPERATING-MODEL.md` | Curator / Axiom / Mason / Rivet 的角色、路由、工程师数量与并行规则 |
+| `TASK-LIFECYCLE-STANDARD.md` | 正式任务的 Task ID、状态机、幂等执行与重复发送恢复规则 |
+| `PROMPT-HANDOFF-STANDARD.md` | 给执行 Agent 的 Prompt、GitHub-native handoff 与人工 handoff 兜底规范 |
 | `GIT-GITHUB-STANDARD.md` | branch、worktree、commit、remote、exact-SHA、merge 规则 |
 | `KNOWLEDGE-ACCUMULATION.md` | 什么值得沉淀、如何沉淀、如何淘汰过期经验 |
 | `CODEX-RULES.md` | Axiom（Codex GPT-5.6 Sol）的专项使用规则 |
@@ -83,10 +88,13 @@
 
 - 质量优先，不为了并行而并行，也不为了节省高能力模型额度而牺牲质量。
 - 默认让 Mason / Rivet 承担大部分明确、可执行的工程工作；Axiom 只进入真正需要深水能力的任务。
-- Curator 负责项目经理、架构协调、任务拆解、技术判断、最终 Review 与合并决策。
+- Curator 负责项目经理、架构协调、任务拆解、工程师配置、技术判断、最终 Review 与合并决策。
 - 用户作为项目负责人，主要负责传递任务与结果，不需要在 Agent 之间替系统做技术方案选择。
-- 每次只推进清晰的一步；上一阶段未验收前，不把下一阶段当成既成事实。
+- 正式工程任务用 Task ID 串联 Prompt、执行、Git 结果与 Review，并以 Task ID 做幂等键避免重复施工。
+- Prompt 草稿、实际发送、Agent 执行和 Curator 验收是不同状态，不允许混为一谈。
+- 每次只推进清晰的一步；上一阶段未验收前，不把下一阶段建立在未确认结果上。
 - 多 Agent 并行必须满足无共享可变状态、无文件重叠、无分支依赖；同一关键区域坚持一个 Writer。
+- 能直接从 GitHub 恢复工程事实时，Owner 只需提供简短完成信号，Curator 自行核验 remote。
 - 高风险工作以 remote exact SHA 为 Review 对象；Agent 自报“已完成”不能替代核验。
 
 ## 本仓库记录什么
