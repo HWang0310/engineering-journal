@@ -12,7 +12,7 @@
 - 平台、框架、运行环境中长期存在的约束。
 - 测试、验证、回归、发布中可复用的质量门槛。
 - 架构、Contract、数据边界、安全边界等高影响决策。
-- 能明显降低未来 Prompt 歧义或工程返工率的规则。
+- 能明显降低未来 Prompt 歧义、重复施工、状态丢失或工程返工率的规则。
 
 ## 什么不值得沉淀
 
@@ -31,7 +31,7 @@
 
 已经成为默认执行规则的内容，进入根目录标准文件。
 
-例如：双 Agent 并行边界、exact-SHA Review、TeleAgent Prompt 格式。
+例如：工程师数量决策、Task ID / 幂等任务生命周期、exact-SHA Review、TeleAgent Prompt 与 GitHub-native handoff。
 
 ### 2. Pattern
 
@@ -63,13 +63,25 @@
 
 一个经验可以升级为 Standard，当它满足多数条件：
 
-- 在不止一个任务/项目中重复出现。
-- 规则稳定，不依赖某个临时技术栈细节。
-- 能降低质量风险、返工或沟通成本。
-- 可以写成清晰的触发条件和行为规则。
+- 在不止一个任务/项目中重复出现，或已经在一个复杂真实项目中充分验证且明显具有跨项目价值；
+- 规则稳定，不依赖某个临时技术栈细节；
+- 能降低质量风险、重复施工、状态丢失、返工或沟通成本；
+- 可以写成清晰的触发条件和行为规则；
 - Curator 能给出可执行的验收方式。
 
 升级后，应更新对应根目录标准，而不是在多个 Pattern 中重复维护。
+
+## 项目经验反向沉淀原则
+
+项目级规范可以比全局规范更具体、更激进。Curator 应定期识别其中已经被真实工程证明有效的做法，并判断是否反向升级到全局。
+
+反向沉淀时要区分：
+
+- **跨项目机制**：例如 Task ID、幂等执行、状态恢复、GitHub-native handoff，可以升级为全局 Standard。
+- **项目结构优化**：例如某个 multi-repo 项目更积极地三线并行，可以保留为项目级覆盖，而不机械升级为全局默认。
+- **产品/架构专属规则**：例如特定 plugin contract、runtime fail-closed 细节、业务对象模型，只留在目标项目。
+
+目标是让全局规范吸收成熟方法，而不是把一个项目的全部局部习惯复制到所有项目。
 
 ## 维护原则
 
@@ -83,9 +95,14 @@
 
 - Curator / Axiom / Mason / Rivet 角色模型。
 - Mason + Rivet 为主力、Axiom 深水升级的能力路由。
-- 不假并行；无共享状态、无文件重叠、无分支依赖才并行。
+- 每个新阶段由 Curator 明确 0 / 1 / 2 名执行工程师以及 Axiom 是否专项介入。
+- 不假并行；主动寻找安全并行机会，但无共享状态、无文件重叠、无分支依赖才并行。
 - 一个 Writer + read-only Reviewer 处理共享关键区域。
 - GitHub remote 与 exact SHA 为工程事实基线。
-- 一步一验收，使用 `PASS` / `HOLD` / `NEEDS_CORRECTION`。
-- TeleAgent Prompt 高结构化、低歧义、分步骤、带验收和 Git 证据。
-- Agent handoff 必须带来源、验证、branch、exact SHA 和风险说明。
+- 一步一验收，Review 结论使用 `PASS` / `HOLD` / `NEEDS_CORRECTION`。
+- 正式任务使用唯一 Task ID，并以 Task ID 贯穿 Prompt、执行、Git 结果与 Review。
+- Prompt 状态与真实任务状态分离；发送状态不明时使用 `SEND_STATUS_UNKNOWN` + `STATUS_PROBE_ONLY`，不直接重发。
+- 正式 Prompt 具有幂等预检；同 Task ID 已完成时返回 `ALREADY_COMPLETED`，不得重复施工。
+- TeleAgent Prompt 高结构化、低歧义、分步骤、带 scope、验收和 Git 证据。
+- 当 Curator 能访问目标 GitHub 时优先 GitHub-native handoff，Owner 只需报告 Agent + Task ID 完成，Curator 自行核验 remote；完整人工 handoff 仅作为兜底。
+- 高风险工作使用 remote exact-SHA Review，Agent 自报 PASS 不能替代 Curator 独立验收。
