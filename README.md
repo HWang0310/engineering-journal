@@ -4,6 +4,30 @@
 
 它不是任务清单、项目看板、聊天记录归档或代码仓库。它只保存未来项目仍值得复用的工程规则、协作方式、质量门槛、Git/GitHub 规范和经验模式。
 
+## 给新 ChatGPT 会话：最短启动方式
+
+以后启动一个新项目时，用户可以只说：
+
+> 请参考 https://github.com/HWang0310/engineering-journal 的工程规范，开发 XXX 项目。
+
+这句话应被视为一个完整的**工程协作启动指令**，而不是普通的“参考资料”请求。
+
+新的 ChatGPT 会话在继续项目工作前，必须先读取 [`NEW-SESSION-BOOTSTRAP.md`](NEW-SESSION-BOOTSTRAP.md)，并按照其中的启动协议自动进入 **Curator 项目经理模式**。
+
+进入该模式后，不需要用户重新解释以下内容：
+
+- Curator / Axiom / Mason / Rivet 的角色与职责；
+- Mason / Rivet 为默认主力、Axiom 负责深水任务的能力路由；
+- TeleAgent Prompt 必须结构化、低歧义、分步骤并带验收；
+- 一步一验收与 `PASS / HOLD / NEEDS_CORRECTION`；
+- 多 Agent 只有在真正独立时才并行；
+- one Writer / isolated worktree；
+- GitHub remote 与 exact SHA 为工程事实基线；
+- 高风险工作需要 exact-SHA Review；
+- 用户主要负责目标、优先级和任务/结果传递，技术判断由 Curator 负责。
+
+如果目标项目的信息已经足够，Curator 应直接开始分析并决定第一步，而不是再次询问用户想采用哪套协作方式。
+
 ## Source of truth
 
 工程事实默认按以下优先级判断：
@@ -15,17 +39,32 @@
 
 因此：**GitHub 是长期 canonical memory，本地目录只是 workspace。**
 
+## 新会话必读顺序
+
+当本仓库被引用为某个项目的工程规范时，至少按以下顺序读取：
+
+1. `README.md`
+2. `NEW-SESSION-BOOTSTRAP.md`
+3. `ENGINEERING-STANDARDS.md`
+4. `AGENT-OPERATING-MODEL.md`
+5. `PROMPT-HANDOFF-STANDARD.md`
+6. `GIT-GITHUB-STANDARD.md`
+7. `CODEX-RULES.md`
+
+涉及知识沉淀、工程流程演进或长期决策时，再读取 `KNOWLEDGE-ACCUMULATION.md`、`decisions/` 和相关 `patterns/`。
+
 ## 核心文档
 
 | 文件 | 用途 |
 | --- | --- |
+| `NEW-SESSION-BOOTSTRAP.md` | 新 ChatGPT / Agent 会话如何自动进入 Curator 项目经理模式 |
 | `ENGINEERING-STANDARDS.md` | 跨项目总工程原则、执行节奏与 Definition of Done |
 | `AGENT-OPERATING-MODEL.md` | Curator / Axiom / Mason / Rivet 的角色、路由与并行规则 |
 | `PROMPT-HANDOFF-STANDARD.md` | 给执行 Agent 的任务 Prompt 与回传格式 |
 | `GIT-GITHUB-STANDARD.md` | branch、worktree、commit、remote、exact-SHA、merge 规则 |
 | `KNOWLEDGE-ACCUMULATION.md` | 什么值得沉淀、如何沉淀、如何淘汰过期经验 |
 | `CODEX-RULES.md` | Axiom（Codex GPT-5.6 Sol）的专项使用规则 |
-| `AGENTS.md` | Agent 进入本仓库时必须遵循的入口说明 |
+| `AGENTS.md` | Agent 使用本仓库作为规范来源时必须遵循的入口说明 |
 | `JOURNAL.md` | 只记录这套工程规范本身的重大变更 |
 | `decisions/` | 需要长期保留理由的高影响工程决策 |
 | `patterns/` | 已验证、可跨项目复用的工程模式 |
