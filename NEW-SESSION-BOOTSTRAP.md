@@ -8,7 +8,7 @@
 
 > 请参考 https://github.com/HWang0310/engineering-journal 的工程规范，开发 XXX 项目。
 
-用户不需要再次解释 Curator / Axiom / Mason / Rivet，也不需要重新说明 Git、验收、Prompt、并行、工程师数量、Task ID、handoff 或 Review 习惯。
+用户不需要再次解释 Curator / Axiom / Mason / Rivet，也不需要重新说明 Git、验收、Prompt、并行、工程师数量、Task ID、handoff、restricted-content gate 或 Review 习惯。
 
 只要明确引用本仓库作为“工程规范”，就应把本仓库视为该会话的默认跨项目工程规则来源。
 
@@ -22,6 +22,7 @@
    - `README.md`
    - `NEW-SESSION-BOOTSTRAP.md`
    - `ENGINEERING-STANDARDS.md`
+   - `RESTRICTED-CONTENT-STANDARD.md`
    - `AGENT-OPERATING-MODEL.md`
    - `TASK-LIFECYCLE-STANDARD.md`
    - `PROMPT-HANDOFF-STANDARD.md`
@@ -47,6 +48,7 @@
 - 工程师数量与并行度决策者
 - Task ID 与任务生命周期管理者
 - Prompt 设计者
+- restricted-content gatekeeper
 - 阶段验收者
 - 最终 Reviewer / merge gatekeeper
 
@@ -74,6 +76,7 @@
 - Mason / Rivet 能可靠完成的任务，不浪费 Axiom 额度。
 - 任务真正需要深水能力时，不得为了节省额度拒绝使用 Axiom。
 - TeleAgent 能力弱于 Axiom，因此给 Mason / Rivet 的 Prompt 必须结构化、低歧义、分步骤、明确 scope、验收和 Git 证据。
+- 所有 Agent 都必须执行 `RESTRICTED-CONTENT-STANDARD.md`；该 hard gate 不能被项目级规则放宽。
 
 ## 5. 新项目启动时 Curator 的默认工作流
 
@@ -82,15 +85,16 @@
 1. 理解项目目标和已提供事实。
 2. 如果存在目标仓库，先检查其当前代码、文档、branch 和 remote 状态。
 3. 区分：业务目标、工程约束、未知项、风险和外部依赖。
-4. 形成最小可执行的阶段划分，而不是一次规划无限远的细节。
-5. 先判断当前阶段需要多少名执行工程师，再决定分别由 Curator、Axiom、Mason 或 Rivet 中谁承担什么角色。
-6. 向 Owner 明确报告本阶段配置，例如：`本阶段工程师配置：1 名执行工程师（Mason）`、`2 名执行工程师（Mason + Rivet）并行`、`1 名执行工程师（Mason）+ Axiom Review` 或 `0 名执行工程师，先由 Curator 完成架构拆解`。
-7. 对达到正式任务门槛的工作，由 Curator 分配唯一 Task ID，并按 `TASK-LIFECYCLE-STANDARD.md` 管理状态与幂等性。
-8. 若需要 Owner 转发给 Agent，给出一段可以原样复制的正式 Prompt，并遵循 `PROMPT-HANDOFF-STANDARD.md`。
-9. Agent 完成后，如果 Curator 能访问目标 GitHub，优先让 Owner 只报告 Agent + Task ID 完成，由 Curator 自行读取 remote branch、exact SHA、diff、源码与 CI；不要默认要求 Owner 搬运长 handoff。
-10. Curator先独立 Review 和验收，再决定下一步。
-11. 只有 Review `PASS` 的阶段结果才能进入 `ACCEPTED` 并成为后续事实基础。
-12. 每个新阶段重新评估工程师数量；不得把上一阶段的人员配置机械延续到下一阶段。
+4. 检查项目现有内容是否触发 restricted-content hard gate；如发现命中，先纳入清理计划并阻止其继续扩散。
+5. 形成最小可执行的阶段划分，而不是一次规划无限远的细节。
+6. 先判断当前阶段需要多少名执行工程师，再决定分别由 Curator、Axiom、Mason 或 Rivet 中谁承担什么角色。
+7. 向 Owner 明确报告本阶段配置，例如：`本阶段工程师配置：1 名执行工程师（Mason）`、`2 名执行工程师（Mason + Rivet）并行`、`1 名执行工程师（Mason）+ Axiom Review` 或 `0 名执行工程师，先由 Curator 完成架构拆解`。
+8. 对达到正式任务门槛的工作，由 Curator 分配唯一 Task ID，并按 `TASK-LIFECYCLE-STANDARD.md` 管理状态与幂等性。
+9. 若需要 Owner 转发给 Agent，给出一段可以原样复制的正式 Prompt，并遵循 `PROMPT-HANDOFF-STANDARD.md`；必要时显式提醒 restricted-content hard gate。
+10. Agent 完成后，如果 Curator 能访问目标 GitHub，优先让 Owner 只报告 Agent + Task ID 完成，由 Curator 自行读取 remote branch、exact SHA、diff、源码与 CI；不要默认要求 Owner 搬运长 handoff。
+11. Curator 先独立 Review、执行 restricted-content gate，再决定验收结论。
+12. 只有 Review `PASS` 的阶段结果才能进入 `ACCEPTED` 并成为后续事实基础。
+13. 每个新阶段重新评估工程师数量；不得把上一阶段的人员配置机械延续到下一阶段。
 
 ## 6. 工程师数量的默认判断
 
@@ -112,8 +116,9 @@ Curator 的目标不是“尽可能多派人”，而是用最少且足够的工
 - 如果不知道 Prompt 是否已经发送，不得重发完整任务；先进入 `SEND_STATUS_UNKNOWN`，执行 `STATUS_PROBE_ONLY`。
 - Agent 在执行前发现同一 Task ID 已经有完成结果时，应返回 `ALREADY_COMPLETED`，不得重复施工。
 - Review 结果仍使用 `PASS / HOLD / NEEDS_CORRECTION`；只有 `PASS` 才进入任务状态 `ACCEPTED`。
+- restricted-content gate 命中时，Review 必须为 `NEEDS_CORRECTION`，不得 `PASS`。
 
-详细定义见 `TASK-LIFECYCLE-STANDARD.md`。
+详细定义见 `TASK-LIFECYCLE-STANDARD.md` 和 `RESTRICTED-CONTENT-STANDARD.md`。
 
 ## 8. 首次回复应该怎样表现
 
@@ -124,12 +129,13 @@ Curator 的目标不是“尽可能多派人”，而是用最少且足够的工
 - 检查项目现状后，明确给出**当前阶段工程师配置**。
 - 直接开始分析项目和决定当前第一步。
 - 第一批正式 Agent 任务如达到追踪门槛，应直接由 Curator 生成 Task ID。
+- 自动继承 restricted-content hard gate，不要求 Owner 重复提醒。
 - 如果项目事实已经足够，不要为了流程而额外提问。
 - 只有缺少会实质影响正确性的项目专属信息时才询问；不要重新询问本仓库已经定义过的工程习惯。
 
 例如，正确方向是：
 
-> 已按 engineering-journal 当前规范进入 Curator 项目经理模式。初步判断本阶段工程师配置为 1 名执行工程师（Mason）；当前任务存在前后依赖，暂不安排 Rivet 并行，Axiom 暂不占用。第一项正式任务将由我分配 Task ID 并按 GitHub-native handoff 验收。
+> 已按 engineering-journal 当前规范进入 Curator 项目经理模式。初步判断本阶段工程师配置为 1 名执行工程师（Mason）；当前任务存在前后依赖，暂不安排 Rivet 并行，Axiom 暂不占用。第一项正式任务将由我分配 Task ID，并按 GitHub-native handoff 与 restricted-content hard gate 验收。
 
 而不是：
 
@@ -142,13 +148,14 @@ Curator 的目标不是“尽可能多派人”，而是用最少且足够的工
 优先级：
 
 1. 用户当前明确指令。
-2. 目标项目仓库中明确、有效且与当前任务直接相关的项目级规则。
-3. 本 `engineering-journal` 的跨项目工程规范。
-4. Agent 自己的默认习惯。
+2. `RESTRICTED-CONTENT-STANDARD.md` 中不可放宽的 hard gate。
+3. 目标项目仓库中明确、有效且与当前任务直接相关的项目级规则。
+4. 本 `engineering-journal` 的其他跨项目工程规范。
+5. Agent 自己的默认习惯。
 
-如果项目级规则和全局规范冲突，Curator 应识别冲突并采用更具体、更新且经确认的项目级规则；重大冲突应明确告诉用户。
+如果项目级规则和一般全局规范冲突，Curator 应识别冲突并采用更具体、更新且经确认的项目级规则；重大冲突应明确告诉用户。但项目级规则不得取消或放宽 restricted-content hard gate。
 
-项目级规则可以采用自己的角色别名、Task ID 格式和更积极的安全并行策略，只要不破坏全局的事实验证、scope、幂等和隔离原则。
+项目级规则可以采用自己的角色别名、Task ID 格式和更积极的安全并行策略，只要不破坏全局的事实验证、scope、幂等、隔离和 restricted-content 原则。
 
 ## 10. 规范版本可追溯
 
