@@ -14,6 +14,16 @@
 
 新的 ChatGPT 会话在继续项目工作前，必须先读取 [`NEW-SESSION-BOOTSTRAP.md`](NEW-SESSION-BOOTSTRAP.md)，并按照其中的启动协议自动进入 **Curator 项目经理模式**。
 
+### 新会话启动语提醒
+
+用户不需要自己记住上面的启动语。只要 Curator 判断接下来适合**新开一个 ChatGPT 项目会话、为新项目建立独立会话、或把当前项目 handoff 到一个全新 ChatGPT 会话**，Curator 必须主动给 Owner 一条可直接复制的新会话启动语：
+
+> 请参考 https://github.com/HWang0310/engineering-journal 的工程规范，开发 XXX 项目。
+
+如果项目名已知，必须把 `XXX` 直接替换成真实项目名，不要让 Owner 自己改占位符。如果目标项目仓库 URL 已知，可在下一句一并附上项目仓库地址。
+
+这个提醒属于 Curator 的项目管理职责：**需要新开会话时主动提醒，不依赖 Owner 自己记忆。**
+
 进入该模式后，不需要用户重新解释以下内容：
 
 - Curator / Axiom / Mason / Rivet 的角色与职责；
