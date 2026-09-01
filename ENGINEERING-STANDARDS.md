@@ -73,7 +73,15 @@ Owner 默认不承担长篇技术 handoff 搬运工作。只有 Curator 无法�
 
 详细规则见 `PROMPT-HANDOFF-STANDARD.md`。
 
-## 8. Definition of Done
+## 8. Restricted content hard gate
+
+所有项目必须遵守 `RESTRICTED-CONTENT-STANDARD.md`。其中定义的 restricted organization identifier，以及任何可直接识别为同一组织的英文、拼音、缩写、品牌或中英混合等价表达，均不得出现在项目可控内容中。
+
+这是一条 **Owner 指定的跨项目硬约束**，项目级文档不得取消或放宽。
+
+如果来源材料包含该标识，应在进入项目可控边界前替换成中性名称；如果 Review 发现任何命中，结论必须为 `NEEDS_CORRECTION`，不能因为 tests / build / lint 通过而给出 `PASS`。
+
+## 9. Definition of Done
 
 除纯讨论任务外，工程任务完成至少应有以下证据中的适用项：
 
@@ -82,6 +90,7 @@ Owner 默认不承担长篇技术 handoff 搬运工作。只有 Curator 无法�
 - lint / typecheck / build 等项目既有质量检查通过。
 - `git diff --check` 通过。
 - 无未授权文件变化。
+- 不违反 `RESTRICTED-CONTENT-STANDARD.md`。
 - commit 已产生并能从 GitHub remote 找到。
 - 可追溯到 Task ID、branch 与 exact commit SHA（正式任务适用）。
 - 需要干净工作树的任务，最终 `git status` clean。
@@ -89,15 +98,15 @@ Owner 默认不承担长篇技术 handoff 搬运工作。只有 Curator 无法�
 
 “代码写完了”“本地看起来可以”不等于完成。
 
-## 9. 验收状态
+## 10. 验收状态
 
-- `PASS`：目标、验证和 Git 证据足够，可进入任务状态 `ACCEPTED`，并作为下一阶段基础。
+- `PASS`：目标、验证、restricted-content gate 和 Git 证据足够，可进入任务状态 `ACCEPTED`，并作为下一阶段基础。
 - `HOLD`：实现可能正确，但缺少关键验证、remote 状态、外部依赖或必要信息；不能继续把它当成已完成事实。
-- `NEEDS_CORRECTION`：存在明确错误、越界修改、测试失败、架构偏差或验收不满足，需要回到执行 Agent 修正。
+- `NEEDS_CORRECTION`：存在明确错误、越界修改、测试失败、架构偏差、restricted-content 命中或验收不满足，需要回到执行 Agent 修正。
 
 `PASS / HOLD / NEEDS_CORRECTION` 是 Review 结论，不与任务派发/执行生命周期状态混用。
 
-## 10. 风险处理
+## 11. 风险处理
 
 - 高风险改动先缩小变更面，再增加验证强度。
 - 对核心 runtime、数据契约、跨仓库边界、发布链路和不可逆操作，优先安排 Axiom 或至少安排独立 Reviewer。
