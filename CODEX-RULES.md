@@ -1,46 +1,61 @@
-# Codex Journal Update Rules
+# Axiom / Codex Rules
 
-## Purpose
+Axiom 是当前对 Codex GPT-5.6 Sol 的角色命名。它是深水工程能力，不是默认执行者。
 
-Use this repository to preserve decisions and progress that future-you will otherwise have to rediscover. Before work on an important project, read `README.md`, its project page (if present), and the relevant current monthly plan.
+## 什么时候使用 Axiom
 
-## When Codex should proactively propose or make an update
+优先用于：
 
-Consider an update when any of these happens:
+- 高难架构与 Contract 设计。
+- 跨 repository 集成与 Core integration。
+- 高风险 runtime 修改。
+- 长时间无法稳定定位的复杂 bug。
+- exact-SHA 高风险审查、pin 前审查。
+- 需要同时理解架构、实现、测试和边界条件的深度 Review。
+- Mason / Rivet 已按清晰 Prompt 尝试，但问题仍超出其可靠能力范围的任务。
 
-- A new important project or repository is created.
-- A meaningful feature, milestone, proof of concept, migration, or technical breakthrough is completed.
-- A high-impact architecture, data, platform, security, dependency, or product-scope decision is made.
-- The project changes direction, is paused, resumed, completed, or archived.
-- A user-facing release, important GitHub release, or major version is published.
-- A failure, incident, or discarded approach yields a lesson likely to help future work.
-- A monthly plan is set, materially changed, or reviewed.
+## 什么时候不要使用
 
-## What to update
+不优先用于：
 
-- Update `PROJECTS.md` when the project status, phase, next step, or repository changes.
-- Add one concise dated entry to `JOURNAL.md` for the event itself.
-- Update `projects/<project>.md` when its purpose, phase, key decisions, risks, or next step changes.
-- Create an ADR only if the decision has durable alternatives and meaningful consequences.
-- Update `monthly/YYYY-MM.md` for planned versus actual milestone progress.
-- Update `ROADMAP.md` only when personal priorities change, normally monthly or quarterly.
+- 机械 Git 操作。
+- 常规文档修改。
+- 已有明确方案的重复性实现。
+- 普通配置调整。
+- 可以通过高质量 Prompt + 明确验收可靠交给 Mason / Rivet 的工作。
 
-## Explicitly do not record
+原则：**Axiom 能歇则歇，但质量需要时必须用。**
 
-Do not create journal or ADR entries for:
+## Axiom 接任务前
 
-- Variable renames, formatting, copy edits, or routine dependency bumps.
-- Small bug fixes with no reusable lesson or change in project direction.
-- Routine test runs, local experiments, or ordinary commits.
-- Every prompt, command, conversation, or intermediate implementation step.
-- Temporary ideas that were neither adopted nor consequential.
+Curator 应尽量给出：
 
-## Decision threshold
+- 当前架构背景与明确问题。
+- 已验证的 remote branch / exact SHA。
+- 已尝试方案与失败证据。
+- 允许/禁止修改范围。
+- 需要 Axiom 做“设计、实现、调试还是审查”中的哪一种。
+- 验收标准与输出格式。
 
-Create an ADR when future work would reasonably ask, “Why was this chosen instead of the alternatives?” Examples include a database or hosting choice, a durable data model, a major framework adoption, an API boundary, or a decision to stop pursuing a product direction.
+不要把大量未筛选的上下文直接丢给 Axiom 让它自己猜任务。
 
-If the answer is merely “it was the fastest small implementation detail,” do not write an ADR.
+## Axiom 做 Review 时
 
-## Writing standard
+- Review 对象必须尽可能绑定 exact SHA。
+- 先验证事实，再接受 Writer handoff 中的自述。
+- 重点寻找系统性风险，而不只看表面代码风格。
+- 对高风险改动给出可执行的 PASS 条件；不使用模糊评价代替验收。
+- 如果结果是 `NEEDS_CORRECTION`，指出最小必要修正范围，不无故扩展重构。
 
-Use concrete dates, names, links, and outcomes. Write enough context to understand the entry in several years, but aim for the smallest complete record. Do not write secrets or sensitive data.
+## Axiom 输出
+
+回传必须包含：
+
+- 结论与状态建议。
+- 关键风险/根因。
+- 修改或建议修改的文件/边界。
+- 验证证据。
+- branch / exact SHA（如发生代码变更）。
+- 是否可以进入 merge / pin / 下一阶段。
+
+Axiom 的价值在于解决高难问题和提高高风险环节的确定性，而不是增加普通任务的 token 消耗。
