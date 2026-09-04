@@ -4,7 +4,7 @@
 
 ## 1. 决策与责任边界
 
-- **Project Manager Role（默认由 ChatGPT 承担）**：项目经理、总架构协调、任务拆解、技术决策、Agent 路由、最终 Reviewer 与 merge gate。
+- **Project Manager Role（默认由 ChatGPT 承担）**：项目经理、总架构协调、任务拆解、技术决策、Agent/backend 路由、最终 Reviewer 与 merge gate。
 - **Owner（用户）**：负责目标、优先级和最终业务方向；默认不承担技术实现选择、Agent 分配或验收判断。
 - 技术方案存在多个可行路径时，由 Project Manager Role 基于质量、风险、依赖和成本作出明确选择，不把未解决的技术分歧转嫁给 Owner。
 - 全局规范固定职责类型，不固定角色名字；项目级角色命名见 `AGENT-OPERATING-MODEL.md`。
@@ -18,21 +18,33 @@
 - durable engineering files 必须进入对应 Git repo 并最终 commit / push；本地目录不替代 GitHub canonical truth。
 - 详细规则见 `LOCAL-WORKSPACE-STANDARD.md`。
 
-## 3. 工作分配原则
+## 3. 工作分配与 capability routing
 
-- **Primary / Secondary Execution Role**：默认由 TeleAgent 承担，优先处理边界清楚、可验证的实现、Git、文档、集成、重复性修改与常规修复。
-- **Deep Engineering Role**：默认由 Codex GPT-5.6 Sol 承担，只用于高难架构、Contract、跨仓库集成、高风险 runtime、复杂调试、困难 bug、exact-SHA 审查与核心集成等深水任务。
-- 能不用 Deep Engineering Role 时就不用，以节省高能力额度；但质量优先于额度节省，真正需要时必须使用。
-- Project Manager Role 能安全直接完成的轻量管理、审阅或小型仓库维护工作，可直接完成，不机械转派。
+Project Manager Role 不应把 Agent routing 简化为“普通 TeleAgent 或 Codex”二选一。Owner 当前可用资源包括普通 TeleAgent execution resources、WorkBuddy HY4 高能力工程资源，以及 Codex GPT-5.6 Sol Deep Engineering 资源。
+
+默认路由语义：
+
+- **普通 TeleAgent execution resources**：优先处理边界清楚、步骤明确、可机械验证的实现、Git、文档、测试、配置、重复性修改与简单 bugfix。
+- **WorkBuddy HY4**：作为高能力 execution / review backend，优先考虑中高复杂度、语义一致性要求高、跨文件/跨模块理解较深、Release Truth / Project Memory / governance consistency、复杂 Review / recovery / integration 等工作。
+- **Codex GPT-5.6 Sol / Deep Engineering resource**：优先用于最高风险架构、Contract、核心 runtime、重大跨 repo Core integration、极复杂 debugging 和其他真正 Deep Engineering 任务。
+
+以上是 capability routing，不是绝对能力排名，也不是新的固定三级组织结构。WorkBuddy HY4 不构成新的跨项目 Role；项目仍按 `AGENT-OPERATING-MODEL.md` 使用项目级角色名。
+
+Project Manager Role 选择 backend 时应综合：complexity、risk、ambiguity、blast radius、architecture depth、verification difficulty、当前 availability / quota scarcity。
+
+HY4 当前 quota 相对充裕，因此对于 HY4 能可靠完成的中高复杂度任务，应优先考虑 HY4，以减少对更稀缺 Codex quota 的机械消耗；但**质量和风险优先于 quota**。如果任务本质需要 Deep Engineering Role，不得仅因 HY4 quota 更充裕而降低能力等级。
+
+Project Manager Role 能安全直接完成的轻量管理、审阅或小型仓库维护工作，可直接完成，不机械转派。
 
 ## 4. 一步一验收
 
 1. Project Manager Role 明确当前只做哪一步。
 2. 指定唯一责任 Agent；若并行，明确每个 Agent 的独立边界和项目角色名。
 3. 正式任务达到追踪门槛时先分配 Task ID。
-4. Agent 在正确项目目录/repo/worktree 中执行并产出可验证结果；能 push GitHub 时优先 push remote。
-5. Project Manager Role 独立核验并给出 `PASS / HOLD / NEEDS_CORRECTION`。
-6. 只有 `PASS` 后任务才能进入 `ACCEPTED`，并作为下一步事实基础。
+4. 在给 Owner 正式 Prompt 前，先明确本次使用的**项目角色名 + 实际 Agent/backend + Task ID**。
+5. Agent 在正确项目目录/repo/worktree 中执行并产出可验证结果；能 push GitHub 时优先 push remote。
+6. Project Manager Role 独立核验并给出 `PASS / HOLD / NEEDS_CORRECTION`。
+7. 只有 `PASS` 后任务才能进入 `ACCEPTED`，并作为下一步事实基础。
 
 同一 Agent 正在执行完整任务时，不再追加新的完整任务 Prompt，避免上下文覆盖和目标漂移。
 
@@ -59,7 +71,7 @@ Project Manager Role 应主动寻找安全且有真实收益的并行机会，�
 - 所有 worktree 都位于正确项目目录边界内。
 - 合并顺序不会改变实现正确性。
 
-共享关键区域采用 **one Writer + read-only Reviewer**。质量、可审查性和可恢复性优先于表面吞吐量。
+共享关键区域采用 **one Writer + read-only Reviewer**。HY4、Codex 或其他高能力资源作为 Reviewer 时同样不得静默变成 Writer；如需修改，Project Manager Role 必须显式完成 ownership transfer。
 
 ## 8. GitHub-native handoff
 
@@ -101,10 +113,12 @@ Owner 默认不承担长篇技术 handoff 搬运工作。完整人工 handoff �
 
 `PASS / HOLD / NEEDS_CORRECTION` 是 Review 结论，不与任务生命周期状态混用。
 
-## 12. 风险处理
+## 12. 风险与能力升级
 
 - 高风险改动先缩小变更面，再增加验证强度。
-- 核心 runtime、数据契约、跨仓库边界、发布链路和不可逆操作，优先安排 Deep Engineering Role 或至少独立 Reviewer。
+- 当普通 Execution resource 能力不足时，Project Manager Role 应重新评估；可以选择 WorkBuddy HY4 等高能力资源，而不是机械升级到 Codex。
+- 升级不是固定流水线，也不要求必须先失败一次。任务一开始就是 Deep Engineering 时可直接 Codex；一开始明显适合 HY4 时可直接 HY4。
+- 核心 runtime、数据契约、跨仓库核心边界、发布链路和不可逆操作，任务本质需要 Deep Engineering 时必须使用相应能力，不得因 quota 因素降级。
 - 不因 Agent 自称已完成/已测试/已推送而降低验证要求。
 - 正式任务发送状态不确定时先做 `STATUS_PROBE_ONLY`，不得直接重复派发完整任务。
 - 发现重复 clone、历史散落目录或有 dirty/unpushed 状态的旧 workspace 时，先确认 Git 状态并制定迁移方案，不直接拖拽或删除。
