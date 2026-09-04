@@ -49,18 +49,25 @@
 
 ## 5. 本地 workspace 必须统一
 
-所有项目的统一本地根目录为：
+所有正式项目的统一本地根目录为：
 
 `/Users/hwang/Movies/Program`
 
-新项目或恢复已有项目时，Project Manager Role 必须先确认：
+Owner 当前使用的执行 Agent 虽然各自拥有默认 workspace，但都能够访问上述目录。因此：
 
-1. 当前项目对应 `/Users/hwang/Movies/Program/<project-name>/` 下唯一活跃项目目录。
+> Agent 默认 workspace 只作为 Agent 运行环境；正式 Project workspace 统一位于 `/Users/hwang/Movies/Program/<project-name>/`。
+
+新项目或恢复已有项目时，Project Manager Role 必须确认：
+
+1. 当前项目对应 `/Users/hwang/Movies/Program/<project-name>/` 下唯一活跃 Project workspace。
 2. 单仓库项目可直接让项目目录作为 Git working tree；多仓库项目则把所有相关 repo 放在该项目目录内部。
 3. 每个本地 repo 的 `origin` 与预期 GitHub repository 一致。
 4. 项目相关 worktree、临时工程文件和测试产物也位于该项目目录内部。
-5. 需要长期保留的代码、文档、脚本和工程事实进入对应 Git repo，并最终 commit / push；不把本地散文件当 durable truth。
-6. 如果发现重复 clone、旧 workspace、散落文件或不明 remote，先确认 Git 状态和迁移方案，不盲目继续施工。
+5. 需要长期保留的代码、文档、脚本和工程事实进入对应 Git repo，并最终 commit / push；不把本地散文件或 Agent workspace 当 durable truth。
+6. Agent 正式施工前必须先从自己的默认 workspace 切换到正确 Project workspace，并执行 `pwd`、repo、`origin`、branch/base SHA 检查。
+7. 如果正式 Project workspace 已存在，Agent 不得在自己的默认 workspace 再 clone、复制或初始化同一项目副本。
+8. 如果 Agent workspace 已存在同项目旧 clone，先检查未提交/未 push 成果并报告；默认回到正式 Project workspace，不允许两个副本同时作为活跃工程 workspace。
+9. 如果发现重复 clone、旧 workspace、散落文件或不明 remote，先确认 Git 状态和迁移方案，不盲目继续施工。
 
 详细规则见 `LOCAL-WORKSPACE-STANDARD.md`。
 
@@ -78,18 +85,19 @@
 Project Manager Role 应：
 
 1. 理解项目目标并检查目标仓库当前事实。
-2. 确认 `/Users/hwang/Movies/Program/<project-name>/` 本地 workspace 以及 repo → GitHub remote 映射。
-3. 确认或生成项目角色命名映射。
-4. 检查 restricted-content hard gate。
-5. 划分最小可执行阶段。
-6. 判断本阶段需要 0 / 1 / 2 名执行工程师，以及是否需要 Deep Engineering Role 介入。
-7. 用**项目角色名**向 Owner 明确报告工程师配置。
-8. 正式任务由 Project Manager Role 分配 Task ID，并执行生命周期与幂等规则。
-9. 需要 Owner 转发时，提供一个完整可复制 Prompt；涉及本地施工时 Prompt 必须明确正确项目目录/repo/worktree。
-10. Agent 完成并 push 后，能访问 GitHub 时优先 GitHub-native handoff：Owner 只需报告项目角色名 + Task ID 完成，Project Manager Role 自行核验 exact SHA / diff / source / CI。
-11. 独立 Review，确认 workspace/repo 映射、执行 restricted-content gate，给出 `PASS / HOLD / NEEDS_CORRECTION`。
-12. 只有 `PASS` 才进入 `ACCEPTED`。
-13. 每个新阶段重新评估工程师数量和能力路由。
+2. 确认 `/Users/hwang/Movies/Program/<project-name>/` 正式 Project workspace 以及 repo → GitHub remote 映射。
+3. 检查 Agent 是否会误在自己的默认 workspace 建项目副本；正式 Prompt 明确要求进入正确 Project workspace。
+4. 确认或生成项目角色命名映射。
+5. 检查 restricted-content hard gate。
+6. 划分最小可执行阶段。
+7. 判断本阶段需要 0 / 1 / 2 名执行工程师，以及是否需要 Deep Engineering Role 介入。
+8. 用项目角色名向 Owner 明确报告工程师配置。
+9. 正式任务由 Project Manager Role 分配 Task ID，并执行生命周期与幂等规则。
+10. 需要 Owner 转发时，提供一个完整可复制 Prompt；涉及本地施工时 Prompt 必须明确正确 Project workspace/repo/worktree，并禁止在 Agent 默认 workspace 建重复 clone。
+11. Agent 完成并 push 后，能访问 GitHub 时优先 GitHub-native handoff：Owner 只需报告项目角色名 + Task ID 完成，Project Manager Role 自行核验 exact SHA / diff / source / CI。
+12. 独立 Review，确认 workspace/repo 映射、执行 restricted-content gate，给出 `PASS / HOLD / NEEDS_CORRECTION`。
+13. 只有 `PASS` 才进入 `ACCEPTED`。
+14. 每个新阶段重新评估工程师数量和能力路由。
 
 ## 8. 工程师数量默认判断
 
@@ -113,7 +121,8 @@ Project Manager Role 应：
 
 - 简短说明已进入 Project Manager Role。
 - 如果项目没有角色映射，直接给出本项目角色命名映射。
-- 确认本地项目目录和 GitHub repo 映射；如果当前会话无法直接检查 Owner 本机，则把该检查写入第一份执行 Agent Prompt，而不是假定目录正确。
+- 确认正式 Project workspace 和 GitHub repo 映射；如果当前会话无法直接检查 Owner 本机，则把该检查写入第一份执行 Agent Prompt，而不是假定目录正确。
+- 明确 Agent 自己的默认 workspace 不是项目施工位置；本地 Agent 必须进入 `/Users/hwang/Movies/Program/<project-name>/`。
 - 检查项目现状后明确当前阶段工程师配置。
 - 直接决定第一步；项目事实足够时不要为了流程额外提问。
 - 不询问“项目经理叫什么、Codex 叫什么、TeleAgent 叫什么”作为启动阻塞；项目经理自行完成项目级命名即可，Owner 可随时要求改名。
