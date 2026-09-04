@@ -26,7 +26,7 @@
 
 单仓库项目可以让项目目录本身直接作为 repo working tree；多仓库项目则把各 GitHub repo 放在同一个项目目录下。详细规则见 `LOCAL-WORKSPACE-STANDARD.md`。
 
-## 角色命名原则
+## 角色命名与 Project roster 原则
 
 **全局只固定角色类型和职责，不固定角色名字。**
 
@@ -38,9 +38,13 @@
 - Secondary Execution Role
 - Owner
 
-每个项目应使用自己的项目级角色名。若项目已有角色映射则沿用；若没有，由 Project Manager Role 自动生成一套易区分的项目专属名称并报告给 Owner。不同项目不应机械复用同一组角色名。详细规则见 `AGENT-OPERATING-MODEL.md`。
+每个项目建立自己的 project engineer roster。新项目在启动阶段一次性为实际参与的工程师建立项目专属名字；已有项目必须沿用既有 roster，不因为新 Task、新阶段、新 backend 或任务复杂度变化临时创造新的工程师名字。
 
-具体 Agent/backend 与角色类型分开管理。WorkBuddy HY4 是 Owner 当前可用的高能力 execution / review backend，不是新的全局角色名或所有项目必须存在的 Role。
+项目工程师名字与身份默认固定。只有 Owner 明确新增、替换或调整工程师时才改变 roster；Project Manager Role 可以提出人员调整建议，但不能未经 Owner 确认自行扩充。
+
+`0 / 1 / 2 名执行工程师` 指当前阶段从现有 roster 中实际启用的 Writer 数量，**不是 project roster 总人数，也不是创建新工程师身份的许可**。
+
+具体 Agent/backend 与角色类型分开管理。WorkBuddy HY4 是 Owner 当前可用的高能力 execution / review backend，不是新的全局角色名或所有项目必须存在的 Role。详细规则见 `AGENT-OPERATING-MODEL.md`。
 
 ## Capability routing
 
@@ -56,7 +60,9 @@ Project Manager Role 不应只在普通 TeleAgent 与 Codex 之间二选一。
 
 HY4 当前 quota 相对充裕，因此 HY4 能可靠完成的中高复杂度任务应优先考虑 HY4，以减少对更稀缺 Codex quota 的机械消耗；但质量与风险始终优先于 quota，真正 Deep Engineering 任务不能为了省 Codex 而降级。
 
-**每次给工程 Agent 派正式任务时，Project Manager Role 必须先告诉 Owner：项目角色名 + 实际 Agent/backend + Task ID。**
+Capability routing 优先在当前项目**已有 roster** 内进行。如果最适合的 backend 尚未加入该项目，Project Manager Role 应先向 Owner 提出新增/替换工程师建议，而不是临时取新名字直接派活。
+
+**每次给工程 Agent 派正式任务时，Project Manager Role 必须先告诉 Owner：既有项目工程师名 + 实际 Agent/backend + Task ID。**
 
 ## Source of truth
 
@@ -92,7 +98,7 @@ HY4 当前 quota 相对充裕，因此 HY4 能可靠完成的中高复杂度任�
 | `ENGINEERING-STANDARDS.md` | 跨项目总工程原则、执行节奏与 Definition of Done |
 | `RESTRICTED-CONTENT-STANDARD.md` | Owner 指定的跨项目不可放宽内容禁令与验收 gate |
 | `LOCAL-WORKSPACE-STANDARD.md` | `/Users/hwang/Movies/Program` 下的项目目录、repo 映射与 worktree 管理 |
-| `AGENT-OPERATING-MODEL.md` | 角色类型、项目级角色命名、backend capability routing、工程师数量与并行规则 |
+| `AGENT-OPERATING-MODEL.md` | 角色类型、稳定 project roster、项目级角色命名、backend capability routing、工程师数量与并行规则 |
 | `TASK-LIFECYCLE-STANDARD.md` | Task ID、状态机、幂等执行与重复发送恢复规则 |
 | `PROMPT-HANDOFF-STANDARD.md` | Agent Prompt、dispatch 信息、GitHub-native handoff 与人工 handoff 兜底规范 |
 | `GIT-GITHUB-STANDARD.md` | branch、worktree、commit、remote、exact-SHA、merge 规则 |
@@ -106,10 +112,10 @@ HY4 当前 quota 相对充裕，因此 HY4 能可靠完成的中高复杂度任�
 - 质量优先，不为了并行而并行，也不为了节省高能力模型额度而牺牲质量。
 - 一个项目对应 `/Users/hwang/Movies/Program` 下一个项目目录；项目工程活动不散落到该边界之外。
 - durable engineering files 必须进入对应 Git repo 并 push；本地 workspace 不替代 GitHub canonical truth。
-- 项目角色名项目化；角色类型和职责全局稳定；实际 Agent/backend 单独路由。
+- 项目角色名项目化；项目 engineer roster 建立后默认固定，不为每个任务临时新建工程师身份。
 - 能机械结构化的任务优先普通 Execution resource；中高复杂度可优先考虑 HY4；真正 Deep Engineering 使用 Codex 或相应深水资源。
-- Project Manager Role 负责工程师配置、backend routing、技术判断、最终 Review 与 merge gate。
-- 每次正式派工都告诉 Owner 实际是哪个 Agent/backend。
+- Project Manager Role 负责 stage staffing、backend routing、技术判断、最终 Review 与 merge gate；但新增/替换项目工程师需要 Owner 明确确认。
+- 每次正式派工都告诉 Owner实际是哪个既有项目工程师/backend。
 - Owner 主要负责目标、优先级和必要任务/结果传递，不承担默认技术方案选择。
 - restricted-content hard gate 不可被项目级规则放宽，任何命中都不能 `PASS`。
 - 正式任务使用 Task ID 串联 Prompt、执行、Git 结果与 Review，并以 Task ID 做幂等键。
