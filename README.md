@@ -40,7 +40,23 @@
 
 每个项目应使用自己的项目级角色名。若项目已有角色映射则沿用；若没有，由 Project Manager Role 自动生成一套易区分的项目专属名称并报告给 Owner。不同项目不应机械复用同一组角色名。详细规则见 `AGENT-OPERATING-MODEL.md`。
 
-角色改名只改变称呼，不改变能力路由、职责、验收权限或 Git/GitHub 规则。
+具体 Agent/backend 与角色类型分开管理。WorkBuddy HY4 是 Owner 当前可用的高能力 execution / review backend，不是新的全局角色名或所有项目必须存在的 Role。
+
+## Capability routing
+
+Project Manager Role 不应只在普通 TeleAgent 与 Codex 之间二选一。
+
+当前默认资源路由语义：
+
+- **普通 TeleAgent execution resources**：明确、机械、步骤清楚、可验证的常规执行。
+- **WorkBuddy HY4**：中高复杂度、较高语义理解与一致性要求、Release Truth、Project Memory、governance consistency、复杂 integration / recovery / Review 等任务。
+- **Codex GPT-5.6 Sol / Deep Engineering resource**：最高风险架构、Contract、核心 runtime、重大跨 repo Core integration、极复杂 debugging 等真正深水任务。
+
+这不是绝对能力排名或固定三级组织结构。Project Manager Role 应结合 complexity、risk、ambiguity、blast radius、architecture depth、verification difficulty 与当前 quota/availability 动态路由。
+
+HY4 当前 quota 相对充裕，因此 HY4 能可靠完成的中高复杂度任务应优先考虑 HY4，以减少对更稀缺 Codex quota 的机械消耗；但质量与风险始终优先于 quota，真正 Deep Engineering 任务不能为了省 Codex 而降级。
+
+**每次给工程 Agent 派正式任务时，Project Manager Role 必须先告诉 Owner：项目角色名 + 实际 Agent/backend + Task ID。**
 
 ## Source of truth
 
@@ -49,7 +65,7 @@
 1. GitHub remote 上可验证的 branch / commit / exact SHA。
 2. 具体项目仓库中的代码、测试和项目级文档。
 3. `/Users/hwang/Movies/Program/<project>/` 下的本地 checkout / worktree，仅视为 workspace。
-4. ChatGPT、Codex、TeleAgent 的口头说明或 handoff；remote 与 exact SHA 未核验前不视为最终事实。
+4. ChatGPT、Codex、TeleAgent、WorkBuddy HY4 等 Agent 的口头说明或 handoff；remote 与 exact SHA 未核验前不视为最终事实。
 
 因此：**GitHub 是长期 canonical memory，本地项目目录是统一 workspace。**
 
@@ -76,9 +92,9 @@
 | `ENGINEERING-STANDARDS.md` | 跨项目总工程原则、执行节奏与 Definition of Done |
 | `RESTRICTED-CONTENT-STANDARD.md` | Owner 指定的跨项目不可放宽内容禁令与验收 gate |
 | `LOCAL-WORKSPACE-STANDARD.md` | `/Users/hwang/Movies/Program` 下的项目目录、repo 映射与 worktree 管理 |
-| `AGENT-OPERATING-MODEL.md` | 角色类型、项目级角色命名、能力路由、工程师数量与并行规则 |
+| `AGENT-OPERATING-MODEL.md` | 角色类型、项目级角色命名、backend capability routing、工程师数量与并行规则 |
 | `TASK-LIFECYCLE-STANDARD.md` | Task ID、状态机、幂等执行与重复发送恢复规则 |
-| `PROMPT-HANDOFF-STANDARD.md` | Agent Prompt、GitHub-native handoff 与人工 handoff 兜底规范 |
+| `PROMPT-HANDOFF-STANDARD.md` | Agent Prompt、dispatch 信息、GitHub-native handoff 与人工 handoff 兜底规范 |
 | `GIT-GITHUB-STANDARD.md` | branch、worktree、commit、remote、exact-SHA、merge 规则 |
 | `KNOWLEDGE-ACCUMULATION.md` | 知识沉淀、升级和淘汰规则 |
 | `CODEX-RULES.md` | Deep Engineering Role 使用 Codex 时的专项规则 |
@@ -90,15 +106,16 @@
 - 质量优先，不为了并行而并行，也不为了节省高能力模型额度而牺牲质量。
 - 一个项目对应 `/Users/hwang/Movies/Program` 下一个项目目录；项目工程活动不散落到该边界之外。
 - durable engineering files 必须进入对应 Git repo 并 push；本地 workspace 不替代 GitHub canonical truth。
-- 项目角色名项目化；角色类型和职责全局稳定。
-- Primary / Secondary Execution Role 承担大部分明确工程工作；Deep Engineering Role 只进入真正需要深水能力的任务。
-- Project Manager Role 负责项目经理、架构协调、任务拆解、工程师配置、技术判断、最终 Review 与 merge gate。
+- 项目角色名项目化；角色类型和职责全局稳定；实际 Agent/backend 单独路由。
+- 能机械结构化的任务优先普通 Execution resource；中高复杂度可优先考虑 HY4；真正 Deep Engineering 使用 Codex 或相应深水资源。
+- Project Manager Role 负责工程师配置、backend routing、技术判断、最终 Review 与 merge gate。
+- 每次正式派工都告诉 Owner 实际是哪个 Agent/backend。
 - Owner 主要负责目标、优先级和必要任务/结果传递，不承担默认技术方案选择。
 - restricted-content hard gate 不可被项目级规则放宽，任何命中都不能 `PASS`。
 - 正式任务使用 Task ID 串联 Prompt、执行、Git 结果与 Review，并以 Task ID 做幂等键。
 - Prompt 草稿、实际发送、执行、Review 和验收是不同状态。
 - 每次只推进清晰的一步；上一阶段未验收前，不把下一阶段建立在未确认结果上。
-- 多 Agent 只有真正独立时才并行；共享关键区域坚持 one Writer。
+- 多 Agent 只有真正独立时才并行；共享关键区域坚持 one Writer + read-only Reviewer。
 - 能直接从 GitHub 恢复工程事实时，Owner 只需简短完成信号，Project Manager Role 自行核验 remote。
 - 高风险工作以 remote exact SHA 为 Review 对象；Agent 自报完成不能替代核验。
 
