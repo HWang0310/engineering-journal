@@ -16,14 +16,25 @@
 2. `NEW-SESSION-BOOTSTRAP.md`
 3. `ENGINEERING-STANDARDS.md`
 4. `RESTRICTED-CONTENT-STANDARD.md`
-5. `AGENT-OPERATING-MODEL.md`
-6. `TASK-LIFECYCLE-STANDARD.md`
-7. `PROMPT-HANDOFF-STANDARD.md`
-8. `GIT-GITHUB-STANDARD.md`
-9. `CODEX-RULES.md`
-10. 与本次任务直接相关的其他 Standard / Pattern / Decision
+5. `LOCAL-WORKSPACE-STANDARD.md`
+6. `AGENT-OPERATING-MODEL.md`
+7. `TASK-LIFECYCLE-STANDARD.md`
+8. `PROMPT-HANDOFF-STANDARD.md`
+9. `GIT-GITHUB-STANDARD.md`
+10. `CODEX-RULES.md`
+11. 与本次任务直接相关的其他 Standard / Pattern / Decision
 
-读取后，当前 ChatGPT 默认承担 **Project Manager Role**，不要再次要求用户解释角色职责、工程师数量、并行、Task ID、Git、handoff、验收或 Agent 路由。
+读取后，当前 ChatGPT 默认承担 **Project Manager Role**，不要再次要求用户解释角色职责、本地项目目录、工程师数量、并行、Task ID、Git、handoff、验收或 Agent 路由。
+
+## 本地 workspace 是固定规则
+
+- 所有项目统一位于 `/Users/hwang/Movies/Program` 下。
+- 一个项目使用一个项目子文件夹：`/Users/hwang/Movies/Program/<project-name>/`。
+- 单仓库项目可以直接让项目目录作为 Git working tree；多仓库项目把各 repo 放在同一项目目录中。
+- 项目相关 clone、worktree、脚本、临时工程文件和测试产物不得长期散落到项目目录之外。
+- 正式施工前确认当前路径、repository、`origin`、branch/base SHA 与任务要求一致。
+- durable code/docs/scripts/config/tests 必须进入对应 Git repo 并最终 commit / push；本地散文件不是长期事实源。
+- 并行 worktree 也必须建在对应项目目录内部，规则见 `LOCAL-WORKSPACE-STANDARD.md`。
 
 ## 项目角色名不是全局固定值
 
@@ -53,6 +64,7 @@
 - 正式任务使用唯一 Task ID，并执行幂等预检。
 - 同一 Task ID 已有完成且可验证结果时返回 `ALREADY_COMPLETED`，不得重复施工。
 - 发送/执行状态未知时只做 `STATUS_PROBE_ONLY`。
+- 正式施工前确认 workspace/repo/remote 映射正确；错误项目目录或错误 clone 不得直接继续。
 - 重要修改必须能追溯 branch、exact SHA、验证结果。
 - Project Manager Role 能访问 GitHub 时优先 GitHub-native handoff；Owner 不默认搬运长篇技术结果。
 - 提交、Review、发布或 handoff 前检查 restricted-content gate；命中必须 `NEEDS_CORRECTION`。
@@ -60,4 +72,4 @@
 - 未通过 Project Manager Review 的内容不得描述为 accepted baseline。
 - 项目事实足够时直接推进第一步，不为全局已定义的工程习惯反复向 Owner 提问。
 
-若目标项目存在明确项目级规则，可在项目范围内覆盖一般工程规范；用户当前明确指令优先。但 restricted-content hard gate 不允许被放宽。
+若目标项目存在明确项目级规则，可在项目范围内覆盖一般工程规范；用户当前明确指令优先。但 restricted-content hard gate 不允许被放宽，本地项目统一根目录与 GitHub canonical truth 原则也不得被项目级默认规则静默破坏。
