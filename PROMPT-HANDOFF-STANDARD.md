@@ -2,7 +2,7 @@
 
 本文件定义 Project Manager Role 给执行 Agent 派发工程任务，以及执行 Agent 向 Project Manager Role 回传结果的统一格式。
 
-所有正式 Prompt、handoff 和状态信息优先使用**当前项目自己的角色名**；全局规范只定义角色类型，不固定角色名字。项目角色映射与 backend routing 见 `AGENT-OPERATING-MODEL.md`。
+所有正式 Prompt、handoff 和状态信息优先使用**当前项目已有的工程师名字**；全局规范只定义角色类型，不固定角色名字。项目 roster、角色映射与 backend routing 见 `AGENT-OPERATING-MODEL.md`。
 
 ## 1. 正式 Prompt 必须高度结构化
 
@@ -11,7 +11,7 @@ Primary / Secondary Execution Role、WorkBuddy HY4 或其他执行 backend 的 P
 一个完整任务至少应包含：
 
 1. **Task ID**：达到正式任务门槛时必须使用。
-2. **项目角色名 + 实际 Agent/backend**：明确本次接任务的是当前项目中的哪个 Agent，以及实际把 Prompt 发给哪个 backend。
+2. **既有项目工程师名 + 实际 Agent/backend**：明确本次接任务的是当前 project roster 中哪个工程师，以及实际把 Prompt 发给哪个 backend。
 3. **唯一目标**：本轮只完成什么。
 4. **已确认事实**：branch、SHA、已有实现、前置结论。
 5. **允许范围**：可修改仓库、目录、文件。
@@ -40,11 +40,11 @@ Prompt 的目标是把任务转换成边界明确、可验证、可恢复、可�
 
 避免“确保没有问题”“尽量完善”等模糊措辞。优先指定测试名称或命令、预期输出、哪些文件应/不应变化、`git diff --check`、`git status`、remote SHA 等证据。
 
-## 4. Dispatch announcement：每次派工先告诉 Owner 是哪个 Agent
+## 4. Dispatch announcement：每次派工先告诉 Owner 是哪个既有工程师
 
 当 Project Manager Role 准备给 Owner 一段需要原样转发给工程 Agent 的正式任务时，必须先用一句简短说明明确：
 
-- 当前项目角色名；
+- 当前 project roster 中已有的工程师名字；
 - 实际 Agent / backend；
 - Task ID；
 - 本轮目标；
@@ -52,13 +52,15 @@ Prompt 的目标是把任务转换成边界明确、可验证、可恢复、可�
 
 例如：
 
-`本任务交给 <Project Agent Name>（backend: WorkBuddy HY4），Task ID: APP-STATE-004。原因：需要跨多份 canonical docs 做语义一致性修正。`
+`本任务交给 <Existing Project Engineer Name>（backend: WorkBuddy HY4），Task ID: APP-STATE-004。原因：需要跨多份 canonical docs 做语义一致性修正。`
 
 或：
 
-`本任务交给 <Project Deep Engineer Name>（backend: Codex GPT-5.6 Sol），Task ID: CORE-RUNTIME-009。原因：属于高风险核心 runtime。`
+`本任务交给 <Existing Project Deep Engineer Name>（backend: Codex GPT-5.6 Sol），Task ID: CORE-RUNTIME-009。原因：属于高风险核心 runtime。`
 
 不得只说“发给工程师”或只给抽象角色名，让 Owner 自己猜实际应该把 Prompt 发给哪个 Agent。
+
+更重要的是：**不得因为当前出现一个新 Task 就临时创建新的项目工程师名字。** 如果当前 roster 没有适合该任务的工程师/backend，Project Manager Role 先向 Owner 提出新增或替换工程师建议；Owner 未确认前不创建新身份、不以临时名字派工。
 
 随后只给**一个完整代码块**承载整段 Prompt：
 
@@ -68,16 +70,16 @@ Prompt 的目标是把任务转换成边界明确、可验证、可恢复、可�
 - 涉及本地施工时必须包含正确 Project workspace/repo/worktree；
 - 适用时明确 Writer / Reviewer 身份以及实际 backend。
 
-## 5. Backend 与角色名不混用
+## 5. Backend、角色类型与 project engineer identity 不混用
 
-WorkBuddy HY4、TeleAgent、Codex 等是实际可调度资源，不自动成为跨项目固定角色名。
+WorkBuddy HY4、TeleAgent、Codex 等是实际可调度资源，不自动成为跨项目固定角色名，也不自动成为某个已有项目的新工程师身份。
 
 正式 Prompt 中应同时保留：
 
-- 项目角色名：用于项目长期记忆和跨会话辨识；
-- 实际 backend：用于 Owner 知道 Prompt 应发送给谁，以及 Project Manager Role 追踪 capability routing。
+- **项目工程师名**：来自当前 project roster，用于项目长期记忆和跨会话辨识；
+- **实际 backend**：用于 Owner 知道 Prompt 应发送给谁，以及 Project Manager Role 追踪 capability routing。
 
-项目可以在 project state 中维护自己的角色 ↔ backend 映射，但不得因此创建新的全局强制 Role。
+一个项目建立 roster 后，默认重复使用同一批工程师名字。新 backend 变得可用不等于自动扩充 roster。项目人员变化必须按 `AGENT-OPERATING-MODEL.md` 的 stable roster 规则执行。
 
 ## 6. GitHub-native handoff：默认优先
 
@@ -88,17 +90,17 @@ Agent 完成实现
 → tests / validation
 → commit
 → push remote
-→ Owner 只报告 <Project Agent Name> + Task ID 已完成
+→ Owner 只报告 <Existing Project Engineer Name> + Task ID 已完成
 → Project Manager Role 自行读取 branch / exact SHA / diff / source / CI
 → 独立 Review
 ```
 
 Owner 最多需要类似：
 
-- `<Project Agent Name> 完成 APP-AUTH-001。`
-- `<Project Reviewer Name> 完成 CORE-REVIEW-003。`
+- `<Existing Project Engineer Name> 完成 APP-AUTH-001。`
+- `<Existing Project Reviewer Name> 完成 CORE-REVIEW-003。`
 
-如果 Agent 能直接给完成信号，至少包含：项目角色名、实际 backend、Task ID、branch、exact SHA、remote 已 push、验证摘要、阻塞/风险（如有）。
+如果 Agent 能直接给完成信号，至少包含：项目工程师名、实际 backend、Task ID、branch、exact SHA、remote 已 push、验证摘要、阻塞/风险（如有）。
 
 ## 7. 什么时候仍需要完整 handoff
 
@@ -110,9 +112,9 @@ Owner 最多需要类似：
 - 任务不是以 Git 为主要事实载体；
 - Project Manager Role 明确要求补充 GitHub 无法验证的上下文。
 
-完整 handoff 必须先标明**项目角色名 + 实际 backend + 角色类型 + Task ID**，例如：
+完整 handoff 必须先标明**项目工程师名 + 实际 backend + 角色类型 + Task ID**，例如：
 
-`来源：<Project Agent Name>（backend: WorkBuddy HY4｜Primary Execution Role｜APP-AUTH-001）`
+`来源：<Existing Project Engineer Name>（backend: WorkBuddy HY4｜Primary Execution Role｜APP-AUTH-001）`
 
 随后提供完成内容、改动文件、关键决策、验证结果、branch、exact SHA、remote 状态、工作树状态和风险。
 
@@ -126,6 +128,7 @@ Owner 最多需要类似：
 - Reviewer 发现问题后退回原 Writer，或由 Project Manager Role 显式完成 Writer ownership transfer。
 - 不允许 Reviewer 因具备实现能力而静默变成 Writer。
 - ownership transfer 应在下一份 Prompt / task state 中明确记录。
+- ownership transfer 只改变当前任务或区域的 Writer 归属，不自动新增 project engineer identity。
 
 ## 9. Project Manager Review
 
@@ -152,5 +155,5 @@ Project Manager Role 不把 Agent 完成信号或 handoff 自述当作事实证�
 
 - 一个 Agent 正在执行完整任务时，不追加另一个完整任务。
 - 新发现问题先由 Project Manager Role 排队，除非阻塞当前任务。
-- 每轮 Prompt 明确当前阶段、项目角色名、实际 backend、Task ID 和已通过基线。
+- 每轮 Prompt 明确当前阶段、既有项目工程师名、实际 backend、Task ID 和已通过基线。
 - 不依赖“你应该还记得上次”；关键上下文来自仓库、Task ID、remote 或当前 Prompt。
