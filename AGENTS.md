@@ -69,6 +69,7 @@
 - 同一 Task ID 已有完成且可验证结果时返回 `ALREADY_COMPLETED`，不得重复施工。
 - 发送/执行状态未知时只做 `STATUS_PROBE_ONLY`。
 - 正式施工前确认 Agent 已进入正确 Project workspace，并确认 repo/remote 映射；错误目录、Agent workspace 副本或错误 clone 不得直接继续。
+- 正式 Writer 必须确认自己对 canonical Project workspace 的实际 local read/write capability；只有 GitHub remote write capability 不足以承担 repository-tree 施工。canonical 定义见 `LOCAL-WORKSPACE-STANDARD.md` §12。
 - 重要修改必须能追溯 branch、exact SHA、验证结果。
 - Project Manager Role 能访问 GitHub 时优先 GitHub-native handoff；Owner 不默认搬运长篇技术结果。
 - 提交、Review、发布或 handoff 前检查 restricted-content gate；命中必须 `NEEDS_CORRECTION`。

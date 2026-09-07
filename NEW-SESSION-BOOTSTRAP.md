@@ -71,6 +71,30 @@ Owner 当前使用的执行 Agent 虽然各自拥有默认 workspace，但都能
 8. 如果 Agent workspace 已存在同项目旧 clone，先检查未提交/未 push 成果并报告；默认回到正式 Project workspace，不允许两个副本同时作为活跃工程 workspace。
 9. 如果发现重复 clone、旧 workspace、散落文件或不明 remote，先确认 Git 状态和迁移方案，不盲目继续施工。
 
+### 5.1 施工前 capability boundary check
+
+开始正式施工前，必须确认**当前 Project Manager / Agent 对当前目标项目**的实际能力，而不是假定产品能力：
+
+```text
+READ_LOCAL      能否读取 /Users/hwang/Movies/Program/<project-name>/
+WRITE_LOCAL     能否在该 Project workspace 内改文件并执行 Git 操作
+READ_REMOTE     能否读取 GitHub remote
+WRITE_REMOTE    能否通过 GitHub API / Connector / Web Editor 修改 repository
+```
+
+典型形态：
+
+| 形态 | 判断 |
+| --- | --- |
+| 本机执行 Agent | 通常四项均 true，可作为 repository-tree Writer |
+| 网页形态 Project Manager（`READ_LOCAL=false` / `WRITE_LOCAL=false` / `READ_REMOTE=true` / `WRITE_REMOTE=true`） | **PM may manage / route / review through GitHub；PM must not directly perform repository-tree construction** |
+
+后者不构成异常，也不要求 PM 停下治理工作：PM 继续 read、plan、route、review、Issue / PR 记录与 merge；但 repository-tree 正式 Writer 工作应路由给**当前 project roster 中能够访问 canonical local workspace 的既有工程师**。
+
+不得因为需要 local 施工就新建工程师身份。如果当前 roster 中没有 local-capable engineer，按现有 stable project roster 规则向 Owner 提出人员调整建议。
+
+canonical 定义与例外条件见 `LOCAL-WORKSPACE-STANDARD.md` §12。
+
 详细规则见 `LOCAL-WORKSPACE-STANDARD.md`。
 
 ## 6. Capability routing 自动继承
