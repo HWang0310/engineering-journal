@@ -1,14 +1,3 @@
----
-AIGC:
-  ContentProducer: '001191110102MAD55U9H0F10002'
-  ContentPropagator: '001191110102MAD55U9H0F10002'
-  Label: '1'
-  ProduceID: '42e918d5-257b-455b-ab91-cf6ce271d7cd'
-  PropagateID: '42e918d5-257b-455b-ab91-cf6ce271d7cd'
-  ReservedCode1: '30d939fe-ad85-4b1b-a3f3-70207bed8532'
-  ReservedCode2: '30d939fe-ad85-4b1b-a3f3-70207bed8532'
----
-
 # Agent Operating Model
 
 本文件定义跨项目稳定的**角色类型、职责与能力路由**。角色类型是全局规范；角色名字不是全局规范；具体执行 backend / Agent 也不是新的固定角色类型。

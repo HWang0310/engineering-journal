@@ -1,14 +1,3 @@
----
-AIGC:
-  ContentProducer: '001191110102MAD55U9H0F10002'
-  ContentPropagator: '001191110102MAD55U9H0F10002'
-  Label: '1'
-  ProduceID: '3ff57b67-5be3-4c6e-9e92-7bda1ba39d56'
-  PropagateID: '3ff57b67-5be3-4c6e-9e92-7bda1ba39d56'
-  ReservedCode1: '9ea81b29-fea0-4dba-9dc2-6ec2dd6f536c'
-  ReservedCode2: '9ea81b29-fea0-4dba-9dc2-6ec2dd6f536c'
----
-
 # Standards Journal
 
 只记录这套工程规范与知识体系本身的重大变化，最新在前。普通项目进度不进入这里。

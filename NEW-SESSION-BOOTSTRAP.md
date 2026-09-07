@@ -1,14 +1,3 @@
----
-AIGC:
-  ContentProducer: '001191110102MAD55U9H0F10002'
-  ContentPropagator: '001191110102MAD55U9H0F10002'
-  Label: '1'
-  ProduceID: '1a12513e-5dd2-4053-91e8-20c6c75e129c'
-  PropagateID: '1a12513e-5dd2-4053-91e8-20c6c75e129c'
-  ReservedCode1: '991dca7b-4995-4744-b1f5-2616db94d350'
-  ReservedCode2: '991dca7b-4995-4744-b1f5-2616db94d350'
----
-
 # New Session Bootstrap Protocol
 
 本文件定义：当全新的 ChatGPT / Agent 会话被要求“参考 `HWang0310/engineering-journal` 的工程规范开发某个项目”时，如何自动进入正确的项目管理与工程协作模式。

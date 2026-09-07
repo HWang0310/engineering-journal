@@ -1,14 +1,3 @@
----
-AIGC:
-  ContentProducer: '001191110102MAD55U9H0F10002'
-  ContentPropagator: '001191110102MAD55U9H0F10002'
-  Label: '1'
-  ProduceID: '6fa01007-f9ca-42dc-bb40-59d80f068360'
-  PropagateID: '6fa01007-f9ca-42dc-bb40-59d80f068360'
-  ReservedCode1: '2b174339-0527-43f8-b823-344d52bc0fe2'
-  ReservedCode2: '2b174339-0527-43f8-b823-344d52bc0fe2'
----
-
 # Engineering Standards
 
 本文件定义跨项目默认工程规范。具体项目如果有明确记录的项目级规则，可以覆盖一般全局规则；`RESTRICTED-CONTENT-STANDARD.md` 的 hard gate 不可被项目级规则放宽。
