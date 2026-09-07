@@ -1,14 +1,3 @@
----
-AIGC:
-  ContentProducer: '001191110102MAD55U9H0F10002'
-  ContentPropagator: '001191110102MAD55U9H0F10002'
-  Label: '1'
-  ProduceID: '21d002a6-3282-4b85-8a57-7b40cb37d471'
-  PropagateID: '21d002a6-3282-4b85-8a57-7b40cb37d471'
-  ReservedCode1: '59200baf-a3b2-41ef-9299-892cff199a0f'
-  ReservedCode2: '59200baf-a3b2-41ef-9299-892cff199a0f'
----
-
 # Prompt & Handoff Standard
 
 本文件定义 Project Manager Role 给执行 Agent 派发工程任务，以及执行 Agent 向 Project Manager Role 回传结果的统一格式。

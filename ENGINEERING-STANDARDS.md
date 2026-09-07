@@ -1,14 +1,3 @@
----
-AIGC:
-  ContentProducer: '001191110102MAD55U9H0F10002'
-  ContentPropagator: '001191110102MAD55U9H0F10002'
-  Label: '1'
-  ProduceID: '17b7203b-faad-4396-8723-c0aa36062da5'
-  PropagateID: '17b7203b-faad-4396-8723-c0aa36062da5'
-  ReservedCode1: '4d3fc62d-1759-449c-8dd3-383ed474b475'
-  ReservedCode2: '4d3fc62d-1759-449c-8dd3-383ed474b475'
----
-
 # Engineering Standards
 
 本文件定义跨项目默认工程规范。具体项目如果有明确记录的项目级规则，可以覆盖一般全局规则；`RESTRICTED-CONTENT-STANDARD.md` 的 hard gate 不可被项目级规则放宽。
@@ -125,6 +114,19 @@ Owner 默认不承担长篇技术 handoff 搬运工作。完整人工 handoff �
 - 高风险任务完成 exact-SHA Review 后才进入 merge / pin / 下一阶段。
 
 “代码写完了”“本地看起来可以”不等于完成；在错误 workspace 中施工也不能直接视为完成。
+
+### 10.1 Evidence Package
+
+Evidence Package 是 Agent 完成声明应附带的适用且可复核的验证证据集合。
+
+- **Agent 职责**：execute + verify + provide reproducible evidence。
+- **Agent 不拥有 PASS authority**。Evidence Package 是 Review 输入，不替代 Project Manager Role 独立验证。
+- **适用证据**包括但不限于：tests / lint / build / validation command 的实际输出、`git diff --check` 与 `git status` 结果、变更文件清单、branch 与 exact HEAD SHA、remote push 状态、CI 结果、schema / contract / data check 结果、已知遗留风险。
+- **Evidence Package ≠ Agent self-approval**。禁止把“已完成”“没问题”“测试正常”“应该可以”等自述当作充分验收依据。
+- **流程**：Agent 提供适用证据 → Project Manager Role 独立验证 → `PASS` / `HOLD` / `NEEDS_CORRECTION`。
+- 使用“适用证据”而非固定 bureaucratic checklist；具体任务需要什么证据由任务性质决定。
+
+本节是 Evidence Package 的 canonical 定义。`PROMPT-HANDOFF-STANDARD.md §3.1` 与其他文件引用本节，不另设独立完整定义。
 
 ## 11. 验收状态
 

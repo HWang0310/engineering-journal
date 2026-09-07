@@ -1,14 +1,3 @@
----
-AIGC:
-  ContentProducer: '001191110102MAD55U9H0F10002'
-  ContentPropagator: '001191110102MAD55U9H0F10002'
-  Label: '1'
-  ProduceID: 'eb162262-87bc-45c2-a207-4d0b7ac39706'
-  PropagateID: 'eb162262-87bc-45c2-a207-4d0b7ac39706'
-  ReservedCode1: 'cd362df1-1f91-4f09-bab6-2cee41b70140'
-  ReservedCode2: 'cd362df1-1f91-4f09-bab6-2cee41b70140'
----
-
 # Knowledge Accumulation
 
 本仓库的目标不是“记得更多”，而是让未来项目少重复踩坑、少重复解释、少重复做同样的工程判断。

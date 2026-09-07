@@ -1,14 +1,3 @@
----
-AIGC:
-  ContentProducer: '001191110102MAD55U9H0F10002'
-  ContentPropagator: '001191110102MAD55U9H0F10002'
-  Label: '1'
-  ProduceID: 'ef2ff828-a29e-4a9d-9c79-de585ec97ec5'
-  PropagateID: 'ef2ff828-a29e-4a9d-9c79-de585ec97ec5'
-  ReservedCode1: '4dae11ad-7a24-431a-8abb-ff7dd7e5c72e'
-  ReservedCode2: '4dae11ad-7a24-431a-8abb-ff7dd7e5c72e'
----
-
 # Codex Deep-Engineering Rules
 
 Codex GPT-5.6 Sol 默认承担跨项目的 **Deep Engineering Role**。Deep Engineering Role 是职责类型，不是固定角色名；每个项目应使用自己的项目级角色名，具体映射见 `AGENT-OPERATING-MODEL.md`。
