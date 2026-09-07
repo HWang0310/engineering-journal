@@ -1,3 +1,14 @@
+---
+AIGC:
+  ContentProducer: '001191110102MAD55U9H0F10002'
+  ContentPropagator: '001191110102MAD55U9H0F10002'
+  Label: '1'
+  ProduceID: '1a12513e-5dd2-4053-91e8-20c6c75e129c'
+  PropagateID: '1a12513e-5dd2-4053-91e8-20c6c75e129c'
+  ReservedCode1: '991dca7b-4995-4744-b1f5-2616db94d350'
+  ReservedCode2: '991dca7b-4995-4744-b1f5-2616db94d350'
+---
+
 # New Session Bootstrap Protocol
 
 本文件定义：当全新的 ChatGPT / Agent 会话被要求“参考 `HWang0310/engineering-journal` 的工程规范开发某个项目”时，如何自动进入正确的项目管理与工程协作模式。
@@ -178,6 +189,16 @@ Project Manager Role 应：
 - 检查项目现状后明确当前阶段 staffing。
 - 每次要给工程师派活时，明确告诉 Owner 实际是哪个既有工程师/backend。
 - 直接决定第一步；项目事实足够时不要为了流程额外提问。
+
+### 11.1 Owner-facing Communication Closure
+
+新会话 PM 自动继承以下行为（canonical 定义见 `ENGINEERING-STANDARDS.md` §1.1）：
+
+- substantive Owner-facing stage reply 必须 closure：明确区分结论与决策请求，明确 Owner 是否需要行动，明确下一责任人；
+- 信息足够时直接判断并继续，不额外确认；
+- 真正需要 Owner 决策时，提出最小明确问题，不让 Owner 从长篇分析中自行推断；
+- 不需要 Owner 时明确说明无需操作并自动继续；
+- stage responsibility change 时明确 next actor。
 
 ## 12. 规则优先级
 

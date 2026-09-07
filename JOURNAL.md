@@ -1,8 +1,21 @@
+---
+AIGC:
+  ContentProducer: '001191110102MAD55U9H0F10002'
+  ContentPropagator: '001191110102MAD55U9H0F10002'
+  Label: '1'
+  ProduceID: '3ff57b67-5be3-4c6e-9e92-7bda1ba39d56'
+  PropagateID: '3ff57b67-5be3-4c6e-9e92-7bda1ba39d56'
+  ReservedCode1: '9ea81b29-fea0-4dba-9dc2-6ec2dd6f536c'
+  ReservedCode2: '9ea81b29-fea0-4dba-9dc2-6ec2dd6f536c'
+---
+
 # Standards Journal
 
 只记录这套工程规范与知识体系本身的重大变化，最新在前。普通项目进度不进入这里。
 
 ## 2026-09
+
+- **2026-09-07 — 增加 Owner-facing Communication Closure 规范：** 来源为真实项目 Owner feedback：Project Manager 给出完整方案与结论后，Owner 看完仍不知道"这是陈述句还是疑问句""我现在需要回复什么""下一步谁推进"。认定 PM 分析完成不等于 Owner communication 闭环。新增 `ENGINEERING-STANDARDS.md §1.1 Owner-facing Communication Closure` 作为 canonical definition：PM 职责不仅是分析/决策/路由/Review 正确，还须把项目状态转化成 Owner 能立即理解的行动状态。核心要求：①substantive Owner-facing reply 结束前完成 closure，区分结论与决策请求，明确 Owner 是否需要行动，明确下一责任人；②Owner action required 时把问题压缩成最小明确决策请求，不让 Owner 从长篇分析中自行推断；③No owner action required 时明确说明无需操作且 PM 自动继续，不制造伪确认；④内部工程细节（Task ID/SHA/branch/Evidence Package 等）作为 supporting evidence 按需展开，不直接代替 Owner-facing 沟通；⑤不把 routine engineering decisions 转嫁 Owner，与 §1 既有 anti-overasking 原则对齐。不要求固定模板、固定段数、固定 label 或固定决策格式（如强制 A/B/C）。`NEW-SESSION-BOOTSTRAP.md §11.1` 与 `AGENT-OPERATING-MODEL.md` §1 表格新增 cross-reference。不影响 GitHub-native handoff、Task lifecycle、Agent self-approval 禁止规则、stable roster 和 Remote-only Write policy。
 
 - **2026-09-07 — 增加 Remote-only Write 能力边界：** 明确 **GitHub remote 是 durable canonical truth，canonical Project workspace 是默认施工环境，remote write capability 不是施工授权**。建立能力词表 `READ_LOCAL` / `WRITE_LOCAL` / `READ_REMOTE` / `WRITE_REMOTE`，用于描述**当前执行主体对当前目标项目的实际能力**，而非抽象产品能力。当执行主体只有 `READ_REMOTE=true` / `WRITE_REMOTE=true`、而 `READ_LOCAL=false` / `WRITE_LOCAL=false` 时（典型如网页形态 Project Manager），默认不得充当 repository-tree Writer，不得仅通过 GitHub API、Connector、Web Editor 或其他 remote 接口直接创建、修改或删除 source code、SQL、scripts、config、tests、project docs、architecture/Contract、migration、repository-tracked handoff 等正式内容并视为正常施工。同时明确区分两类动作：**repository-tree engineering write** 受本限制约束；**GitHub control-plane / governance action**（读取 branch/SHA/diff、Issue/PR ledger、Review comment、`PASS`/`HOLD`/`NEEDS_CORRECTION` 记录、labels/state、review request、PR metadata、exact-SHA Review 后 merge）不受约束，Project Manager 无 local write capability 时继续负责 read/plan/route/review/merge，正式 Writer 工作路由给既有 roster 中 local-capable 的工程师，不新建工程师身份。**Owner 明确授权**才可 remote-first 例外，且"Connector 已连接""有写权限""改动很小""更方便"均不构成授权（`Tool capability does not imply workflow authorization`）；remote-first 后必须完成 local sync closure（检查 pwd/status/branch/remote/HEAD/origin 后按现场选择安全同步方式，不预设固定策略，禁止覆盖本地未提交/未 push 有效成果），未完成同步闭环前不得 `ACCEPTED`/`CLOSED`，无法恢复一致性时 `HOLD`。canonical 定义位于 `LOCAL-WORKSPACE-STANDARD.md` §12；`GIT-GITHUB-STANDARD.md`、`NEW-SESSION-BOOTSTRAP.md`、`ENGINEERING-STANDARDS.md`、`AGENTS.md`、`PROMPT-HANDOFF-STANDARD.md` 只做引用与领域补强。本次不改变 GitHub remote 的权威地位，也不削弱 GitHub-native handoff 与 Project Manager final Review / merge gate。
 

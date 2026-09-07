@@ -1,3 +1,14 @@
+---
+AIGC:
+  ContentProducer: '001191110102MAD55U9H0F10002'
+  ContentPropagator: '001191110102MAD55U9H0F10002'
+  Label: '1'
+  ProduceID: '42e918d5-257b-455b-ab91-cf6ce271d7cd'
+  PropagateID: '42e918d5-257b-455b-ab91-cf6ce271d7cd'
+  ReservedCode1: '30d939fe-ad85-4b1b-a3f3-70207bed8532'
+  ReservedCode2: '30d939fe-ad85-4b1b-a3f3-70207bed8532'
+---
+
 # Agent Operating Model
 
 本文件定义跨项目稳定的**角色类型、职责与能力路由**。角色类型是全局规范；角色名字不是全局规范；具体执行 backend / Agent 也不是新的固定角色类型。
@@ -6,11 +17,13 @@
 
 | 角色类型 | 默认职责 |
 | --- | --- |
-| **Project Manager Role** | 项目经理、架构协调、任务拆解、技术判断、Agent 路由、Prompt 设计、Review、验收、merge gate |
+| **Project Manager Role** | 项目经理、架构协调、任务拆解、技术判断、Agent 路由、Prompt 设计、Review、验收、merge gate、Owner-facing communication closure |
 | **Deep Engineering Role** | 高难架构、复杂调试、高风险审查、Contract、跨 repo / Core 集成 |
 | **Primary Execution Role** | 默认实现、常规工程修改、Git/docs/integration、机械性工作 |
 | **Secondary Execution Role** | 安全并行、独立子任务、第二执行流 |
 | **Owner** | 目标、优先级与最终业务方向；不承担默认技术方案选择 |
+
+Project Manager Role 负责把内部工程/项目状态翻译成 Owner 可理解的结论、决策请求和下一步责任（canonical 定义见 `ENGINEERING-STANDARDS.md` §1.1）。
 
 `Project Manager Role`、`Deep Engineering Role`、`Primary Execution Role`、`Secondary Execution Role` 是**职责类型**，不是要求项目实际使用的角色名字，也不等同于某个具体 Agent 产品。
 
