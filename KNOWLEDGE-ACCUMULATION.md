@@ -1,3 +1,14 @@
+---
+AIGC:
+  ContentProducer: '001191110102MAD55U9H0F10002'
+  ContentPropagator: '001191110102MAD55U9H0F10002'
+  Label: '1'
+  ProduceID: 'eb162262-87bc-45c2-a207-4d0b7ac39706'
+  PropagateID: 'eb162262-87bc-45c2-a207-4d0b7ac39706'
+  ReservedCode1: 'cd362df1-1f91-4f09-bab6-2cee41b70140'
+  ReservedCode2: 'cd362df1-1f91-4f09-bab6-2cee41b70140'
+---
+
 # Knowledge Accumulation
 
 本仓库的目标不是“记得更多”，而是让未来项目少重复踩坑、少重复解释、少重复做同样的工程判断。
@@ -64,6 +75,15 @@
 - 规则冲突时明确优先级，不保留两套模糊版本。
 - 过期规则标记替代关系；历史价值低时可以删除。
 - `JOURNAL.md` 只记录工程规范体系重大变更，不作为项目流水账。
+
+## Automation-first maintenance
+
+对于稳定、可机械判断且自动化成本合理的规则，应优先下沉为 test、lint、typecheck、schema validation、CI、script、preflight 或 automated gate，而不只留文字提醒。
+
+- 能机器可靠检查的成熟规则优先下沉为自动化检查。
+- 自动 gate 成熟后，减少或删除对应的人工重复 checklist 提醒。
+- 语义判断类规则（架构正确性、业务意图、可维护性、是否真正满足 Owner 目标、可接受风险）通常仍需要 Project Manager Role / Reviewer 人工判断，不下沉为伪自动化。
+- 规范维护时应清理过时、重复、已被新规则取代或已被自动 gate 替代的人工规则，避免规范体系只增不减。
 
 ## 当前已沉淀的基线（2026-09）
 

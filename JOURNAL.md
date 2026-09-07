@@ -1,9 +1,21 @@
+---
+AIGC:
+  ContentProducer: '001191110102MAD55U9H0F10002'
+  ContentPropagator: '001191110102MAD55U9H0F10002'
+  Label: '1'
+  ProduceID: '0ee426f6-bf33-48a8-badc-3ef80cfa7716'
+  PropagateID: '0ee426f6-bf33-48a8-badc-3ef80cfa7716'
+  ReservedCode1: '09dc81b1-cfcd-45d0-a188-d8e0ab051340'
+  ReservedCode2: '09dc81b1-cfcd-45d0-a188-d8e0ab051340'
+---
+
 # Standards Journal
 
 只记录这套工程规范与知识体系本身的重大变化，最新在前。普通项目进度不进入这里。
 
 ## 2026-09
 
+- **2026-09-07 — PM-supervised Agent engineering workflow 质量加固：** Owner 批准对现有 `Owner → Steward → Agent → GitHub → Steward Review → merge` 工程模式做六类质量加固，不改变既有架构。①**Evidence Package**：Agent 完成声明必须附带适用且可复核的验证证据（tests/lint/build/git diff --check/exact SHA/CI 等），禁止把"已完成""没问题"当作充分验收依据，Agent 提供证据不等于 Agent 自行 PASS。②**Risk-triggered Restatement / Plan Gate**：仅对高歧义、高风险、高 blast radius 或业务语义容易误解的任务，Project Manager Role 可在 Execute 前要求 Writer 回述目标与约束；普通机械任务不强制。③**Risk-based Review Depth**：Review depth 与任务风险匹配，不设固定流程表或风险评分表。④**Debugging Circuit Breaker**：Writer 在 bugfix 中出现重复修复失败、root cause confidence 下降、scope 扩张或触碰 Architecture/Contract 边界等风险信号时必须 STOP 并升级，不设固定失败次数阈值；熔断后 handoff 包含复现方法、已尝试方案、失败证据与建议下一步。⑤**Irreversible Action Pre-authorization**：force push、history rewrite、删除重要 branch/tag/release、DROP/destructive schema change 等不可逆或高 blast radius 操作执行前必须获得明确 pre-authorization，技术层面由 Project Manager Role 决定，涉及 Owner 保留事项时升级 Owner。⑥**Rule-as-Check / Automation-first**：稳定且可机械判断的规则优先下沉为 test/lint/CI/script/preflight 等自动 gate，语义判断类规则仍保留人工 Review；过时、重复或已被自动 gate 替代的人工规则应清理。配套加入 Rule/Checklist Lifecycle：人工 checklist 稳定后逐步下沉为自动化检查并删除重复人工提醒，不规定固定审查周期。修改涉及 `ENGINEERING-STANDARDS.md`、`PROMPT-HANDOFF-STANDARD.md`、`CODEX-RULES.md`、`KNOWLEDGE-ACCUMULATION.md` 和本文件。Agent 仍无自验收权，Steward 仍是最终 Review / merge gate，不采用固定数字阈值，不采用企业 rollout / 绩效治理。
 - **2026-09-04 — Project engineer roster 改为稳定长期映射：** Owner 明确要求一个项目的工程师名字和身份建立后默认固定，不允许 Project Manager 因新 Task、新阶段、新 backend 或任务复杂度变化频繁临时创建新的工程师名字。新项目只在启动阶段一次性建立初始 project engineer roster；已有项目恢复时必须优先读取并沿用现有 roster。只有 Owner 明确新增、替换或调整工程师时才改变 roster。`0 / 1 / 2 名执行工程师` 继续保留，但其含义被明确为当前阶段从既有 roster 中启用的 Writer 数量，而不是 roster 总人数或创建新身份的许可。Capability routing 必须优先在现有 roster 内完成；如果最合适 backend 尚未进入该项目，Project Manager Role 只能先向 Owner 提出人员变更建议，不能临时取新名字直接派工。正式派工继续要求先告诉 Owner：既有项目工程师名 + 实际 Agent/backend + Task ID。
 - **2026-09-04 — 增加 WorkBuddy HY4 capability routing：** Owner 长期可用的工程资源不再只按“普通 TeleAgent vs Codex”二选一。WorkBuddy HY4 被正式定义为高能力、quota 相对充裕的 execution / review backend，而不是新的跨项目固定 Role 或角色名字。以后 Project Manager Role 应根据 complexity、risk、ambiguity、blast radius、architecture depth、verification difficulty 与当前 quota/availability，在普通 Execution resources、HY4 等高能力工程资源和 Codex / Deep Engineering resources 之间动态选择。能机械结构化且可验证的任务仍优先普通 TeleAgent；中高复杂度、语义一致性、Release Truth、Project Memory、governance consistency、复杂 integration / recovery / Review 等任务优先考虑 HY4；最高风险架构、Contract、核心 runtime、重大跨 repo Core integration、极复杂 debugging 等真正 Deep Engineering 任务仍应使用 Codex 或相应深水资源。升级不是固定流水线，也不要求先失败一次。HY4 可做 Writer / Reviewer / specialist，但继续遵守 one Writer + read-only Reviewer 与显式 ownership transfer。工程师数量 0 / 1 / 2 规则保持不变，Reviewer 不为凑人数计为 Writer。新增派工透明度规则：Project Manager Role 每次给 Owner 正式工程 Prompt 前，必须先说明项目角色名、实际 Agent/backend、Task ID 与简短路由原因。
 - **2026-09-04 — 明确 Agent workspace 与 Project workspace 边界：** Owner 当前使用的执行 Agent 都运行在本机，虽然各自拥有默认 workspace，但都能访问 `/Users/hwang/Movies/Program`。因此正式规则调整为：Agent 默认 workspace 只作为 Agent 产品自身的 session、缓存、工具状态等运行环境，不作为项目代码或项目事实存放位置；正式项目工程活动必须先切换到 `/Users/hwang/Movies/Program/<project-name>/` 的 Project workspace。已有正式 Project workspace 时，Agent 禁止在自己的 workspace 再 clone、复制或 `git init` 同一项目副本，避免 HEAD、dirty state、unpushed commit 和 remote 状态分叉。若 Agent workspace 已存在旧 clone，先检查未提交/未 push 成果并报告，再回到正式 Project workspace；不允许两个副本同时作为活跃工程 workspace。该规则已写入 `LOCAL-WORKSPACE-STANDARD.md` 并接入 Bootstrap 与 AGENTS 入口。
