@@ -68,6 +68,13 @@ Project Manager Role 应尽量给出：
 - 当前项目赋予 Deep Engineering Role 的项目角色名；
 - 本次实际 backend 为 Codex GPT-5.6 Sol。
 
+如果 Codex 接手的是被 Debugging Circuit Breaker 升级的复杂 bug，Project Manager Role 应优先提供以下上下文（见 `ENGINEERING-STANDARDS.md` §12.1 和 `PROMPT-HANDOFF-STANDARD.md` §9.2）：
+
+- 稳定复现方法
+- 已尝试方案与失败证据
+- 当前最可能 root cause 与尚未排除的假设
+- 当前代码状态与 exact SHA
+
 在给 Owner 正式 Prompt 前，应明确告诉 Owner 本任务实际交给 Codex，而不是只给出抽象项目角色名。
 
 ## 6. 做 Review 时
@@ -77,6 +84,8 @@ Project Manager Role 应尽量给出：
 - 重点寻找系统性风险，不只看表面代码风格。
 - 对高风险改动给出可执行 PASS 条件。
 - `NEEDS_CORRECTION` 时指出最小必要修正范围，不无故扩展重构。
+- Review depth 应与任务风险匹配；高风险改动应增加验证深度（更广回归、边界验证、必要时独立 read-only Reviewer）。详见 `ENGINEERING-STANDARDS.md` §11.1。
+- Agent 提供的 Evidence Package（见 `ENGINEERING-STANDARDS.md` §10.1）是 Review 输入，不替代独立验证。
 - 继续遵守 **one Writer + read-only Reviewer**；Codex 作为 Reviewer 时不得静默切换为 Writer，需要修改时由 Project Manager Role 显式完成 ownership transfer。
 
 ## 7. 输出

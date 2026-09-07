@@ -40,6 +40,23 @@ Prompt 的目标是把任务转换成边界明确、可验证、可恢复、可�
 
 避免“确保没有问题”“尽量完善”等模糊措辞。优先指定测试名称或命令、预期输出、哪些文件应/不应变化、`git diff --check`、`git status`、remote SHA 等证据。
 
+### 3.1 Evidence Package
+
+Agent 完成声明应附带适用且可复核的验证证据。适用证据包括但不限于：
+
+- tests / lint / build / validation command 的实际输出
+- `git diff --check` 与 `git status` 结果
+- 变更文件清单
+- branch 与 exact HEAD SHA
+- remote push 状态
+- CI 结果
+- schema / contract / data check 结果
+- 已知遗留风险
+
+禁止把“已完成”“没问题”“测试正常”“应该可以”等自述当作充分验收依据。可验证的完成声明缺少适用证据时，不得作为 Project Manager Role `PASS` 的依据。
+
+Agent 提供证据不等于 Agent 自行 PASS；Project Manager Role 始终独立验证。Evidence Package 的 canonical 定义见 `ENGINEERING-STANDARDS.md` §10.1。
+
 ## 4. Dispatch announcement：每次派工先告诉 Owner 是哪个既有工程师
 
 当 Project Manager Role 准备给 Owner 一段需要原样转发给工程 Agent 的正式任务时，必须先用一句简短说明明确：
@@ -100,7 +117,7 @@ Owner 最多需要类似：
 - `<Existing Project Engineer Name> 完成 APP-AUTH-001。`
 - `<Existing Project Reviewer Name> 完成 CORE-REVIEW-003。`
 
-如果 Agent 能直接给完成信号，至少包含：项目工程师名、实际 backend、Task ID、branch、exact SHA、remote 已 push、验证摘要、阻塞/风险（如有）。
+如果 Agent 能直接给完成信号，至少包含：项目工程师名、实际 backend、Task ID、branch、exact SHA、remote 已 push、验证摘要、阻塞/风险（如有）。该完成信号应包含 Evidence Package（见 §3.1）。
 
 ## 7. 什么时候仍需要完整 handoff
 
@@ -141,6 +158,20 @@ Project Manager Role 不把 Agent 完成信号或 handoff 自述当作事实证�
 - `NEEDS_CORRECTION`
 
 若 `NEEDS_CORRECTION`，下一轮 Prompt 默认沿用原 Task ID 修正当前验收失败点，除非已经构成独立新目标。
+
+### 9.1 Risk-triggered Restatement / Plan Gate
+
+对于高歧义、高风险、高 blast radius 或业务语义容易误解的任务，Project Manager Role 可在 Agent 开始 Execute 前要求 Writer 先简短回述：目标、关键约束、明确不做什么、执行计划。回述与 Task Contract 不一致时不得 Execute。普通机械任务不强制回述。详见 `ENGINEERING-STANDARDS.md` §4.1。
+
+### 9.2 Debugging Circuit Breaker handoff
+
+当 Writer 触发 Debugging Circuit Breaker（见 `ENGINEERING-STANDARDS.md` §12.1）时，handoff 至少包含：稳定复现方法、已确认事实、已尝试方案、失败证据、日志/tests、当前最可能 root cause、尚未排除的假设、当前代码状态、建议下一步、是否建议 capability escalation。
+
+Project Manager Role 收到 Circuit Breaker handoff 后决定继续、换工程师、升级 Deep Engineering 或调整方案。
+
+### 9.3 Blocker package
+
+当 Agent 遇到无法自行解决的阻塞时，应在 handoff 中提供 blocker package：阻塞描述、已确认事实、已尝试方案、失败证据、当前状态、建议下一步。不提供 blocker package 的纯状态报告（如“做不了”）不作为有效升级依据。
 
 ## 10. 发送状态不确定时不要重发
 

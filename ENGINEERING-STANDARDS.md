@@ -48,6 +48,16 @@ Project Manager Role 能安全直接完成的轻量管理、审阅或小型仓�
 
 同一 Agent 正在执行完整任务时，不再追加新的完整任务 Prompt，避免上下文覆盖和目标漂移。
 
+### 4.1 Risk-triggered Restatement / Plan Gate
+
+对于高歧义、高风险、高 blast radius 或业务语义容易误解的任务（例如架构设计、Contract 变更、跨仓库集成、数据迁移、破坏性操作），Project Manager Role 可以在 Agent 开始 Execute 前要求 Writer 先简短回述：目标、关键约束、明确不做什么、执行计划。
+
+- 如果回述与 Task Contract 不一致，不得 Execute。
+- 普通机械任务不强制回述，避免无谓开销。
+- Project Manager Role 也可以针对特定任务明确指定需要回述。
+
+回述是轻量确认机制，不是所有任务的强制前置 gate。
+
 ## 5. Task identity 与生命周期
 
 正式、跨会话、可并行、可重复发送或需要 Git 追溯的工程任务必须使用唯一 Task ID。Task ID 应贯穿 Prompt、执行、branch/commit/PR、完成信号/handoff 与 Review，并作为幂等键防止重复施工。
@@ -105,6 +115,19 @@ Owner 默认不承担长篇技术 handoff 搬运工作。完整人工 handoff �
 
 “代码写完了”“本地看起来可以”不等于完成；在错误 workspace 中施工也不能直接视为完成。
 
+### 10.1 Evidence Package
+
+Evidence Package 是 Agent 完成声明应附带的适用且可复核的验证证据集合。
+
+- **Agent 职责**：execute + verify + provide reproducible evidence。
+- **Agent 不拥有 PASS authority**。Evidence Package 是 Review 输入，不替代 Project Manager Role 独立验证。
+- **适用证据**包括但不限于：tests / lint / build / validation command 的实际输出、`git diff --check` 与 `git status` 结果、变更文件清单、branch 与 exact HEAD SHA、remote push 状态、CI 结果、schema / contract / data check 结果、已知遗留风险。
+- **Evidence Package ≠ Agent self-approval**。禁止把“已完成”“没问题”“测试正常”“应该可以”等自述当作充分验收依据。
+- **流程**：Agent 提供适用证据 → Project Manager Role 独立验证 → `PASS` / `HOLD` / `NEEDS_CORRECTION`。
+- 使用“适用证据”而非固定 bureaucratic checklist；具体任务需要什么证据由任务性质决定。
+
+本节是 Evidence Package 的 canonical 定义。`PROMPT-HANDOFF-STANDARD.md §3.1` 与其他文件引用本节，不另设独立完整定义。
+
 ## 11. 验收状态
 
 - `PASS`：目标、workspace/repo 映射、验证、restricted-content gate 和 Git 证据足够，可进入 `ACCEPTED`。
@@ -112,6 +135,27 @@ Owner 默认不承担长篇技术 handoff 搬运工作。完整人工 handoff �
 - `NEEDS_CORRECTION`：存在明确错误、错误项目目录/clone、越界修改、测试失败、架构偏差、restricted-content 命中或其他验收不满足。
 
 `PASS / HOLD / NEEDS_CORRECTION` 是 Review 结论，不与任务生命周期状态混用。
+
+### 11.1 Review depth 与风险匹配
+
+Review depth should match task risk。Project Manager Role 根据以下因素决定 Review 深度：
+
+- risk
+- blast radius
+- reversibility
+- architecture depth
+- contract impact
+- data impact
+- security impact
+- verification difficulty
+
+示例（非强制流程表）：
+
+- **低风险**：diff + basic validation。
+- **中风险**：diff + targeted tests + regression evidence。
+- **高风险**：exact-SHA Review + broader regression + boundary verification + 必要时独立 read-only Reviewer。
+
+不要求填写固定风险评分表。Agent 提供的 evidence package 是 Review 输入，不替代 Project Manager Role 独立 Review。
 
 ## 12. 风险与能力升级
 
@@ -122,3 +166,43 @@ Owner 默认不承担长篇技术 handoff 搬运工作。完整人工 handoff �
 - 不因 Agent 自称已完成/已测试/已推送而降低验证要求。
 - 正式任务发送状态不确定时先做 `STATUS_PROBE_ONLY`，不得直接重复派发完整任务。
 - 发现重复 clone、历史散落目录或有 dirty/unpushed 状态的旧 workspace 时，先确认 Git 状态并制定迁移方案，不直接拖拽或删除。
+
+### 12.1 Bug 修复与 Debugging Circuit Breaker
+
+Writer 在 bugfix / debugging 中不得无限重复"猜 → 改 → 失败 → 再猜 → 扩大 diff → 再失败"循环。出现以下任一风险信号时必须 STOP 并升级 Project Manager Role：
+
+- 重复修复失败
+- root cause confidence 下降
+- diff / scope 不断扩张
+- 开始触碰 Task scope 外区域
+- 需要修改 Architecture / Contract / core boundary
+- 新增失败越来越多
+- 原有测试被破坏
+- 验证无法支持当前修复方向
+- Agent 明显主要在猜而不是基于证据定位
+
+不设固定失败次数阈值（例如"失败 N 次必须停"）。Circuit Breaker 是基于风险信号的判断，不是机械计数器。
+
+Circuit Breaker 触发后的 handoff 至少包含：稳定复现方法、已确认事实、已尝试方案、失败证据、日志/tests、当前最可能 root cause、尚未排除的假设、当前代码状态、建议下一步、是否建议 capability escalation。
+
+然后：`STOP → GitHub → Project Manager Role`，由 Project Manager Role 决定继续、换工程师、升级 Deep Engineering 或调整方案。
+
+### 12.2 不可逆 / 高 blast radius 操作的 Pre-authorization
+
+事后 Review 对不可逆操作不够。高风险、destructive 或 hard-to-recover 操作在执行前必须获得明确 pre-authorization。
+
+典型包括但不限于：
+
+- force push
+- remote history rewrite
+- 删除重要 branch / tag / release
+- 删除持久数据
+- DROP / destructive schema changes
+- destructive migration
+- 覆盖 production configuration
+- 删除无法确认价值的 uncommitted / unpushed work
+- 大规模不可逆文件删除
+
+Pre-authorization 基于 reversibility、blast radius、data loss risk、history loss risk 与 external impact 判断。技术层面授权默认由 Project Manager Role 决定；只有涉及 Owner 明确保留的业务决策、真实生产数据重大影响或外部重大影响时，再由 Project Manager Role 向 Owner 升级。
+
+不扩大为"所有 delete 命令都必须 Owner 批准"。普通、可逆、低 blast radius 操作不需要特殊 pre-authorization。
