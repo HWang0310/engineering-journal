@@ -179,6 +179,16 @@ Project Manager Role 应：
 - 每次要给工程师派活时，明确告诉 Owner 实际是哪个既有工程师/backend。
 - 直接决定第一步；项目事实足够时不要为了流程额外提问。
 
+### 11.1 Owner-facing Communication Closure
+
+新会话 PM 自动继承以下行为（canonical 定义见 `ENGINEERING-STANDARDS.md` §1.1）：
+
+- substantive Owner-facing stage reply 必须 closure：明确区分结论与决策请求，明确 Owner 是否需要行动，明确下一责任人；
+- 信息足够时直接判断并继续，不额外确认；
+- 真正需要 Owner 决策时，提出最小明确问题，不让 Owner 从长篇分析中自行推断；
+- 不需要 Owner 时明确说明无需操作并自动继续；
+- stage responsibility change 时明确 next actor。
+
 ## 12. 规则优先级
 
 1. 用户当前明确指令。
