@@ -197,8 +197,203 @@ Project Manager Role 应在首次项目恢复/启动时把本地 workspace 映�
 
 如果 Agent 在自己的默认 workspace、错误项目目录、错误 clone 或项目目录之外进行正式施工，默认不能直接 `PASS`；应先确认成果能否安全迁移并恢复正确 Git 事实链。
 
-## 12. 核心原则
+## 12. Remote-only Write 限制
+
+本节是 Remote-only Write 能力边界的 canonical 定义。其他标准只引用本节，不另设独立完整定义。
+
+### 12.1 Capability vocabulary
+
+判断执行主体能力时使用四个词，描述的是**当前执行主体对当前目标项目的实际能力**，不是抽象产品能力：
+
+| 能力 | 含义 |
+| --- | --- |
+| `READ_LOCAL` | 能否读取 canonical Project workspace：`/Users/hwang/Movies/Program/<project-name>/` |
+| `WRITE_LOCAL` | 能否在上述 Project workspace 内创建、修改、删除文件并执行 Git 操作 |
+| `READ_REMOTE` | 能否读取 GitHub remote（branch / SHA / diff / Issue / PR / 文件内容） |
+| `WRITE_REMOTE` | 能否通过 GitHub API、Connector、Web Editor 或其他 remote 接口修改 repository |
+
+同一产品在不同运行形态下能力不同。例如网页形态的 Project Manager 可能是 `READ_LOCAL=false` / `WRITE_LOCAL=false` / `READ_REMOTE=true` / `WRITE_REMOTE=true`；本机执行 Agent 通常四项均为 true。能力判断必须针对**当前这次执行的真实环境**，不得凭产品名或历史权限推定。
+
+### 12.2 Default construction boundary
+
+> GitHub remote 是 durable canonical truth；canonical Project workspace 是默认正式施工环境。
+
+因此：
+
+> **Remote write capability is not construction authorization.**
+
+当执行主体为：
+
+```text
+READ_REMOTE=true
+WRITE_REMOTE=true
+READ_LOCAL=false
+WRITE_LOCAL=false
+```
+
+时，默认不能充当 repository-tree Writer，不得因为"能通过 GitHub 改到文件"就认为自己具备正式工程施工授权。
+
+### 12.3 Default prohibition
+
+没有 canonical local workspace write capability（`WRITE_LOCAL=false`）时，不得仅通过下列方式创建、修改或删除正式 repository engineering content，并把它视为正常施工或完成：
+
+```text
+GitHub API / contents API
+GitHub Connector
+GitHub Web Editor
+其他 direct remote-write interface
+```
+
+适用内容包括但不限于：
+
+```text
+source code
+SQL
+scripts
+configuration
+tests
+project docs
+architecture / Contract
+migration
+repository-tracked handoff / project-state files
+其他 durable engineering files
+```
+
+### 12.4 Repository-tree write 与 GitHub control-plane action 的区别
+
+本限制只约束 **repository-tree engineering write**，不约束 **GitHub control-plane / governance action**。
+
+**Repository-tree engineering write**（受本限制约束）：
+
+```text
+通过 contents API 直接改源码
+直接编辑 SQL / config / Markdown 规范
+直接 remote commit 项目文件
+其他直接修改 repository tree 内容的行为
+```
+
+**GitHub control-plane / governance action**（不受本限制约束）：
+
+```text
+读取 branch / SHA / diff / CI
+Issue / PR task ledger
+Project Manager Review comment
+PASS / HOLD / NEEDS_CORRECTION 记录
+labels / state / review request / PR metadata
+在完成 exact-SHA Review 后执行 merge
+```
+
+不得因为 Project Manager 没有 local write capability 就机械禁止 governance action。以下链路继续成立：
+
+```text
+Agent 在 canonical local workspace 施工
+→ local validation
+→ commit
+→ push
+→ GitHub
+→ Project Manager remote exact-SHA Review
+→ PASS / HOLD / NEEDS_CORRECTION
+→ Project Manager merge
+```
+
+判据：如果对象是 **repository tree 内的正式文件**（例如 `PROJECT_STATE.md`、`HANDOFF.md`），属于 repository-tree write；如果对象是 **Issue / PR comment、Review 记录、task ledger metadata**，属于 control-plane，不得误判。
+
+### 12.5 PM 无 local write capability 时的正确链路
+
+Project Manager 处于 `PM_CAN_WRITE_LOCAL=false` 不构成异常。正常链路是：
+
+```text
+Project Manager
+↓ 正式 Task / Prompt
+local-capable 既有 project engineer
+↓
+/Users/hwang/Movies/Program/<project-name>/
+↓ pwd / repository / origin / branch / HEAD / git status
+local modify
+↓ tests / validation
+commit
+↓
+push
+↓
+Project Manager remote exact-SHA Review
+```
+
+Project Manager 在此链路中继续承担 read、plan、route、review、merge 职责，但默认不直接承担 repository-tree Writer 职责。
+
+### 12.6 Owner-authorized remote-first exception
+
+只有 **Owner 明确授权** remote-only / remote-first repository modification 时，才允许例外。
+
+以下情形**不得**自动视为已获得授权：
+
+```text
+Connector 已连接
+拥有 repository write permission
+改动很小
+只是一个 README / SQL / config
+直接 remote 修改更方便
+```
+
+原则：
+
+> Tool capability does not imply workflow authorization.
+
+Owner 授权必须是针对**当前操作或当前任务**明确表达。不得把过去拥有 GitHub Connector 权限视为永久授权。
+
+### 12.7 Remote-first 后的 local sync closure
+
+发生 Owner 授权的 remote-first write 后，任务不得在 remote commit 出现后立即视为完整闭环。必须安排能够访问 canonical local workspace 的工程师恢复 local ↔ remote 一致工程事实链。
+
+至少检查：
+
+```bash
+cd /Users/hwang/Movies/Program/<project-name>/
+
+pwd
+git status --short
+git branch --show-current
+git remote -v
+
+git fetch origin
+
+git rev-parse HEAD
+git rev-parse origin/<branch>
+```
+
+然后基于现场真实状态选择安全同步方式，可包括 fast-forward、pull、rebase 或其他明确的同步 / 恢复方式；**不预设固定同步策略**。
+
+禁止为了追上 remote 而覆盖：
+
+```text
+local uncommitted changes
+unpushed commits
+其他 Agent 的有效成果
+未验收 worktree 内容
+```
+
+发现本地存在有效未同步成果时进入 conflict / recovery flow，不得粗暴覆盖。
+
+### 12.8 Remote-first exception 的 Definition of Done
+
+Owner 授权的 remote-only write 在满足适用条件前不得 `ACCEPTED / CLOSED`：
+
+```text
+remote change verified
+canonical local workspace state inspected
+required local synchronization safely completed
+no local uncommitted/unpushed valid work lost
+branch / HEAD / remote mapping reconfirmed
+required tests / minimal validation rerun
+```
+
+无法恢复 local / remote consistency 时应 `HOLD`，不得假装任务闭环。
+
+## 13. 核心原则
 
 一句话：
 
 > 一个项目，一个 `/Users/hwang/Movies/Program` 下的正式 Project workspace；Agent 自己的 workspace 只是 Agent 运行环境，不存放项目副本。所有正式项目工程活动进入 Project workspace，所有 durable engineering truth 回到对应 GitHub repository。
+
+补充一句：
+
+> GitHub remote 是长期事实源，但不是施工授权；能改 remote 不等于可以在上面施工——正式 repository-tree 修改默认发生在 canonical Project workspace。

@@ -23,6 +23,8 @@ Primary / Secondary Execution Role、WorkBuddy HY4 或其他执行 backend 的 P
 11. **Git 要求**：branch、commit、push、exact SHA。
 12. **完成信号 / handoff 格式**：给出 Project Manager Role 能定位工程事实的最小必要信息。
 
+涉及 repository-tree 修改时，Prompt 应写明正确的 canonical local workspace，并确认 Writer 实际具备 local construction capability（`WRITE_LOCAL=true`）。只有 GitHub remote write capability 的执行主体，默认不得被按 repository-tree Writer 派工。规则见 `LOCAL-WORKSPACE-STANDARD.md` §12，不另设第二套能力定义。
+
 Prompt 的目标是把任务转换成边界明确、可验证、可恢复、可幂等执行的工程 Contract。
 
 ## 2. Scope 写法

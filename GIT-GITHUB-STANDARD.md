@@ -94,3 +94,12 @@ git status --short
 - `RESTRICTED-CONTENT-STANDARD.md` 禁止的内容。
 
 这类本地-only 内容如果项目确实需要，应留在 `/Users/hwang/Movies/Program/<project-name>/` 项目边界内的 local/temp/artifacts 类目录，并确保不会误提交。
+
+## 9. Remote-only write 与 canonical truth 的关系
+
+- GitHub remote 是长期 source of truth；但 **canonical truth 的权威性不等于 remote-only 施工授权**。
+- repository content 默认从 canonical local checkout / worktree 施工，再 commit / push 到 remote。
+- 通过 GitHub API、Connector、Web Editor 或其他 remote 接口直接修改 repository tree 内容，受 `LOCAL-WORKSPACE-STANDARD.md` §12「Remote-only Write 限制」约束。
+- 区分 repository-tree write 与 GitHub control-plane action：Project Manager 的 read / Review comment / `PASS` / `HOLD` / `NEEDS_CORRECTION` / review request / PR metadata / Review 后 merge 属于 governance action，不因缺少 local write capability 而被禁止。
+- Owner 明确授权的 remote-first write 之后，必须完成 local sync closure；未完成同步闭环前不得视为任务完整闭环（见 `LOCAL-WORKSPACE-STANDARD.md` §12.7、§12.8）。
+- exact-SHA Review 只证明"被审查的这个 SHA 是什么"，不代表可以跳过 construction-site rule；Review `PASS` 不追溯性地授权错误的施工路径。

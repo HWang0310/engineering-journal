@@ -16,7 +16,9 @@
 - 单仓库项目可以让项目目录本身直接作为 Git working tree；多仓库项目将所有相关 repo 收拢到同一项目目录中。
 - 正式施工前必须确认当前路径、repository、`origin`、branch/base SHA 与任务要求一致。
 - durable engineering files 必须进入对应 Git repo 并最终 commit / push；本地目录不替代 GitHub canonical truth。
-- 详细规则见 `LOCAL-WORKSPACE-STANDARD.md`。
+- 三者的关系是：**GitHub remote = durable canonical truth；canonical Project workspace = 默认施工环境；remote write capability ≠ construction authorization。**
+- 正式 repository-tree 修改默认在 canonical local checkout / worktree 完成。只有 remote read/write、没有 canonical local write capability 时，默认不得直接通过 GitHub API、Connector、Web Editor 或其他 remote 接口修改 repository 内容并视为正常施工。
+- 详细规则见 `LOCAL-WORKSPACE-STANDARD.md`；其 §12 是 Remote-only Write 的 canonical 定义。
 
 ## 3. 工作分配与 capability routing
 
@@ -112,8 +114,9 @@ Owner 默认不承担长篇技术 handoff 搬运工作。完整人工 handoff �
 - 正式任务可追溯到 Task ID、branch 与 exact SHA。
 - 要求 clean 时最终 `git status` clean。
 - 高风险任务完成 exact-SHA Review 后才进入 merge / pin / 下一阶段。
+- 正式 repository-tree 修改满足正确 construction path；或存在 Owner 明确批准的 remote-first exception，且已完成 local sync closure。
 
-“代码写完了”“本地看起来可以”不等于完成；在错误 workspace 中施工也不能直接视为完成。
+“代码写完了”“本地看起来可以”不等于完成；在错误 workspace 中施工也不能直接视为完成；能改 remote 也不等于已经在正确施工环境完成施工。
 
 ### 10.1 Evidence Package
 
