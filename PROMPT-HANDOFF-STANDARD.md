@@ -27,6 +27,8 @@ Primary / Secondary Execution Role、WorkBuddy HY4 或其他执行 backend 的 P
 
 Prompt 的目标是把任务转换成边界明确、可验证、可恢复、可幂等执行的工程 Contract。
 
+Fast Path 任务的 Prompt 可显著精简：通用 workspace / Git / lifecycle / handoff / STOP 规则默认引用本仓库当前内容（如 `ENGINEERING-STANDARDS.md`），不要求逐份复制进每个任务；Task-specific 部分聚焦目标、当前事实/base、scope、唯一变更、验收/验证与特殊风险。执行深度选择见 `ENGINEERING-STANDARDS.md` §4.2。
+
 ## 2. Scope 写法
 
 推荐显式写出：
@@ -120,6 +122,8 @@ Owner 最多需要类似：
 - `<Existing Project Reviewer Name> 完成 CORE-REVIEW-003。`
 
 如果 Agent 能直接给完成信号，至少包含：项目工程师名、实际 backend、Task ID、branch、exact SHA、remote 已 push、验证摘要、阻塞/风险（如有）。该完成信号应包含 Evidence Package（见 §3.1）。
+
+Fast Path 任务的完成信号可最轻（见 `ENGINEERING-STANDARDS.md` §4.2）：changed files + 适用验证 + branch 与 exact SHA / remote 状态；不需要长格式 handoff。
 
 ## 7. 什么时候仍需要完整 handoff
 

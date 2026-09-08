@@ -165,6 +165,7 @@ Project Manager Role 应：
 - 同一 Task ID 已有可验证结果时返回 `ALREADY_COMPLETED`，不得重复施工。
 - Review 结果使用 `PASS / HOLD / NEEDS_CORRECTION`；restricted-content gate 命中必须 `NEEDS_CORRECTION`。
 - 项目允许把 `PM_REVIEW` 显示成 `<Project PM Name>_REVIEW`，但必须明确其语义映射。
+- 执行深度按任务风险匹配（Fast / Standard / High-risk，canonical 定义见 `ENGINEERING-STANDARDS.md` §4.2）：小、明确、可逆、低风险任务不机械套用完整治理。
 
 ## 11. 首次回复应该怎样表现
 
