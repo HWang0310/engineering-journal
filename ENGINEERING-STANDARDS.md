@@ -124,6 +124,45 @@ Project Manager Role 能安全直接完成的轻量管理、审阅或小型仓�
 
 回述是轻量确认机制，不是所有任务的强制前置 gate。
 
+### 4.2 执行深度：Fast / Standard / High-risk Path（canonical）
+
+执行深度必须与任务风险匹配。每次派任务前，Project Manager Role 选择能维持正确性、可恢复性与独立验证的最小流程，不机械套用完整治理。
+
+> Governance depth should match task risk. Use the lightest process that preserves correctness, recoverability, and independent verification.
+
+**Fast Path（小任务轻治理）**
+
+适用于小、明确、低风险、可逆、低 blast radius、且不含架构/Contract/破坏性/跨仓库/multi-writer 复杂度的任务：
+
+- 不强制要求 Issue、Task ID、完整生命周期状态机、长 Prompt 或完整人工 handoff；只有达到 Task ID 门槛（见 `TASK-LIFECYCLE-STANDARD.md` §1）时才分配 Task ID。
+- 正式 Prompt 聚焦：目标、当前事实/base、scope、唯一变更、验收/验证、特殊风险。通用 workspace / Git / lifecycle / handoff / STOP 规则直接引用本仓库当前内容，不要求把整套规范复制进每个任务。
+- Evidence 可最小化：changed files + 适用验证命令 + 使用 Git 时的 branch 与 exact SHA / remote 状态。
+- Owner-facing interaction 最轻：不需要 Owner 决策时 Project Manager Role 自动继续（§1.1）。
+
+**Standard Path（普通工程任务）**
+
+默认路径：达到 Task 门槛时分配 Task ID；one Writer；正确 local workspace / worktree；实现与验证；commit / push；Project Manager Role 独立 Review（exact-SHA + diff）；Issue / 完整 handoff 仅在有用时使用。
+
+**High-risk / Deep Path（高风险完整治理）**
+
+架构、Contract、数据迁移、破坏性操作、跨仓库、高 blast radius、复杂恢复、multi-Agent 协调等高风险工作启用完整治理：详细 Task Contract、Evidence Package（§10.1）、必要时 Restatement（§4.1）、Debugging Circuit Breaker（§12.1）、不可逆操作 Pre-authorization（§12.2）、强化 Review（§11.1：exact-SHA + 更广回归 + 必要时独立 Reviewer）。
+
+**核心 guardrail 不受路径影响**
+
+Fast / Standard / High-risk 只是流程深度，以下边界在任何路径下都不能削弱：
+
+- restricted-content hard gate（§9）
+- canonical local workspace 与 Remote-only Write（§2）
+- irreversible-action pre-authorization（§12.2）
+- one Writer / Reviewer ownership（§7）
+- GitHub canonical truth 与 exact-SHA 追溯（§8 / §10）
+- Agent 无自验收权，Project Manager Role 保留最终 Review / merge gate（§11）
+
+**反官僚约束**
+
+- 三级是同一套治理内的深度选择，不是三套僵化流程；不建立固定风险评分表或数字阈值。
+- 简化的是 Process depth，不是 safety 边界。
+
 ## 5. Task identity 与生命周期
 
 正式、跨会话、可并行、可重复发送或需要 Git 追溯的工程任务必须使用唯一 Task ID。Task ID 应贯穿 Prompt、执行、branch/commit/PR、完成信号/handoff 与 Review，并作为幂等键防止重复施工。

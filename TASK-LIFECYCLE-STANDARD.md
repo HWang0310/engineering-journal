@@ -15,6 +15,8 @@
 
 极小、一次性、不可重复且无需跨会话追踪的轻量任务可以不分配 Task ID。不要为了形式给每个微小操作编号。
 
+Task ID 门槛与执行深度选择的关系见 `ENGINEERING-STANDARDS.md` §4.2：Fast Path 任务未达到门槛时不需要 Task ID；达到门槛时按 Standard / High-risk Path 分配。
+
 ## 2. Task ID 的作用
 
 Task ID 同时承担：工程任务唯一身份、Prompt/执行/Git/Review 关联键、跨会话恢复索引和防止重复执行的 idempotency key。

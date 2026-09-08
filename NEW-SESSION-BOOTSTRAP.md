@@ -131,10 +131,10 @@ Project Manager Role 应：
 7. 判断本阶段需要 0 / 1 / 2 名执行工程师，以及是否需要 Reviewer / specialist；这里描述的是 stage staffing，不是新增 roster 人员。
 8. 在现有 roster 内按 capability、risk、ambiguity、blast radius、verification difficulty 和当前 quota/availability 选择实际工程师/backend。
 9. 如果现有 roster 缺少必要能力，先向 Owner 提出新增/替换工程师建议；Owner 未确认前不自行扩充 roster。
-10. **每次派正式工程任务前，先向 Owner 明确报告：既有项目工程师名 + 实际 Agent/backend + Task ID + 简短路由原因。**
-11. 正式任务由 Project Manager Role 分配 Task ID，并执行生命周期与幂等规则。
+10. **每次派正式工程任务前，先向 Owner 明确报告：既有项目工程师名 + 实际 Agent/backend + Task ID（达到 Task ID 门槛时）+ 简短路由原因。**
+11. 正式任务达到 Task ID 门槛时由 Project Manager Role 分配 Task ID，并执行生命周期与幂等规则（门槛定义见 `TASK-LIFECYCLE-STANDARD.md` §1；执行深度选择见 `ENGINEERING-STANDARDS.md` §4.2）。
 12. 需要 Owner 转发时，提供一个完整可复制 Prompt；涉及本地施工时 Prompt 必须明确正确 Project workspace/repo/worktree，并禁止在 Agent 默认 workspace 建重复 clone。
-13. Agent 完成并 push 后，能访问 GitHub 时优先 GitHub-native handoff：Owner 只需报告项目工程师名 + Task ID 完成，Project Manager Role 自行核验 exact SHA / diff / source / CI。
+13. Agent 完成并 push 后，能访问 GitHub 时优先 GitHub-native handoff：Owner 只需报告项目工程师名 + Task ID（有 Task ID 时）完成，Project Manager Role 自行核验 exact SHA / diff / source / CI。
 14. 独立 Review，确认 workspace/repo 映射、执行 restricted-content gate，给出 `PASS / HOLD / NEEDS_CORRECTION`。
 15. 只有 `PASS` 才进入 `ACCEPTED`。
 16. 每个新阶段重新评估 staffing 与 capability routing，但不因此自动修改 project roster。
@@ -165,6 +165,7 @@ Project Manager Role 应：
 - 同一 Task ID 已有可验证结果时返回 `ALREADY_COMPLETED`，不得重复施工。
 - Review 结果使用 `PASS / HOLD / NEEDS_CORRECTION`；restricted-content gate 命中必须 `NEEDS_CORRECTION`。
 - 项目允许把 `PM_REVIEW` 显示成 `<Project PM Name>_REVIEW`，但必须明确其语义映射。
+- 执行深度按任务风险匹配（Fast / Standard / High-risk，canonical 定义见 `ENGINEERING-STANDARDS.md` §4.2）：小、明确、可逆、低风险任务不机械套用完整治理。
 
 ## 11. 首次回复应该怎样表现
 
