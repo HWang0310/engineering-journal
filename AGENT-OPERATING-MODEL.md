@@ -56,6 +56,42 @@ Project Manager Role 负责把内部工程/项目状态翻译成 Owner 可理解
 
 项目的 roster 变化属于 durable project state，重要项目应在 `PROJECT_STATE.md`、`AGENTS.md`、`HANDOFF.md` 或其他 canonical project doc 中维护当前映射，避免跨会话误创建重复身份。
 
+### 3.1 Project Roster Memory（canonical）
+
+只要项目使用了命名的 PM / engineer identity，当前 roster 就成为 durable project state，必须持久化到该项目的 GitHub default-branch project memory。本节是 Project Roster Memory 的 canonical 定义；`NEW-SESSION-BOOTSTRAP.md`、`KNOWLEDGE-ACCUMULATION.md` 与其他文件引用本节，不另设独立完整定义。
+
+**核心原则**
+
+> Named project engineer identities must travel with the project through durable GitHub project memory. GitHub project memory wins over ChatGPT / Agent memory.
+
+**单一 canonical roster来源**
+
+每个项目只能有一个 declared canonical roster source。新 / 适合的单仓库项目默认使用 root `AGENTS.md` 中的 `Project Engineer Roster` 小节；已有项目若已有明确 canonical project-memory location，可以保留，但必须明确声明唯一来源，其他文档只引用不复制。
+
+多 repo 项目指定一个 project-control repository / document 作为 roster canonical truth，其他 repo 引用，不维护 divergent copies。
+
+**roster 至少记录**
+
+- project role name
+- global role type
+- current execution backend / resource mapping（适用时）
+- active / replaced state
+- rename / replacement history（发生过时）
+
+**roster 变更**
+
+roster add / replace / rename 仍遵守现有 Owner-approved personnel-change rule（§2）。批准后必须同步更新 canonical roster。
+
+backend / task routing 不得静默创建新 engineer identity。如果所需 backend 尚未在 roster 中，先按 §2 人员变更规则处理。
+
+**历史项目 backfill**
+
+现有项目如果历史上已有工程师名字，但 GitHub 中还没有 canonical roster：不得直接重新命名；先根据目标项目 GitHub facts 恢复已有 roster；再由 local-capable Writer 回填 canonical roster。
+
+**适用边界**
+
+从未使用命名工程师的项目不需要强制创建 roster。不要求 Owner 每个新会话重新确认未变化的 roster。不在 `HANDOFF.md`、`README.md`、Issues 和 Prompt 中重复保存完整 roster。Fast Path 行为不受影响——本规则是 project bootstrap / state integrity，不是加重小任务流程的理由。
+
 ## 4. Role 与 execution backend 必须分开
 
 Project Manager Role 在派工时同时决定两件事：

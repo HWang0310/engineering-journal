@@ -29,16 +29,17 @@
 
 ## 4. 项目角色名字与 engineer roster 必须项目化且稳定
 
-全局规范只固定角色类型，不固定角色名字。角色命名和 roster 规则见 `AGENT-OPERATING-MODEL.md`。
+全局规范只固定角色类型，不固定角色名字。角色命名和 roster 规则见 `AGENT-OPERATING-MODEL.md`。Project Roster Memory 的 canonical 定义见 `AGENT-OPERATING-MODEL.md` §3.1。
 
 新会话必须：
 
-1. 先检查目标项目是否已有 project engineer roster / 角色映射；如果有，继续沿用，不重新取名。
+1. 在命名或派工前，先从目标项目 GitHub default-branch 读取 canonical roster（Project Roster Memory，见 `AGENT-OPERATING-MODEL.md` §3.1）。如果 canonical roster 存在，必须原样复用名字，不重新取名。GitHub project memory 优先于 ChatGPT / Agent memory。
 2. 如果是全新项目且尚无 roster，在项目启动阶段一次性建立初始 roster：只为实际参与该项目的工程师生成项目专属、易区分的名字，并向 Owner 报告映射。
 3. 初始 roster 建立后，项目工程师名字与身份默认固定；不得因为新 Task、新阶段、新 backend 或任务复杂度变化临时创建新的工程师名字。
 4. 只有 Owner 明确新增、替换或调整工程师时，才允许改变 roster；Project Manager Role 可以提出建议，但不能未经 Owner 确认自行扩充人员。
 5. 后续回复、Prompt、handoff、project state 优先使用项目既有工程师名字，而不是把其他项目角色名或临时新名字带进来。
-6. 项目中途确需改名时，记录旧名 → 新名映射。
+6. 项目中途确需改名时，记录旧名 → 新名映射，并同步更新 canonical roster（§3.1）。
+7. 现有项目如果历史上已有工程师名字但 GitHub 中还没有 canonical roster：不得直接重新命名；先根据 GitHub facts 恢复已有 roster，再由 local-capable Writer 回填 canonical roster。
 
 项目至少应能表达以下职责映射：
 
