@@ -236,7 +236,7 @@ Project Manager Role 应主动寻找**安全且有真实收益的并行机会**�
 3. 判断本阶段需要多少 Writer / Reviewer。
 4. 在现有 roster 中按 capability、risk、ambiguity、quota/availability 选择实际工程师/backend。
 5. 如果现有 roster 缺少必要能力，先向 Owner 提出新增/替换工程师建议，不临时造名字。
-6. 按任务风险选择执行深度（Fast / Standard / High-risk，canonical 定义见 `ENGINEERING-STANDARDS.md` §4.2），并向 Owner 明确报告“既有项目工程师名 + 实际 Agent/backend + Task ID”。
+6. 按任务风险选择执行深度（Fast / Standard / High-risk，canonical 定义见 `ENGINEERING-STANDARDS.md` §4.2），并向 Owner 明确报告“既有项目工程师名 + 实际 Agent/backend + Task ID（达到 Task ID 门槛时）”。
 7. 每个执行 Agent 收到一个边界完整的任务。
 8. Agent 执行期间不追加新的完整任务 Prompt。
 9. 完成后按统一 handoff / GitHub-native handoff 进入 Review。

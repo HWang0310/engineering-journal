@@ -67,7 +67,7 @@ Agent 提供证据不等于 Agent 自行 PASS；Project Manager Role 始终独�
 
 - 当前 project roster 中已有的工程师名字；
 - 实际 Agent / backend；
-- Task ID；
+- Task ID（达到 Task ID 门槛时，见 `TASK-LIFECYCLE-STANDARD.md` §1）；
 - 本轮目标；
 - 简短 routing 原因（当 backend 选择存在意义时）。
 
@@ -87,7 +87,7 @@ Agent 提供证据不等于 Agent 自行 PASS；Project Manager Role 始终独�
 
 - 不拆成多个相互依赖的代码块；
 - 不在代码块结束后再补关键要求；
-- 正式任务必须包含 Task ID 与幂等预检；
+- 正式任务达到 Task ID 门槛时必须包含 Task ID 与幂等预检（门槛定义见 `TASK-LIFECYCLE-STANDARD.md` §1；执行深度选择见 `ENGINEERING-STANDARDS.md` §4.2）；
 - 涉及本地施工时必须包含正确 Project workspace/repo/worktree；
 - 适用时明确 Writer / Reviewer 身份以及实际 backend。
 
@@ -111,17 +111,17 @@ Agent 完成实现
 → tests / validation
 → commit
 → push remote
-→ Owner 只报告 <Existing Project Engineer Name> + Task ID 已完成
+→ Owner 只报告 <Existing Project Engineer Name> + Task ID（有 Task ID 时）已完成
 → Project Manager Role 自行读取 branch / exact SHA / diff / source / CI
 → 独立 Review
 ```
 
 Owner 最多需要类似：
 
-- `<Existing Project Engineer Name> 完成 APP-AUTH-001。`
+- `<Existing Project Engineer Name> 完成 APP-AUTH-001。`（有 Task ID 时）
 - `<Existing Project Reviewer Name> 完成 CORE-REVIEW-003。`
 
-如果 Agent 能直接给完成信号，至少包含：项目工程师名、实际 backend、Task ID、branch、exact SHA、remote 已 push、验证摘要、阻塞/风险（如有）。该完成信号应包含 Evidence Package（见 §3.1）。
+如果 Agent 能直接给完成信号，至少包含：项目工程师名、实际 backend、Task ID（有 Task ID 时）、branch、exact SHA、remote 已 push、验证摘要、阻塞/风险（如有）。该完成信号应包含 Evidence Package（见 §3.1）。
 
 Fast Path 任务的完成信号可最轻（见 `ENGINEERING-STANDARDS.md` §4.2）：changed files + 适用验证 + branch 与 exact SHA / remote 状态；不需要长格式 handoff。
 
