@@ -1,196 +1,94 @@
 # Prompt & Handoff Standard
 
-本文件定义 Project Manager Role 给执行 Agent 派发工程任务，以及执行 Agent 向 Project Manager Role 回传结果的统一格式。
+本文件定义 PM → Agent 的任务表达和 Agent → PM 的结果回传。Prompt/Handoff 的复杂度必须与 `ENGINEERING-STANDARDS.md` §4 的执行路径匹配。
 
-所有正式 Prompt、handoff 和状态信息优先使用**当前项目已有的工程师名字**；全局规范只定义角色类型，不固定角色名字。项目 roster、角色映射与 backend routing 见 `AGENT-OPERATING-MODEL.md`。
+## 1. Fast Prompt
 
-## 1. 正式 Prompt 必须高度结构化
+Fast Path 不要求 12 项模板。足够清楚即可，通常只需要：
 
-Primary / Secondary Execution Role、WorkBuddy HY4 或其他执行 backend 的 Prompt 默认采用低歧义、分步骤、可验证写法。不要只写“帮我修一下”“把这个做完”“你看着处理”。
+- **目标**：这轮完成什么；
+- **必要事实/base**：只有会影响执行的事实；
+- **scope**：改什么 / 不改什么；
+- **验证**：如何证明完成；
+- **交付**：commit/PR/文件输出（需要时）；
+- **特殊风险**：只有实际存在时写。
 
-一个完整任务至少应包含：
+通用 workspace / Git / lifecycle / STOP / handoff 规则默认引用当前 `engineering-journal`，不在每个 Prompt 里重复。
 
-1. **Task ID**：达到正式任务门槛时必须使用。
-2. **既有项目工程师名 + 实际 Agent/backend**：明确本次接任务的是当前 project roster 中哪个工程师，以及实际把 Prompt 发给哪个 backend。
-3. **唯一目标**：本轮只完成什么。
-4. **已确认事实**：branch、SHA、已有实现、前置结论。
-5. **允许范围**：可修改仓库、目录、文件。
-6. **禁止范围**：明确不得修改的区域和行为。
-7. **幂等预检**：检查同一 Task ID 是否已经完成或部分执行；已完成则返回 `ALREADY_COMPLETED`。
-8. **执行步骤**：按顺序给出。
-9. **验收标准**：什么条件全部满足才算完成。
-10. **验证命令**：tests / build / lint / diff / status 等。
-11. **Git 要求**：branch、commit、push、exact SHA。
-12. **完成信号 / handoff 格式**：给出 Project Manager Role 能定位工程事实的最小必要信息。
+## 2. Standard / High-risk Prompt
 
-涉及 repository-tree 修改时，Prompt 应写明正确的 canonical local workspace，并确认 Writer 实际具备 local construction capability（`WRITE_LOCAL=true`）。只有 GitHub remote write capability 的执行主体，默认不得被按 repository-tree Writer 派工。规则见 `LOCAL-WORKSPACE-STANDARD.md` §12，不另设第二套能力定义。
+只有风险和恢复价值增加时，才逐步加入：
 
-Prompt 的目标是把任务转换成边界明确、可验证、可恢复、可幂等执行的工程 Contract。
+- Task ID（达到门槛时）；
+- branch/base/exact SHA；
+- 幂等预检；
+- allow/deny scope；
+- acceptance criteria；
+- validation commands；
+- recovery / rollback；
+- Writer / Reviewer ownership；
+- Evidence Package；
+- pre-authorization boundary。
 
-Fast Path 任务的 Prompt 可显著精简：通用 workspace / Git / lifecycle / handoff / STOP 规则默认引用本仓库当前内容（如 `ENGINEERING-STANDARDS.md`），不要求逐份复制进每个任务；Task-specific 部分聚焦目标、当前事实/base、scope、唯一变更、验收/验证与特殊风险。执行深度选择见 `ENGINEERING-STANDARDS.md` §4.2。
+High-risk Prompt 应低歧义，但不把规范全文复制进去。
 
-## 2. Scope 写法
+## 3. Dispatch announcement
 
-推荐显式写出：
+只有 Owner 需要转发 Prompt 时，PM 才需要明确告诉 Owner：
 
-- `必须修改`
-- `允许修改`
-- `禁止修改`
-- `不要做`
+- 发给哪个现有 engineer / Agent；
+- backend（如果这决定实际发送对象）；
+- Task ID（有时）；
+- 一句话目标。
 
-发现 scope 外问题时只报告，不自行扩大任务。
+backend 变化不等于人员变化；规则见 `AGENT-OPERATING-MODEL.md`。
 
-## 3. 验收必须可执行
+PM 能直接调用工具或直接完成 Fast Path 时，不制造“先告诉 Owner → Owner 再转发”的额外 relay。
 
-避免“确保没有问题”“尽量完善”等模糊措辞。优先指定测试名称或命令、预期输出、哪些文件应/不应变化、`git diff --check`、`git status`、remote SHA 等证据。
+## 4. Evidence
 
-### 3.1 Evidence Package
+Evidence 必须可复核，但按风险缩放：
 
-Agent 完成声明应附带适用且可复核的验证证据。适用证据包括但不限于：
+- Fast：changed files + applicable validation + Git/PR reference（需要时）。
+- Standard：targeted tests / diff / branch / PR / known risk。
+- High-risk：完整 Evidence Package，包括 exact SHA、广回归、边界验证、CI/contract/data checks 等适用证据。
 
-- tests / lint / build / validation command 的实际输出
-- `git diff --check` 与 `git status` 结果
-- 变更文件清单
-- branch 与 exact HEAD SHA
-- remote push 状态
-- CI 结果
-- schema / contract / data check 结果
-- 已知遗留风险
+Agent 自述“完成/测试正常”不是 PM `PASS`。
 
-禁止把“已完成”“没问题”“测试正常”“应该可以”等自述当作充分验收依据。可验证的完成声明缺少适用证据时，不得作为 Project Manager Role `PASS` 的依据。
+## 5. GitHub-native handoff（canonical）
 
-Agent 提供证据不等于 Agent 自行 PASS；Project Manager Role 始终独立验证。Evidence Package 的 canonical 定义见 `ENGINEERING-STANDARDS.md` §10.1。
+PM 能读取目标 GitHub 时，默认：
 
-## 4. Dispatch announcement：每次派工先告诉 Owner 是哪个既有工程师
+`Agent execute/verify → commit/push → PM read remote → Review`
 
-当 Project Manager Role 准备给 Owner 一段需要原样转发给工程 Agent 的正式任务时，必须先用一句简短说明明确：
+Owner 不搬运长 handoff。
 
-- 当前 project roster 中已有的工程师名字；
-- 实际 Agent / backend；
-- Task ID（达到 Task ID 门槛时，见 `TASK-LIFECYCLE-STANDARD.md` §1）；
-- 本轮目标；
-- 简短 routing 原因（当 backend 选择存在意义时）。
+Fast Path 完成信号可以只是：
 
-例如：
+`已完成；PR=<ref>` 或 `已完成；branch=<ref>`。
 
-`本任务交给 <Existing Project Engineer Name>（backend: WorkBuddy HY4），Task ID: APP-STATE-004。原因：需要跨多份 canonical docs 做语义一致性修正。`
+有 Task ID 时可附 Task ID；无 Task ID 时不补造一个。
 
-或：
+## 6. 什么时候需要完整 handoff
 
-`本任务交给 <Existing Project Deep Engineer Name>（backend: Codex GPT-5.6 Sol），Task ID: CORE-RUNTIME-009。原因：属于高风险核心 runtime。`
+只在关键事实无法从 GitHub/交付物恢复时，例如：
 
-不得只说“发给工程师”或只给抽象角色名，让 Owner 自己猜实际应该把 Prompt 发给哪个 Agent。
+- Agent 无法 push；
+- 关键本地证据不在 remote；
+- complex debugging circuit breaker；
+- data/migration execution 需要现场 evidence；
+- PM 明确要求。
 
-更重要的是：**不得因为当前出现一个新 Task 就临时创建新的项目工程师名字。** 如果当前 roster 没有适合该任务的工程师/backend，Project Manager Role 先向 Owner 提出新增或替换工程师建议；Owner 未确认前不创建新身份、不以临时名字派工。
+完整 handoff 也只包含决策和恢复真正需要的内容，不作为固定格式仪式。
 
-随后只给**一个完整代码块**承载整段 Prompt：
+## 7. Correction
 
-- 不拆成多个相互依赖的代码块；
-- 不在代码块结束后再补关键要求；
-- 正式任务达到 Task ID 门槛时必须包含 Task ID 与幂等预检（门槛定义见 `TASK-LIFECYCLE-STANDARD.md` §1；执行深度选择见 `ENGINEERING-STANDARDS.md` §4.2）；
-- 涉及本地施工时必须包含正确 Project workspace/repo/worktree；
-- 适用时明确 Writer / Reviewer 身份以及实际 backend。
+`NEEDS_CORRECTION` 默认修当前变更，不因为 correction round 自动创建新 Task/Issue/Reviewer。
 
-## 5. Backend、角色类型与 project engineer identity 不混用
+只有修正本身已经成为独立目标或明显扩大风险边界时，才重新拆任务。
 
-WorkBuddy HY4、TeleAgent、Codex 等是实际可调度资源，不自动成为跨项目固定角色名，也不自动成为某个已有项目的新工程师身份。
+## 8. Context hygiene
 
-正式 Prompt 中应同时保留：
-
-- **项目工程师名**：来自当前 project roster，用于项目长期记忆和跨会话辨识；
-- **实际 backend**：用于 Owner 知道 Prompt 应发送给谁，以及 Project Manager Role 追踪 capability routing。
-
-一个项目建立 roster 后，默认重复使用同一批工程师名字。新 backend 变得可用不等于自动扩充 roster。项目人员变化必须按 `AGENT-OPERATING-MODEL.md` 的 stable roster 规则执行。
-
-## 6. GitHub-native handoff：默认优先
-
-当 Project Manager Role 能直接访问目标 GitHub repository 时，默认采用 GitHub-native handoff：
-
-```text
-Agent 完成实现
-→ tests / validation
-→ commit
-→ push remote
-→ Owner 只报告 <Existing Project Engineer Name> + Task ID（有 Task ID 时）已完成
-→ Project Manager Role 自行读取 branch / exact SHA / diff / source / CI
-→ 独立 Review
-```
-
-Owner 最多需要类似：
-
-- `<Existing Project Engineer Name> 完成 APP-AUTH-001。`（有 Task ID 时）
-- `<Existing Project Reviewer Name> 完成 CORE-REVIEW-003。`
-
-如果 Agent 能直接给完成信号，至少包含：项目工程师名、实际 backend、Task ID（有 Task ID 时）、branch、exact SHA、remote 已 push、验证摘要、阻塞/风险（如有）。该完成信号应包含 Evidence Package（见 §3.1）。
-
-Fast Path 任务的完成信号可最轻（见 `ENGINEERING-STANDARDS.md` §4.2）：changed files + 适用验证 + branch 与 exact SHA / remote 状态；不需要长格式 handoff。
-
-## 7. 什么时候仍需要完整 handoff
-
-只有以下情况才要求完整人工 handoff：
-
-- Project Manager Role 无法访问目标 remote；
-- 关键证据不在 GitHub；
-- Agent 无权限 push；
-- 任务不是以 Git 为主要事实载体；
-- Project Manager Role 明确要求补充 GitHub 无法验证的上下文。
-
-完整 handoff 必须先标明**项目工程师名 + 实际 backend + 角色类型 + Task ID**，例如：
-
-`来源：<Existing Project Engineer Name>（backend: WorkBuddy HY4｜Primary Execution Role｜APP-AUTH-001）`
-
-随后提供完成内容、改动文件、关键决策、验证结果、branch、exact SHA、remote 状态、工作树状态和风险。
-
-完整 handoff 是兜底机制，不是 Owner 默认承担的技术信息搬运工作。
-
-## 8. Writer / Reviewer 身份必须显式
-
-无论实际 backend 是 TeleAgent、HY4 还是 Codex，都遵守 **one Writer + read-only Reviewer**。
-
-- Reviewer 默认不修改其正在 Review 的同一关键区域。
-- Reviewer 发现问题后退回原 Writer，或由 Project Manager Role 显式完成 Writer ownership transfer。
-- 不允许 Reviewer 因具备实现能力而静默变成 Writer。
-- ownership transfer 应在下一份 Prompt / task state 中明确记录。
-- ownership transfer 只改变当前任务或区域的 Writer 归属，不自动新增 project engineer identity。
-
-## 9. Project Manager Review
-
-Project Manager Role 不把 Agent 完成信号或 handoff 自述当作事实证明。重要任务必须结合 remote、diff、tests、CI 或 exact SHA 独立核验。
-
-验收后明确给出：
-
-- `PASS`
-- `HOLD`
-- `NEEDS_CORRECTION`
-
-若 `NEEDS_CORRECTION`，下一轮 Prompt 默认沿用原 Task ID 修正当前验收失败点，除非已经构成独立新目标。
-
-### 9.1 Risk-triggered Restatement / Plan Gate
-
-对于高歧义、高风险、高 blast radius 或业务语义容易误解的任务，Project Manager Role 可在 Agent 开始 Execute 前要求 Writer 先简短回述：目标、关键约束、明确不做什么、执行计划。回述与 Task Contract 不一致时不得 Execute。普通机械任务不强制回述。详见 `ENGINEERING-STANDARDS.md` §4.1。
-
-### 9.2 Debugging Circuit Breaker handoff
-
-当 Writer 触发 Debugging Circuit Breaker（见 `ENGINEERING-STANDARDS.md` §12.1）时，handoff 至少包含：稳定复现方法、已确认事实、已尝试方案、失败证据、日志/tests、当前最可能 root cause、尚未排除的假设、当前代码状态、建议下一步、是否建议 capability escalation。
-
-Project Manager Role 收到 Circuit Breaker handoff 后决定继续、换工程师、升级 Deep Engineering 或调整方案。
-
-### 9.3 Blocker package
-
-当 Agent 遇到无法自行解决的阻塞时，应在 handoff 中提供 blocker package：阻塞描述、已确认事实、已尝试方案、失败证据、当前状态、建议下一步。不提供 blocker package 的纯状态报告（如“做不了”）不作为有效升级依据。
-
-## 10. 发送状态不确定时不要重发
-
-如果无法确认正式任务是否已发送或执行：
-
-- 标记为 `SEND_STATUS_UNKNOWN`；
-- 先执行 `STATUS_PROBE_ONLY`；
-- 检查 branch、remote HEAD、worktree、未 push commit、Task ID 和 exact SHA；
-- 未确认前不要重新发送完整任务。
-
-## 11. 避免上下文污染
-
-- 一个 Agent 正在执行完整任务时，不追加另一个完整任务。
-- 新发现问题先由 Project Manager Role 排队，除非阻塞当前任务。
-- 每轮 Prompt 明确当前阶段、既有项目工程师名、实际 backend、Task ID 和已通过基线。
-- 不依赖“你应该还记得上次”；关键上下文来自仓库、Task ID、remote 或当前 Prompt。
+- 同一 Agent 正在执行一个完整任务时，不再追加第二个完整任务。
+- 关键上下文来自 repository / PR / Task ID（有时），不依赖“你应该记得”。
+- 不把历史完整 Prompt 当作 durable project memory。
