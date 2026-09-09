@@ -119,7 +119,7 @@ Fast Prompt 只需任务特有信息：目标、必要事实/base、scope、验�
 - complex recovery；
 - 失败模式正在扩大 scope 的 debugging。
 
-High-risk Path 可使用：Task ID、详细 Task Contract、独立 branch/worktree、Restatement、broader regression、exact-SHA Review、独立 read-only Reviewer、pre-authorization、recovery plan。
+High-risk Path 按 `TASK-LIFECYCLE-STANDARD.md` §1 使用 Task ID，并按风险使用详细 Task Contract、独立 branch/worktree、Restatement、broader regression、exact-SHA Review、独立 read-only Reviewer、pre-authorization、recovery plan。
 
 ### 4.4 不随路径降低的硬边界
 
