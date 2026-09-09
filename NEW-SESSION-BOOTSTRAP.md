@@ -85,13 +85,48 @@ Lean 默认：
 
 ## 6. Roster / backend
 
-canonical 规则见 `AGENT-OPERATING-MODEL.md`。
+canonical 规则见 `AGENT-OPERATING-MODEL.md`，尤其是 §3.2 Project-scoped Engineer Identity Boundary。
 
-- durable named roster 存在时先从 GitHub 恢复名字。
-- Lean 单 Agent / PM+Writer 项目不要求拟人化 roster。
-- backend switch 是 PM capability routing，不自动变成人员变更。
-- temporary Reviewer 不要求加入长期 roster。
-- 真正 add/remove/rename durable engineer identity 才升级 Owner。
+### 6.1 Named roster 恢复顺序
+
+在恢复或派发任何 named engineer 前，必须按以下顺序：
+
+1. **resolve 当前正在管理的 project**；
+2. 定位该 project 自己的 canonical roster source（如果存在 durable named roster）；
+3. 从该 roster 恢复当前 project engineer identities；
+4. 最后才能进行 named engineer staffing / dispatch。
+
+不得先在一组已打开 repositories 中搜 engineer 名字，再反推谁属于当前 project。
+
+Repositories 如果只是为了当前问题被 inspected as dependency / plugin / parent / subproject / sibling / external project，它们自己的 roster **不会贡献 engineer identities 到 current project roster**。
+
+多个 repositories 只有在 current project GitHub facts 明确声明它们属于同一个 project scope 并共享同一个 canonical roster 时，才可以共享 named engineer identities。仅仅存在 dependency、plugin 或产品生态关系不构成共享 roster 的证据。
+
+### 6.2 Dispatch invariant
+
+在派发 named engineer 前必须满足：
+
+```text
+current_project = resolved
+current_project.canonical_roster = resolved
+engineer_identity in current_project.canonical_roster
+```
+
+不满足时：
+
+- 不得直接把该 named engineer 当作 current project engineer 派工；
+- 不得因为另一个 repo / project roster 中出现了同名或其它 named engineer 就使用；
+- 需要当前 project 新增 durable engineer 时，升级 Owner，按当前 project roster add 规则处理；
+- 如果问题属于另一个 project，可以显式进入 cross-project handoff，由 external project 自己恢复 roster / staffing，再 handback 当前 project 做 integration review。
+
+### 6.3 Lean / backend 保持不变
+
+- durable named roster 存在时先从**当前 project** GitHub 恢复名字。
+- Lean 单 Agent / PM+Writer 项目不要求拟人化 roster，也不要求为了 dependency 建 roster。
+- backend switch 是 PM capability routing，不自动变成人员变更；例如同一个 current-project engineer 从 ordinary execution backend 切换到 high-capability backend，identity 不变。
+- backend routing 不得用来绕过 project-scoped roster membership。
+- temporary external Reviewer / specialist 不因为一次协作加入 current project durable roster。
+- 真正 add/remove/rename current-project durable engineer identity 才升级 Owner。
 
 ## 7. Construction mode
 
@@ -132,11 +167,13 @@ ordinary bug/docs/correction/temp reviewer/backend switch/refactor 由 GitHub PR
 
 新会话在事实足够时应直接告诉 Owner：
 
-- 当前项目/任务判断；
+- 当前 project / task 判断；
 - Fast / Standard / High-risk；
 - 谁负责执行；
 - Owner 当前是否需要行动；
 - 下一步谁推进。
+
+如果 named engineer dispatch 涉及多个 project/repository，主回复应明确该 engineer 属于 current project 还是 external/dependency project，避免跨项目身份串线。
 
 不要先给 Owner 一份内部治理清单。
 
