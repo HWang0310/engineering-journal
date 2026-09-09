@@ -1,399 +1,126 @@
 # Local Workspace Standard
 
-本文件定义所有项目在 Owner 本地 Mac 上的统一目录组织、GitHub repository 映射、Agent workspace 边界和 worktree 管理规则。
+本文件定义 local workspace、remote construction 和并行隔离。核心目标是避免错误 clone / dirty state / 并行覆盖，同时不让低风险文本工作承担不必要的本地流程。
 
-## 1. 唯一本地项目根目录
+## 1. Canonical local project root
 
-所有项目统一放在：
-
-`/Users/hwang/Movies/Program`
-
-每一个独立项目必须拥有且只使用该目录下的一个项目子文件夹：
+Owner 本地项目默认位于：
 
 `/Users/hwang/Movies/Program/<project-name>/`
 
-除非 Owner 明确指定例外，项目代码、项目文档、工程脚本、clone、worktree、临时工程文件、测试产物和正式项目操作都必须发生在该项目子文件夹内部。
+代码、构建、测试、migration、运行时调试等需要本地环境的工程活动优先在该 Project workspace 完成。
 
-不得为了方便把同一项目的工程文件长期散落在 Desktop、Downloads、Documents、Agent 自己的默认 workspace、其他临时目录或另一个项目文件夹中。
+GitHub remote 是 durable truth；本地 workspace 是执行环境。
 
-## 2. Agent workspace 与 Project workspace 的关系
+## 2. 避免重复 clone
 
-Owner 当前使用的执行 Agent 都运行在本机。Agent 可以拥有自己的默认 workspace / 启动目录 / 产品内部工作目录，但它们能够访问 `/Users/hwang/Movies/Program`。
+- 已有 canonical checkout 时，不在 Agent 默认 workspace 再维护第二个活跃 clone。
+- 发现旧 clone / dirty / unpushed work 时，先确认价值再处理。
+- 不因整理目录覆盖未提交或未 push 的有效成果。
 
-因此全局规则是：
+## 3. Single repo / multi repo
 
-> **Agent workspace 只属于 Agent 运行环境；Project workspace 统一属于 `/Users/hwang/Movies/Program/<project-name>/`。**
+- single repo 可以让 project root 直接作为 working tree；
+- multi repo 放在同一 project root 下；
+- repo ↔ origin 映射必须能明确恢复。
 
-Agent 自己的 workspace 可以保留 Agent 产品自身需要的 session、缓存、工具状态、内部配置或其他非项目数据，但不得把它当成项目代码或项目事实的存放位置。
+## 4. Worktree
 
-正式项目任务开始前，Agent 必须主动切换到正确 Project workspace，再进行 clone、修改、构建、测试、Git、脚本和文件操作。例如：
+**worktree 不是单 Writer 小任务的默认要求。**
 
-```text
-cd /Users/hwang/Movies/Program/<project-name>
-pwd
-git status
-git remote -v
-git branch --show-current
-git rev-parse HEAD
-```
+需要独立 worktree 的典型情况：
 
-如果目标仓库位于多仓库项目的子目录，则先进入对应 repo 目录再执行 Git 检查。
+- 同 repo concurrent Writers；
+- 当前 checkout 有不能混入的 active work；
+- high-risk change 需要强隔离；
+- PM 有具体 recovery/isolation 理由。
 
-### 禁止在 Agent workspace 建重复项目副本
+单 Writer 串行、clean checkout 的普通任务可以直接使用现有 working tree + branch。
 
-如果 `/Users/hwang/Movies/Program/<project-name>/` 中已经存在目标项目或目标 repository，Agent 不得为了方便在自己的默认 workspace 再 clone、复制或初始化一份同项目副本。
+## 5. Capability vocabulary
 
-禁止形成类似：
+| Capability | Meaning |
+| --- | --- |
+| `READ_LOCAL` | 读取 canonical Project workspace |
+| `WRITE_LOCAL` | 在 canonical Project workspace 写文件/执行 Git |
+| `READ_REMOTE` | 读取 GitHub remote |
+| `WRITE_REMOTE` | 通过 GitHub API/Connector 等修改 remote |
 
-```text
-/Users/hwang/Movies/Program/<project-name>/   <- 正式 Project workspace
-<agent-workspace>/<project-name>/             <- Agent 私自维护的第二份项目副本
-```
+能力描述当前执行主体，不代表某产品永远具备该能力。
 
-原因是重复 clone 会导致不同副本出现不同 HEAD、dirty state、unpushed commits 或 remote 状态，造成事实分叉。
+## 6. Construction modes（canonical）
 
-如果 Agent 发现自己的 workspace 已经存在同项目旧 clone：
+### 6.1 LOCAL_DEFAULT
 
-- 不把它自动视为当前工程事实；
-- 不直接继续在其中施工；
-- 先确认其中是否有未提交或未 push 的有效成果；
-- 将情况报告给 Project Manager Role；
-- 默认回到 `/Users/hwang/Movies/Program/<project-name>/` 的正式 Project workspace 继续工作；
-- 旧副本确认无价值后再安全清理。
-
-## 3. 单仓库项目
-
-如果一个项目只对应一个 GitHub repository，推荐让项目目录本身直接作为该 repository 的 working tree：
-
-```text
-/Users/hwang/Movies/Program/<project-name>/
-├── .git/
-├── source...
-├── docs...
-└── ...
-```
-
-项目目录名应尽量与 GitHub repository 名一致。若因历史原因不同，Project Manager Role 必须明确知道本地目录与 remote repository 的映射，不得靠猜测。
-
-## 4. 多仓库项目
-
-如果一个项目包含多个 GitHub repositories，则项目目录作为容器，各 repository checkout 放在其中，并优先使用与 GitHub repository 完全一致的目录名：
-
-```text
-/Users/hwang/Movies/Program/<project-name>/
-├── <repo-a>/
-├── <repo-b>/
-├── <repo-c>/
-└── worktrees/
-```
-
-一个多仓库项目的相关 repositories 都属于同一个 `<project-name>` 目录，不应散落成 `/Program` 下多个互不关联的项目目录。
-
-## 5. GitHub repository 一一映射
-
-每个本地 Git working tree 必须能明确映射到一个预期 GitHub repository。
-
-开始正式工程任务前，执行 Agent 至少确认：
-
-- 当前路径位于 `/Users/hwang/Movies/Program/<project-name>/` 内；
-- 当前 repository 是目标 repository；
-- `git remote -v` 中的 `origin` 指向预期 GitHub repository；
-- 当前 branch / base SHA 与任务要求一致；
-- 没有误在 Agent 默认 workspace、另一个项目、旧 clone 或临时 clone 中工作。
-
-如果本地 clone 与 GitHub repository 的映射不清楚，先解决映射问题，再开始修改代码。
-
-## 6. Durable files 必须回到 GitHub
-
-本地项目目录是 workspace，不替代 GitHub canonical truth。
-
-需要长期保留或被后续工程依赖的内容，例如：
+以下默认 local-first：
 
 - source code；
-- project docs；
-- migration / SQL / scripts；
-- tests / fixtures；
-- configuration；
-- architecture / Contract；
-- project state / handoff；
-- 需要复用的工具代码；
+- tests；
+- build/toolchain changes；
+- runtime config；
+- refactor；
+- migration / SQL execution；
+- binary / generated artifact；
+- security-sensitive change；
+- 依赖本机环境验证的工作；
+- multi-writer / complex merge；
+- high-risk change。
 
-必须放入对应 Git repository 的合理位置，并按工程规范 commit / push。
+local-first 时在开始修改前确认适用的 repo / origin / branch/base / dirty state。
 
-不得把关键工程成果只保存在项目根目录下未受 Git 管理的散文件中，也不得只保存在 Agent 自己的 workspace 中，然后依赖某个本地副本作为长期事实源。
+### 6.2 SAFE_REMOTE_FIRST
 
-## 7. 本地-only 内容
+PM / Agent 可以**无需每次单独向 Owner申请 remote-first 许可**，直接通过 GitHub API / Connector 处理低风险 repository-tree text change，但必须同时满足：
 
-确实不应进入 Git 的项目本地内容可以留在 Project workspace 内，例如：
+- Markdown/docs，或小型纯文本 metadata/config；
+- 可逆；
+- 无 build/runtime/production/security/migration 依赖；
+- 无 binary；
+- 无 concurrent Writer conflict；
+- remote base/head 明确；
+- diff 可直接从 GitHub 验证；
+- 不依赖某个本地 dirty/unpushed state 才能判断正确性；
+- restricted-content Active Surface gate 可执行。
 
-- 临时下载；
-- 大型本地生成物；
-- 一次性调试输出；
-- 本地缓存；
-- 本地环境文件；
-- 不可提交的私有输入。
+典型：README/Markdown 修正、docs cross-reference、非运行时文本 metadata。
 
-这类项目相关内容应放在项目目录内清晰的 `local/`、`temp/`、`artifacts/` 等子目录，并确保不会误 commit。任务完成后，不再需要的临时内容应清理，不制造长期垃圾目录。
+“文件很小”不自动等于 safe。会影响 runtime、deployment、security、release、migration 的 config 仍走 local-first / higher-risk path。
 
-Agent 产品自身的 session、缓存、工具状态等非项目内部数据可以继续由 Agent 保存在其自己的 workspace；它们不属于项目目录管理范围，也不能被当成项目工程事实。
+SAFE_REMOTE_FIRST 推荐使用 branch + commit + PR；极小且项目允许直接提交时可更轻，但 PM 必须保留可恢复 remote fact。
 
-敏感内容仍遵守 Git/GitHub 与 restricted-content 相关规范；“放在本地项目目录内”不代表允许提交或长期保留不应保存的内容。
+### 6.3 GitHub control-plane
 
-## 8. Worktree 管理
+读取 branch/SHA/diff、Issue/PR、Review comment、labels/state、review request、merge 等 governance action 始终可以 remote 执行，不因没有 `WRITE_LOCAL` 而禁止。
 
-并行 Writer 需要独立 worktree 时，worktree 也必须放在当前项目目录内部。
+## 7. Remote-first 与 local convergence
 
-推荐结构：
+SAFE_REMOTE_FIRST 完成后**不要求为了流程立即创建单独 local-sync task**。
 
-```text
-/Users/hwang/Movies/Program/<project-name>/worktrees/<repo-name>/<task-id-or-branch>/
-```
+如果后续需要在 canonical local checkout 继续施工：
 
-规则：
+1. 先 fetch；
+2. 检查 local dirty/unpushed state；
+3. 安全 reconcile remote；
+4. 不覆盖有效本地工作。
 
-- 不把项目 worktree 建到 Agent 默认 workspace、`/tmp`、Desktop、Downloads 或其他项目目录；
-- 每个 Writer 使用独立 branch + 独立 worktree；
-- worktree 名称应能关联 Task ID 或 branch；
-- 任务结束、分支 merge 且确认不再需要后，应清理废弃 worktree；
-- 删除 worktree 前先确认没有未提交、未 push 的有效成果。
+也就是说，local convergence 在“下一次真正需要 local construction 时”自然完成，而不是每个 remote docs fix 的关闭 gate。
 
-## 9. 新项目初始化
+如果 remote change 与现有本地有效工作发生冲突，进入 recovery flow，不粗暴 reset。
 
-新项目启动时，Project Manager Role 必须确认本地工作区规划：
+## 8. Remote-first exception outside safe boundary
 
-1. 项目目录为 `/Users/hwang/Movies/Program/<project-name>/`。
-2. 判断项目是单仓库还是多仓库。
-3. 明确每个 GitHub repository 对应的本地路径。
-4. 如果 repository 尚未 clone，应 clone 到该项目目录规划的位置，而不是 Agent 默认 workspace 或任意当前目录。
-5. 确认 `origin`、default branch、remote HEAD。
-6. 检查 `/Users/hwang/Movies/Program` 内是否存在历史重复 clone 或散落文件。
-7. 如果 Agent 自己的 workspace 中存在同项目副本，也必须检查是否有未提交/未 push 有效成果，并决定迁移或废弃；不能让两个副本同时作为活跃工程 workspace。
+不满足 SAFE_REMOTE_FIRST 的 repository-tree write，默认回到 local-capable Writer。
 
-Project Manager Role 应在首次项目恢复/启动时把本地 workspace 映射作为项目事实的一部分确认，但不要求 Owner 每次重复说明统一根目录。
+只有 Owner 明确要求 remote-only 处理且 PM 判断风险可接受时，才允许特殊 remote-first exception；高风险/不可逆操作仍受 `ENGINEERING-STANDARDS.md` §12.2。
 
-## 10. 现有项目整理
+## 9. Validation
 
-如果已有项目不符合本规则：
+- local code work：检查适用的 path/repo/origin/branch/status + tests。
+- SAFE_REMOTE_FIRST：确认 base/head、changed files、diff、content validation、restricted Active Surface；无本地 runtime 依赖时不补跑本地回归。
+- parallel Writers：验证隔离和 merge order。
 
-- 不立即粗暴移动仍在运行的 worktree 或有未提交修改的目录；
-- 先确认 repository、remote、branch、未 push commit 和 dirty state；
-- 再制定最小风险迁移方案；
-- 迁移后重新验证 remote mapping、build/test 和 Git 状态；
-- 确认 `/Users/hwang/Movies/Program/<project-name>/` 成为唯一活跃 Project workspace 后，再清理旧副本。
+## 10. Backward compatibility
 
-禁止在未确认 Git 状态时直接拖拽/删除旧项目目录或 Agent workspace 中的旧 clone。
+老项目不要求立即整理全部历史 clone/worktree。下一次自然进入相关本地工程活动时再收敛。
 
-## 11. Project Manager / Agent 验收
-
-对于涉及本地代码执行、clone、worktree 或文件修改的正式任务，Project Manager Role 应检查适用项：
-
-- Agent 是否已经离开自己的默认 workspace 并进入正确 Project workspace；
-- 工作路径是否位于正确项目目录；
-- repo ↔ GitHub remote 是否对应；
-- 是否存在错误 clone、重复 clone、错 worktree 或错项目目录施工；
-- durable files 是否进入对应 Git repo；
-- 重要成果是否已 commit / push；
-- 项目临时内容是否留在项目边界内且没有误提交。
-
-如果 Agent 在自己的默认 workspace、错误项目目录、错误 clone 或项目目录之外进行正式施工，默认不能直接 `PASS`；应先确认成果能否安全迁移并恢复正确 Git 事实链。
-
-## 12. Remote-only Write 限制
-
-本节是 Remote-only Write 能力边界的 canonical 定义。其他标准只引用本节，不另设独立完整定义。
-
-### 12.1 Capability vocabulary
-
-判断执行主体能力时使用四个词，描述的是**当前执行主体对当前目标项目的实际能力**，不是抽象产品能力：
-
-| 能力 | 含义 |
-| --- | --- |
-| `READ_LOCAL` | 能否读取 canonical Project workspace：`/Users/hwang/Movies/Program/<project-name>/` |
-| `WRITE_LOCAL` | 能否在上述 Project workspace 内创建、修改、删除文件并执行 Git 操作 |
-| `READ_REMOTE` | 能否读取 GitHub remote（branch / SHA / diff / Issue / PR / 文件内容） |
-| `WRITE_REMOTE` | 能否通过 GitHub API、Connector、Web Editor 或其他 remote 接口修改 repository |
-
-同一产品在不同运行形态下能力不同。例如网页形态的 Project Manager 可能是 `READ_LOCAL=false` / `WRITE_LOCAL=false` / `READ_REMOTE=true` / `WRITE_REMOTE=true`；本机执行 Agent 通常四项均为 true。能力判断必须针对**当前这次执行的真实环境**，不得凭产品名或历史权限推定。
-
-### 12.2 Default construction boundary
-
-> GitHub remote 是 durable canonical truth；canonical Project workspace 是默认正式施工环境。
-
-因此：
-
-> **Remote write capability is not construction authorization.**
-
-当执行主体为：
-
-```text
-READ_REMOTE=true
-WRITE_REMOTE=true
-READ_LOCAL=false
-WRITE_LOCAL=false
-```
-
-时，默认不能充当 repository-tree Writer，不得因为"能通过 GitHub 改到文件"就认为自己具备正式工程施工授权。
-
-### 12.3 Default prohibition
-
-没有 canonical local workspace write capability（`WRITE_LOCAL=false`）时，不得仅通过下列方式创建、修改或删除正式 repository engineering content，并把它视为正常施工或完成：
-
-```text
-GitHub API / contents API
-GitHub Connector
-GitHub Web Editor
-其他 direct remote-write interface
-```
-
-适用内容包括但不限于：
-
-```text
-source code
-SQL
-scripts
-configuration
-tests
-project docs
-architecture / Contract
-migration
-repository-tracked handoff / project-state files
-其他 durable engineering files
-```
-
-### 12.4 Repository-tree write 与 GitHub control-plane action 的区别
-
-本限制只约束 **repository-tree engineering write**，不约束 **GitHub control-plane / governance action**。
-
-**Repository-tree engineering write**（受本限制约束）：
-
-```text
-通过 contents API 直接改源码
-直接编辑 SQL / config / Markdown 规范
-直接 remote commit 项目文件
-其他直接修改 repository tree 内容的行为
-```
-
-**GitHub control-plane / governance action**（不受本限制约束）：
-
-```text
-读取 branch / SHA / diff / CI
-Issue / PR task ledger
-Project Manager Review comment
-PASS / HOLD / NEEDS_CORRECTION 记录
-labels / state / review request / PR metadata
-在完成 exact-SHA Review 后执行 merge
-```
-
-不得因为 Project Manager 没有 local write capability 就机械禁止 governance action。以下链路继续成立：
-
-```text
-Agent 在 canonical local workspace 施工
-→ local validation
-→ commit
-→ push
-→ GitHub
-→ Project Manager remote exact-SHA Review
-→ PASS / HOLD / NEEDS_CORRECTION
-→ Project Manager merge
-```
-
-判据：如果对象是 **repository tree 内的正式文件**（例如 `PROJECT_STATE.md`、`HANDOFF.md`），属于 repository-tree write；如果对象是 **Issue / PR comment、Review 记录、task ledger metadata**，属于 control-plane，不得误判。
-
-### 12.5 PM 无 local write capability 时的正确链路
-
-Project Manager 处于 `PM_CAN_WRITE_LOCAL=false` 不构成异常。正常链路是：
-
-```text
-Project Manager
-↓ 正式 Task / Prompt
-local-capable 既有 project engineer
-↓
-/Users/hwang/Movies/Program/<project-name>/
-↓ pwd / repository / origin / branch / HEAD / git status
-local modify
-↓ tests / validation
-commit
-↓
-push
-↓
-Project Manager remote exact-SHA Review
-```
-
-Project Manager 在此链路中继续承担 read、plan、route、review、merge 职责，但默认不直接承担 repository-tree Writer 职责。
-
-### 12.6 Owner-authorized remote-first exception
-
-只有 **Owner 明确授权** remote-only / remote-first repository modification 时，才允许例外。
-
-以下情形**不得**自动视为已获得授权：
-
-```text
-Connector 已连接
-拥有 repository write permission
-改动很小
-只是一个 README / SQL / config
-直接 remote 修改更方便
-```
-
-原则：
-
-> Tool capability does not imply workflow authorization.
-
-Owner 授权必须是针对**当前操作或当前任务**明确表达。不得把过去拥有 GitHub Connector 权限视为永久授权。
-
-### 12.7 Remote-first 后的 local sync closure
-
-发生 Owner 授权的 remote-first write 后，任务不得在 remote commit 出现后立即视为完整闭环。必须安排能够访问 canonical local workspace 的工程师恢复 local ↔ remote 一致工程事实链。
-
-至少检查：
-
-```bash
-cd /Users/hwang/Movies/Program/<project-name>/
-
-pwd
-git status --short
-git branch --show-current
-git remote -v
-
-git fetch origin
-
-git rev-parse HEAD
-git rev-parse origin/<branch>
-```
-
-然后基于现场真实状态选择安全同步方式，可包括 fast-forward、pull、rebase 或其他明确的同步 / 恢复方式；**不预设固定同步策略**。
-
-禁止为了追上 remote 而覆盖：
-
-```text
-local uncommitted changes
-unpushed commits
-其他 Agent 的有效成果
-未验收 worktree 内容
-```
-
-发现本地存在有效未同步成果时进入 conflict / recovery flow，不得粗暴覆盖。
-
-### 12.8 Remote-first exception 的 Definition of Done
-
-Owner 授权的 remote-only write 在满足适用条件前不得 `ACCEPTED / CLOSED`：
-
-```text
-remote change verified
-canonical local workspace state inspected
-required local synchronization safely completed
-no local uncommitted/unpushed valid work lost
-branch / HEAD / remote mapping reconfirmed
-required tests / minimal validation rerun
-```
-
-无法恢复 local / remote consistency 时应 `HOLD`，不得假装任务闭环。
-
-## 13. 核心原则
-
-一句话：
-
-> 一个项目，一个 `/Users/hwang/Movies/Program` 下的正式 Project workspace；Agent 自己的 workspace 只是 Agent 运行环境，不存放项目副本。所有正式项目工程活动进入 Project workspace，所有 durable engineering truth 回到对应 GitHub repository。
-
-补充一句：
-
-> GitHub remote 是长期事实源，但不是施工授权；能改 remote 不等于可以在上面施工——正式 repository-tree 修改默认发生在 canonical Project workspace。
+不要为了符合目录标准对仍有 dirty/unpushed work 的旧目录做 destructive cleanup。

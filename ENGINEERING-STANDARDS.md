@@ -1,314 +1,271 @@
 # Engineering Standards
 
-本文件定义跨项目默认工程规范。具体项目如果有明确记录的项目级规则，可以覆盖一般全局规则；`RESTRICTED-CONTENT-STANDARD.md` 的 hard gate 不可被项目级规则放宽。
+本文件定义跨项目的 canonical governance model。目标是：用最小必要治理成本保持正确性、安全、可恢复性和可追溯性。
+
+> **Default Lean. Escalate by risk.**
+
+具体项目可以增加更严格的项目级约束，但不应把高风险流程机械下放到所有普通任务。`RESTRICTED-CONTENT-STANDARD.md` 对 **ACTIVE SURFACE** 的 hard gate 不可被项目级规则放宽。
 
 ## 1. 决策与责任边界
 
-- **Project Manager Role（默认由 ChatGPT 承担）**：项目经理、总架构协调、任务拆解、技术决策、Agent/backend 路由、最终 Reviewer 与 merge gate。
-- **Owner（用户）**：负责目标、优先级和最终业务方向；默认不承担技术实现选择、Agent 分配或验收判断。
-- 技术方案存在多个可行路径时，由 Project Manager Role 基于质量、风险、依赖和成本作出明确选择，不把未解决的技术分歧转嫁给 Owner。
-- 全局规范固定职责类型，不固定角色名字；项目级角色命名见 `AGENT-OPERATING-MODEL.md`。
+- **Project Manager Role（PM）**：技术方案、任务拆分、执行路径、Agent/backend routing、验证深度、Review、merge gate。
+- **Owner**：产品目标、优先级、风险接受、不可逆业务选择和其它明确保留的业务决策。
+- Owner 默认不承担 Task ID、Agent 分配、Git/worktree、Reviewer 编排、测试方案或工程验收。
+- 多个技术方案都可行时，由 PM 基于质量、风险、依赖、成本和可恢复性作出工程决定；只有真正超出授权边界时才升级 Owner。
 
 ### 1.1 Owner-facing Communication Closure
 
-Project Manager Role 的职责不止是分析正确、决策正确、拆解正确、路由正确和 Review 正确。还包括：**把当前项目状态转化成 Owner 能立即理解的行动状态。**
+substantive Owner-facing reply 在存在行动歧义时必须回答三件事：
 
-一轮 substantive Owner-facing reply 如果让 Owner 仍需要猜"这是结论还是问题？""我现在需要回复吗？""如果要回复，到底回复什么？""下一步谁继续推进？"，则沟通闭环没有完成。
+1. 当前是 PM 结论，还是需要 Owner 决策；
+2. Owner 现在是否需要行动；如需要，只提出最小明确决策；
+3. 下一步由谁负责。
 
-**Trigger**
+如果信息足够，PM 应明确说明 Owner 无需操作并自动继续，不制造“请确认我再继续”的伪 gate。内部 Task ID、SHA、branch、tests、Evidence Package 等作为 supporting evidence 按需展开，不替代 Owner-facing 结论。
 
-当 PM 回复属于以下类型之一，且存在下一步责任或 Owner 行动不清楚的合理风险时，应在回复结束前完成 communication closure：
+本节是 Owner-facing Communication Closure 的 canonical 定义。
 
-- 阶段性方案
-- 产品方案
-- 架构分析
-- 研究结论
-- Review 结果
-- Task 验收结果
-- 阶段转换
-- 准备派工
-- 需要 Owner input
-- 重大风险说明
-- 重大方向调整
+## 2. Governance cost 与反官僚原则
 
-简单事实回复（如"这个字段是 bigint""PR 已打开"）不要求机械 closure。
+Governance has a cost。一个流程步骤只有在它降低**有意义的工程风险**时才合理。
 
-**Closure 至少消除三个歧义**
+> If removing a governance step does not materially reduce correctness, recoverability, safety or traceability, the lighter process SHOULD be preferred.
 
-A. **当前是什么** — 明确区分 PM 已作出的结论与需要 Owner 决策的问题。不能把一个真正的问题藏在长篇方案最后一句。
+禁止因为“规范里有这个流程”就无视任务风险机械执行。特别禁止：
 
-B. **Owner 是否需要行动** — 语义清楚属于"Owner action required"或"No owner action required"。允许自然表达（如"现在只需要你确认产品方向"或"这一步你无需操作，我会继续推进"），不强制打印 label。
+- 为普通小修复机械创建 Task → Issue → Handoff → Reviewer → Cleanup Task → Second Review 链条；
+- 为了使用一个模型而建立不必要的长期组织结构；
+- 为 docs-only / formatting / trivial config 改动运行与风险不相称的完整回归；
+- 为了记录一次性执行细节反复同步 README / ROADMAP / HANDOFF / Project Memory；
+- 创建一个 governance task 去管理另一个 governance task，除非存在具体的恢复、并行、审计或高风险需要。
 
-C. **下一步谁负责** — 让 Owner 知道 next actor：Owner、Project Manager Role、existing project engineer 还是 external dependency。避免只说"下一步继续推进"却不说是谁推进。
+## 3. Project Profile：Lean 是默认值
 
-**Owner action required 时**
+Project Profile 只提供默认治理假设，不是新的状态机，也不要求项目登记 profile。
 
-只有真正属于 Owner 的决策才向 Owner 提问：产品方向、优先级、风险接受、重大业务影响、Owner 保留事项、不可逆业务选择、真正缺失且会改变方案的关键输入。
+### Lean Project（默认）
 
-PM 应把问题压缩成 **smallest concrete decision unit**。Owner should not need to reverse-engineer the question from the analysis.
+典型特征：single repo、PM + 0–1 Writer、最多临时 Reviewer、低外部 blast radius、无 production migration、无受监管发布流程。
 
-允许 yes/no、一个事实、一段业务意见、一个优先级或选项化表达（如 A/B）。不强制所有问题选项化。
+Lean Project 默认：
 
-**No owner action required 时**
+- 不要求完整 multi-Agent organization；
+- 不要求拟人化工程师名字；
+- 不要求每个任务有 Issue / Task ID；
+- 不要求每个 PR 有独立 Reviewer；
+- 不要求每次 project-memory refresh；
+- 不要求每轮更新完整 HANDOFF；
+- 不要求全 repo historical scan；
+- 单 Writer 串行工作不要求额外 worktree；
+- docs-only 不跑完整 regression suite。
 
-如果 PM 已有足够信息继续，不得制造伪确认。不要为了显得谨慎而问"这个库要不要用 X？""测试是不是这样？""Agent 要不要派 A？"——这些属于 PM 工程职责。
+### Persistent higher-risk project
 
-正确行为：明确说明无需操作，并 **PM 自动继续**。"No owner action"意味着 PM 继续推进，不是表面写"无需操作"实际停下来等待 Owner 回"好的"。
+只有项目长期具有明显更高风险（例如生产迁移、强发布控制、长期 multi-repo / multi-writer、敏感数据、安全关键系统）时，才应把更强约束作为项目默认。
 
-**Owner-facing language**
+无论项目 profile 如何，**task-level risk 可以单项升级**。一个 Lean Project 中的 migration 仍走 High-risk Path；高风险项目中的纯 typo 也可以走 Fast Path。
 
-内部工程状态（Task ID、SHA、branch、worktree、Evidence Package、CI、tests、architecture details）仍可保留，但面对 Owner 的主要回复优先表达：当前结论、产品影响、业务影响、真正需要的决策、风险/tradeoff、下一步。技术事实作为 supporting evidence，按需展开。
+## 4. Task execution depth（canonical）
 
-> Internal engineering completeness does not automatically produce Owner-facing communication clarity.
+任务执行深度只有一个原则：
 
-不要把内部 PM 工作产物原样倾倒给 Owner。
+> **Use the lightest process that preserves correctness, recoverability, safety and traceability.**
 
-**Progressive disclosure**
+### 4.1 Fast Path
 
-先告诉 Owner 现在是什么状态、是否需要行动 → 再给必要解释 → 工程细节按需展开。不规定固定字数，不要求必须有 TL;DR。
+适用于小、明确、低风险、可逆、低 blast radius 的一次性工作，例如 docs fix、small bug、small config、small refactor、formatting、simple test fix。
 
-**Anti-overasking**
+默认流程：
 
-这与 §1 既有原则对齐：PM 应自行决定技术方案、Agent/backend routing、Task 拆分、实现细节、测试方式、Git/worktree、内部架构实现以及可从已确认产品方向合理推导出的次级细节。只有真正超出授权边界才升级 Owner。这不是削弱 Owner 权力，而是避免让非工程 Owner 被迫承担技术管理、Agent 管理、架构实现选择或工程验收细节。
+`Prompt / PM instruction → Execute → Verify → Commit/PR（需要时）→ PM Review`
 
-本节是 Owner-facing Communication Closure 的 canonical 定义。`NEW-SESSION-BOOTSTRAP.md` 与 `AGENT-OPERATING-MODEL.md` 引用本节，不另设独立完整定义。
+默认**不要求**：
 
-## 2. 本地 workspace 与 GitHub 映射
+- Issue；
+- Task ID；
+- 完整 lifecycle 状态机；
+- 独立 Reviewer；
+- 完整人工 handoff；
+- 单 Writer 的额外 worktree；
+- Evidence Package 大清单。
 
-- 所有项目统一位于 `/Users/hwang/Movies/Program/<project-name>/`。
-- 一个独立项目使用一个项目子文件夹；项目相关代码、文档、脚本、clone、worktree、测试产物和临时工程活动均留在该项目边界内。
-- 单仓库项目可以让项目目录本身直接作为 Git working tree；多仓库项目将所有相关 repo 收拢到同一项目目录中。
-- 正式施工前必须确认当前路径、repository、`origin`、branch/base SHA 与任务要求一致。
-- durable engineering files 必须进入对应 Git repo 并最终 commit / push；本地目录不替代 GitHub canonical truth。
-- 三者的关系是：**GitHub remote = durable canonical truth；canonical Project workspace = 默认施工环境；remote write capability ≠ construction authorization。**
-- 正式 repository-tree 修改默认在 canonical local checkout / worktree 完成。只有 remote read/write、没有 canonical local write capability 时，默认不得直接通过 GitHub API、Connector、Web Editor 或其他 remote 接口修改 repository 内容并视为正常施工。
-- 详细规则见 `LOCAL-WORKSPACE-STANDARD.md`；其 §12 是 Remote-only Write 的 canonical 定义。
+Fast Prompt 只需任务特有信息：目标、必要事实/base、scope、验证、交付方式、特殊风险。
 
-## 3. 工作分配与 capability routing
+### 4.2 Standard Path
 
-Project Manager Role 不应把 Agent routing 简化为“普通 TeleAgent 或 Codex”二选一。Owner 当前可用资源包括普通 TeleAgent execution resources、WorkBuddy HY4 高能力工程资源，以及 Codex GPT-5.6 Sol Deep Engineering 资源。
+用于普通工程任务：有一定实现范围或恢复价值，但不触及高风险边界。
 
-默认路由语义：
+默认：
 
-- **普通 TeleAgent execution resources**：优先处理边界清楚、步骤明确、可机械验证的实现、Git、文档、测试、配置、重复性修改与简单 bugfix。
-- **WorkBuddy HY4**：作为高能力 execution / review backend，优先考虑中高复杂度、语义一致性要求高、跨文件/跨模块理解较深、Release Truth / Project Memory / governance consistency、复杂 Review / recovery / integration 等工作。
-- **Codex GPT-5.6 Sol / Deep Engineering resource**：优先用于最高风险架构、Contract、核心 runtime、重大跨 repo Core integration、极复杂 debugging 和其他真正 Deep Engineering 任务。
+- one Writer；
+- Task ID **仅在达到 `TASK-LIFECYCLE-STANDARD.md` §1 门槛时**使用；
+- branch / PR 按项目习惯和追踪价值使用；
+- targeted validation；
+- PM 确认 PR head / diff / applicable tests 后 Review；
+- Issue、完整 handoff、独立 Reviewer、worktree 仅在确有价值时增加。
 
-以上是 capability routing，不是绝对能力排名，也不是新的固定三级组织结构。WorkBuddy HY4 不构成新的跨项目 Role；项目仍按 `AGENT-OPERATING-MODEL.md` 使用项目级角色名。
+### 4.3 High-risk / Deep Path
 
-Project Manager Role 选择 backend 时应综合：complexity、risk、ambiguity、blast radius、architecture depth、verification difficulty、当前 availability / quota scarcity。
+以下类型通常升级：
 
-HY4 当前 quota 相对充裕，因此对于 HY4 能可靠完成的中高复杂度任务，应优先考虑 HY4，以减少对更稀缺 Codex quota 的机械消耗；但**质量和风险优先于 quota**。如果任务本质需要 Deep Engineering Role，不得仅因 HY4 quota 更充裕而降低能力等级。
+- architecture / Contract / API / schema；
+- release / tag / immutable baseline；
+- migration / production destructive operation；
+- security-sensitive change；
+- core runtime / high blast-radius refactor；
+- cross-repo integration；
+- multi-Agent fan-in；
+- history rewrite / force push；
+- complex recovery；
+- 失败模式正在扩大 scope 的 debugging。
 
-Project Manager Role 能安全直接完成的轻量管理、审阅或小型仓库维护工作，可直接完成，不机械转派。
+High-risk Path 按 `TASK-LIFECYCLE-STANDARD.md` §1 使用 Task ID，并按风险使用详细 Task Contract、独立 branch/worktree、Restatement、broader regression、exact-SHA Review、独立 read-only Reviewer、pre-authorization、recovery plan。
 
-## 4. 一步一验收
+### 4.4 不随路径降低的硬边界
 
-1. Project Manager Role 明确当前只做哪一步。
-2. 指定唯一责任 Agent；若并行，明确每个 Agent 的独立边界和项目角色名。
-3. 正式任务达到追踪门槛时先分配 Task ID。
-4. 在给 Owner 正式 Prompt 前，先明确本次使用的**项目角色名 + 实际 Agent/backend + Task ID**。
-5. Agent 在正确项目目录/repo/worktree 中执行并产出可验证结果；能 push GitHub 时优先 push remote。
-6. Project Manager Role 独立核验并给出 `PASS / HOLD / NEEDS_CORRECTION`。
-7. 只有 `PASS` 后任务才能进入 `ACCEPTED`，并作为下一步事实基础。
+任何路径均保留：
 
-同一 Agent 正在执行完整任务时，不再追加新的完整任务 Prompt，避免上下文覆盖和目标漂移。
+- secrets / credentials 不入库；
+- customer / production sensitive data protection；
+- destructive / irreversible action pre-authorization；
+- one Writer per shared mutable area；
+- concurrent Writers isolation；
+- architecture / Contract major changes 深 Review；
+- GitHub durable truth；
+- meaningful recovery capability；
+- Agent 不得自行宣布最终验收；
+- Owner 保留产品方向和不可逆业务决策；
+- restricted-content **ACTIVE SURFACE** hard gate。
 
-### 4.1 Risk-triggered Restatement / Plan Gate
+## 5. Task identity
 
-对于高歧义、高风险、高 blast radius 或业务语义容易误解的任务（例如架构设计、Contract 变更、跨仓库集成、数据迁移、破坏性操作），Project Manager Role 可以在 Agent 开始 Execute 前要求 Writer 先简短回述：目标、关键约束、明确不做什么、执行计划。
+Task ID threshold 的唯一 canonical 定义在 `TASK-LIFECYCLE-STANDARD.md` §1。
 
-- 如果回述与 Task Contract 不一致，不得 Execute。
-- 普通机械任务不强制回述，避免无谓开销。
-- Project Manager Role 也可以针对特定任务明确指定需要回述。
-
-回述是轻量确认机制，不是所有任务的强制前置 gate。
-
-### 4.2 执行深度：Fast / Standard / High-risk Path（canonical）
-
-执行深度必须与任务风险匹配。每次派任务前，Project Manager Role 选择能维持正确性、可恢复性与独立验证的最小流程，不机械套用完整治理。
-
-> Governance depth should match task risk. Use the lightest process that preserves correctness, recoverability, and independent verification.
-
-**Fast Path（小任务轻治理）**
-
-适用于小、明确、低风险、可逆、低 blast radius、且不含架构/Contract/破坏性/跨仓库/multi-writer 复杂度的任务：
-
-- 不强制要求 Issue、Task ID、完整生命周期状态机、长 Prompt 或完整人工 handoff；只有达到 Task ID 门槛（见 `TASK-LIFECYCLE-STANDARD.md` §1）时才分配 Task ID。
-- 正式 Prompt 聚焦：目标、当前事实/base、scope、唯一变更、验收/验证、特殊风险。通用 workspace / Git / lifecycle / handoff / STOP 规则直接引用本仓库当前内容，不要求把整套规范复制进每个任务。
-- Evidence 可最小化：changed files + 适用验证命令 + 使用 Git 时的 branch 与 exact SHA / remote 状态。
-- Owner-facing interaction 最轻：不需要 Owner 决策时 Project Manager Role 自动继续（§1.1）。
-
-**Standard Path（普通工程任务）**
-
-默认路径：达到 Task 门槛时分配 Task ID；one Writer；正确 local workspace / worktree；实现与验证；commit / push；Project Manager Role 独立 Review（exact-SHA + diff）；Issue / 完整 handoff 仅在有用时使用。
-
-**High-risk / Deep Path（高风险完整治理）**
-
-架构、Contract、数据迁移、破坏性操作、跨仓库、高 blast radius、复杂恢复、multi-Agent 协调等高风险工作启用完整治理：详细 Task Contract、Evidence Package（§10.1）、必要时 Restatement（§4.1）、Debugging Circuit Breaker（§12.1）、不可逆操作 Pre-authorization（§12.2）、强化 Review（§11.1：exact-SHA + 更广回归 + 必要时独立 Reviewer）。
-
-**核心 guardrail 不受路径影响**
-
-Fast / Standard / High-risk 只是流程深度，以下边界在任何路径下都不能削弱：
-
-- restricted-content hard gate（§9）
-- canonical local workspace 与 Remote-only Write（§2）
-- irreversible-action pre-authorization（§12.2）
-- one Writer / Reviewer ownership（§7）
-- GitHub canonical truth 与 exact-SHA 追溯（§8 / §10）
-- Agent 无自验收权，Project Manager Role 保留最终 Review / merge gate（§11）
-
-**反官僚约束**
-
-- 三级是同一套治理内的深度选择，不是三套僵化流程；不建立固定风险评分表或数字阈值。
-- 简化的是 Process depth，不是 safety 边界。
-
-## 5. Task identity 与生命周期
-
-正式、跨会话、可并行、可重复发送或需要 Git 追溯的工程任务必须使用唯一 Task ID。Task ID 应贯穿 Prompt、执行、branch/commit/PR、完成信号/handoff 与 Review，并作为幂等键防止重复施工。
-
-Prompt 草稿状态不能等同真实派发状态。任务状态、`SEND_STATUS_UNKNOWN`、`STATUS_PROBE_ONLY`、`ALREADY_COMPLETED` 与幂等规则见 `TASK-LIFECYCLE-STANDARD.md`。
+“派给 Agent”本身**不是** Task ID trigger。未达到门槛的 Fast Path 可以没有 Task ID；达到门槛后，Task ID 才作为跨会话恢复和幂等键贯穿 branch / PR / Review。
 
 ## 6. Scope control
 
-每个任务必须明确：目标、Task ID（适用时）、正确项目目录/repo/worktree、允许/禁止修改范围、依赖事实与 SHA、验收标准、验证命令、Git/remote 交付要求。
+每个任务都必须有足够清楚的目标与边界，但格式随路径缩放。
 
-禁止未授权的“顺手重构”“顺便升级”“顺便整理”。发现额外问题时先报告，不扩大当前任务边界。
+- Fast：一句目标 + 变更边界 + 验证即可。
+- Standard / High-risk：补充必要事实、依赖、禁止范围、验收、恢复要求。
 
-## 7. 并行不是目标
+禁止未授权的顺手重构、升级或范围扩张。发现额外问题时，先判断是否阻塞当前任务；不阻塞则留给独立后续工作。
 
-Project Manager Role 应主动寻找安全且有真实收益的并行机会，但不预设必须并行。只有同时满足以下条件时才优先并行：
+## 7. Concurrency 与 ownership
 
-- 无共享可变状态。
-- 无文件写入重叠。
-- 无必须等待对方产物的分支依赖。
-- 不会同时写同一个 worktree。
-- 所有 worktree 都位于正确项目目录边界内。
-- 合并顺序不会改变实现正确性。
+并行只在有真实收益且边界独立时使用。
 
-共享关键区域采用 **one Writer + read-only Reviewer**。HY4、Codex 或其他高能力资源作为 Reviewer 时同样不得静默变成 Writer；如需修改，Project Manager Role 必须显式完成 ownership transfer。
+- 同一共享可变区域只有一个 Writer。
+- 并行 Writers 必须隔离 branch/worktree 或其它等价工作区。
+- Reviewer 默认只读；临时 Reviewer 不需要因此加入长期 roster。
+- 单 Writer 串行小任务不因为“规范要求”额外创建 worktree。
+- A 的输出是 B 的输入时默认串行。
 
-## 8. GitHub-native handoff
+## 8. GitHub truth 与 handoff
 
-当 Project Manager Role 能直接访问目标 GitHub repository 时，默认流程为：Agent 完成实现与验证 → commit → push → Owner 只报告项目角色名 + Task ID 完成 → Project Manager Role 自行读取 remote branch、exact SHA、diff、源码与 CI 后 Review。
+GitHub remote 是 durable engineering truth。GitHub-native handoff 的 canonical 规则见 `PROMPT-HANDOFF-STANDARD.md`。
 
-Owner 默认不承担长篇技术 handoff 搬运工作。完整人工 handoff 只作为 GitHub 无法承载主要事实时的兜底机制。
+Owner 默认不搬运长篇技术 handoff。PM 能读取 remote 时，应自行读取 PR / branch / diff / tests / CI / exact SHA（适用时）。
 
-## 9. Restricted content hard gate
+## 9. Restricted Content
 
-所有项目必须遵守 `RESTRICTED-CONTENT-STANDARD.md`。其中定义的 restricted organization identifier，以及任何可直接识别为同一组织的英文、拼音、缩写、品牌或中英混合等价表达，均不得出现在项目可控内容中。
+Restricted-content 的唯一 canonical 定义在 `RESTRICTED-CONTENT-STANDARD.md`。
 
-这是 Owner 指定的跨项目硬约束，项目级文档不得取消或放宽。来源材料命中时必须在进入项目可控边界前替换成中性名称；Review 发现命中时必须 `NEEDS_CORRECTION`。
+当前 Review 必须区分：
 
-## 10. Definition of Done
+- `ACTIVE_SURFACES: PASS | FAIL`
+- `LEGACY_EVIDENCE_DISPOSITION: COMPLETE | INCOMPLETE`
 
-工程任务完成至少应满足适用项：
+普通历史 immutable evidence 命中不再永久阻塞当前项目 PASS；但任何**新产生或当前可控 Active Surface** 的命中仍必须修正。
 
-- 需求/验收项逐条满足。
-- 工作路径位于正确 `/Users/hwang/Movies/Program/<project-name>/` 项目目录内。
-- 当前 repo 与 GitHub `origin` 映射正确，不是在旧 clone、错误 clone 或另一个项目目录施工。
-- 相关 tests 通过；新增行为有可重复验证方式。
-- lint / typecheck / build 等既有质量检查通过。
-- `git diff --check` 通过。
-- 无未授权文件变化。
-- restricted-content gate 通过。
-- durable engineering files 已进入对应 Git repo，而不是只存在本地散文件。
-- commit 可从 GitHub remote 找到。
-- 正式任务可追溯到 Task ID、branch 与 exact SHA。
-- 要求 clean 时最终 `git status` clean。
-- 高风险任务完成 exact-SHA Review 后才进入 merge / pin / 下一阶段。
-- 正式 repository-tree 修改满足正确 construction path；或存在 Owner 明确批准的 remote-first exception，且已完成 local sync closure。
+## 10. Definition of Done 与 scope-appropriate testing
 
-“代码写完了”“本地看起来可以”不等于完成；在错误 workspace 中施工也不能直接视为完成；能改 remote 也不等于已经在正确施工环境完成施工。
+DoD 只要求**适用项**：
 
-### 10.1 Evidence Package
+- 目标与验收满足；
+- diff/scope 可解释，无未授权变化；
+- GitHub 上可定位最终变更；
+- 适用的验证通过；
+- Active Surface restricted-content gate 通过；
+- 高风险边界完成相应 Review / pre-authorization；
+- 施工方式符合 `LOCAL-WORKSPACE-STANDARD.md`。
 
-Evidence Package 是 Agent 完成声明应附带的适用且可复核的验证证据集合。
+### 10.1 Testing / validation depth（canonical）
 
-- **Agent 职责**：execute + verify + provide reproducible evidence。
-- **Agent 不拥有 PASS authority**。Evidence Package 是 Review 输入，不替代 Project Manager Role 独立验证。
-- **适用证据**包括但不限于：tests / lint / build / validation command 的实际输出、`git diff --check` 与 `git status` 结果、变更文件清单、branch 与 exact HEAD SHA、remote push 状态、CI 结果、schema / contract / data check 结果、已知遗留风险。
-- **Evidence Package ≠ Agent self-approval**。禁止把“已完成”“没问题”“测试正常”“应该可以”等自述当作充分验收依据。
-- **流程**：Agent 提供适用证据 → Project Manager Role 独立验证 → `PASS` / `HOLD` / `NEEDS_CORRECTION`。
-- 使用“适用证据”而非固定 bureaucratic checklist；具体任务需要什么证据由任务性质决定。
+测试强度由 change risk 决定，不以“跑得越多越规范”为目标：
 
-本节是 Evidence Package 的 canonical 定义。`PROMPT-HANDOFF-STANDARD.md §3.1` 与其他文件引用本节，不另设独立完整定义。
+- **docs-only**：diff / format / link / content consistency；没有 runtime 影响时不跑完整 regression。
+- **small code change**：targeted tests + 与改动直接相关的 lint/typecheck/build。
+- **core / high-risk**：full relevant regression + boundary checks。
+- **release**：release-grade verification、artifact/version/source-of-truth 检查。
 
-## 11. 验收状态
+项目已有强制 CI 时可以继续运行，但 PM 不应额外制造与变更无关的人工回归仪式。
 
-- `PASS`：目标、workspace/repo 映射、验证、restricted-content gate 和 Git 证据足够，可进入 `ACCEPTED`。
-- `HOLD`：实现可能正确，但缺关键验证、remote 状态、workspace 映射、依赖或信息。
-- `NEEDS_CORRECTION`：存在明确错误、错误项目目录/clone、越界修改、测试失败、架构偏差、restricted-content 命中或其他验收不满足。
+### 10.2 Evidence depth
 
-`PASS / HOLD / NEEDS_CORRECTION` 是 Review 结论，不与任务生命周期状态混用。
+Fast Path 只需要足以 Review 的证据；Standard 按需增加；High-risk 才要求完整 Evidence Package。
 
-### 11.1 Review depth 与风险匹配
+Evidence 是 Review 输入，不是 Agent self-approval。
 
-Review depth should match task risk。Project Manager Role 根据以下因素决定 Review 深度：
+## 11. Review depth（canonical）
 
-- risk
-- blast radius
-- reversibility
-- architecture depth
-- contract impact
-- data impact
-- security impact
-- verification difficulty
+PM 始终保留最终 `PASS / HOLD / NEEDS_CORRECTION` 权限。
 
-示例（非强制流程表）：
+- **普通小 PR**：确认当前 PR head、diff、scope 和 applicable validation 即可。
+- **Standard**：diff + targeted tests + 必要回归。
+- **High-risk**：exact-SHA Review + broader regression + boundary verification；必要时增加独立 read-only Reviewer。
 
-- **低风险**：diff + basic validation。
-- **中风险**：diff + targeted tests + regression evidence。
-- **高风险**：exact-SHA Review + broader regression + boundary verification + 必要时独立 read-only Reviewer。
+exact-SHA 深 Review 主要用于 Contract、API/schema、release、core runtime、高风险 refactor、cross-repo integration、migration、multi-Agent fan-in 和 security-sensitive changes。
 
-不要求填写固定风险评分表。Agent 提供的 evidence package 是 Review 输入，不替代 Project Manager Role 独立 Review。
+不要求普通 docs / small bug 默认经历 Writer → Reviewer → second Reviewer → PM。
 
-## 12. 风险与能力升级
+## 12. Risk escalation
 
-- 高风险改动先缩小变更面，再增加验证强度。
-- 当普通 Execution resource 能力不足时，Project Manager Role 应重新评估；可以选择 WorkBuddy HY4 等高能力资源，而不是机械升级到 Codex。
-- 升级不是固定流水线，也不要求必须先失败一次。任务一开始就是 Deep Engineering 时可直接 Codex；一开始明显适合 HY4 时可直接 HY4。
-- 核心 runtime、数据契约、跨仓库核心边界、发布链路和不可逆操作，任务本质需要 Deep Engineering 时必须使用相应能力，不得因 quota 因素降级。
-- 不因 Agent 自称已完成/已测试/已推送而降低验证要求。
-- 正式任务发送状态不确定时先做 `STATUS_PROBE_ONLY`，不得直接重复派发完整任务。
-- 发现重复 clone、历史散落目录或有 dirty/unpushed 状态的旧 workspace 时，先确认 Git 状态并制定迁移方案，不直接拖拽或删除。
+### 12.1 Debugging Circuit Breaker
 
-### 12.1 Bug 修复与 Debugging Circuit Breaker
+当重复修复失败、root-cause confidence 下降、scope 扩大、触碰 Architecture/Contract/core boundary、测试破坏扩大或验证不支持当前方向时，Writer STOP 并把证据交给 PM。无固定失败次数阈值。
 
-Writer 在 bugfix / debugging 中不得无限重复"猜 → 改 → 失败 → 再猜 → 扩大 diff → 再失败"循环。出现以下任一风险信号时必须 STOP 并升级 Project Manager Role：
+### 12.2 Irreversible / high blast-radius pre-authorization
 
-- 重复修复失败
-- root cause confidence 下降
-- diff / scope 不断扩张
-- 开始触碰 Task scope 外区域
-- 需要修改 Architecture / Contract / core boundary
-- 新增失败越来越多
-- 原有测试被破坏
-- 验证无法支持当前修复方向
-- Agent 明显主要在猜而不是基于证据定位
+force push、history rewrite、删除重要 tag/release、生产数据删除、DROP/destructive schema、destructive migration、大规模不可逆删除等，执行前必须有明确 plan、blast-radius 判断和 pre-authorization。
 
-不设固定失败次数阈值（例如"失败 N 次必须停"）。Circuit Breaker 是基于风险信号的判断，不是机械计数器。
+技术层面可逆性判断由 PM 负责；涉及真实生产数据重大影响、法律/安全删除、Owner 保留业务决定或明确物理历史清除时，必须升级 Owner。
 
-Circuit Breaker 触发后的 handoff 至少包含：稳定复现方法、已确认事实、已尝试方案、失败证据、日志/tests、当前最可能 root cause、尚未排除的假设、当前代码状态、建议下一步、是否建议 capability escalation。
+## 13. Durable Project Memory（canonical）
 
-然后：`STOP → GitHub → Project Manager Role`，由 Project Manager Role 决定继续、换工程师、升级 Deep Engineering 或调整方案。
+Project Memory 只记录**未来会改变工程判断的 durable truth**：
 
-### 12.2 不可逆 / 高 blast radius 操作的 Pre-authorization
+- architecture decision；
+- milestone / project stage；
+- release；
+- canonical Contract；
+- durable roster identity change；
+- major recovery fact；
+- 其它会影响未来恢复或技术决策的长期事实。
 
-事后 Review 对不可逆操作不够。高风险、destructive 或 hard-to-recover 操作在执行前必须获得明确 pre-authorization。
+以下默认由 GitHub Issue / PR / commit history 承载，不要求同步 Project Memory / README / HANDOFF / ROADMAP / CHANGELOG：
 
-典型包括但不限于：
+- ordinary bugfix；
+- ordinary docs fix；
+- correction round；
+- temporary Reviewer；
+- temporary backend switch；
+- ordinary refactor；
+- 一次性执行日志。
 
-- force push
-- remote history rewrite
-- 删除重要 branch / tag / release
-- 删除持久数据
-- DROP / destructive schema changes
-- destructive migration
-- 覆盖 production configuration
-- 删除无法确认价值的 uncommitted / unpushed work
-- 大规模不可逆文件删除
+老项目不因本规则立即批量迁移。下一次自然维护相关 canonical state 时再逐步收敛。
 
-Pre-authorization 基于 reversibility、blast radius、data loss risk、history loss risk 与 external impact 判断。技术层面授权默认由 Project Manager Role 决定；只有涉及 Owner 明确保留的业务决策、真实生产数据重大影响或外部重大影响时，再由 Project Manager Role 向 Owner 升级。
+## 14. Canonical-definition discipline
 
-不扩大为"所有 delete 命令都必须 Owner 批准"。普通、可逆、低 blast radius 操作不需要特殊 pre-authorization。
+同一规则只能有一个完整 canonical definition。其它文件只保留入口、触发条件和 cross-reference，不复制整套规则。
+
+当前 canonical owners：
+
+- governance depth / Lean Project / testing / Review / Project Memory：本文件；
+- Task ID threshold：`TASK-LIFECYCLE-STANDARD.md`；
+- roster identity：`AGENT-OPERATING-MODEL.md`；
+- Prompt / handoff：`PROMPT-HANDOFF-STANDARD.md`；
+- local / SAFE_REMOTE_FIRST：`LOCAL-WORKSPACE-STANDARD.md`；
+- Git mechanics：`GIT-GITHUB-STANDARD.md`；
+- restricted active/legacy gate：`RESTRICTED-CONTENT-STANDARD.md`。
