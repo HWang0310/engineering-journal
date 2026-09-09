@@ -1,105 +1,86 @@
 # Git & GitHub Standard
 
+本文件只定义 Git/GitHub mechanics。治理深度见 `ENGINEERING-STANDARDS.md`；construction mode 见 `LOCAL-WORKSPACE-STANDARD.md`。
+
 ## 1. Canonical truth
 
-- GitHub remote 是长期 source of truth。
-- 本地 checkout / worktree 是执行环境，不是最终事实源。
-- 所有本地项目统一位于 `/Users/hwang/Movies/Program/<project-name>/`，目录规则见 `LOCAL-WORKSPACE-STANDARD.md`。
-- Agent handoff 中写出的 branch、SHA、测试结果需要在重要任务中独立核验。
-- 高风险 Review 应针对 **exact commit SHA**，而不是模糊的“最新代码”“当前分支”或本地未提交状态。
+- GitHub remote 是 durable source of truth。
+- 本地 checkout/worktree 是执行环境。
+- 当前事实优先使用 remote branch / PR / commit。
+- high-risk accepted baseline 使用 exact SHA。
 
-## 2. 开始任务前
+## 2. Branch / worktree
 
-执行 Agent 应确认：
+- 是否需要 branch 由变更追踪和项目策略决定；PR-based 项目通常使用 branch。
+- concurrent Writers 必须隔离。
+- 单 Writer 串行任务不要求额外 worktree。
+- worktree 仅在并行、dirty-state isolation、high-risk isolation 等有实际价值时使用。
+- 删除 branch/worktree 前确认没有未提交/未 push 的有效成果。
 
-- 当前路径位于正确的 `/Users/hwang/Movies/Program/<project-name>/` 项目目录内；
-- 当前 repository 是目标 repository；
-- `git remote -v` 的 `origin` 指向预期 GitHub repository；
-- 正确 base branch / base SHA；
-- 自己负责的 branch；
-- 自己负责的独立 worktree（并行 Writer 时必须独立，且 worktree 仍位于当前项目目录内）；
-- 工作区没有混入上一任务或另一个项目的未授权修改。
-
-如果前置 SHA 是验收基线，不得仅凭聊天记录假定正确；以 remote 可见状态为准。
-
-如果发现当前目录是旧 clone、重复 clone、错误 remote 或项目目录之外的临时 clone，应先停止正式修改并确认迁移/废弃方案。
-
-## 3. Branch / worktree 隔离
-
-- 两个 Writer 不得同时写同一个 worktree。
-- 同一仓库并行写入时使用独立 branch + 独立 worktree。
-- worktree 必须放在对应项目目录内部，推荐：`/Users/hwang/Movies/Program/<project-name>/worktrees/<repo-name>/<task-id-or-branch>/`。
-- 不允许两个 Agent 同时修改同一关键文件区域。
-- 共享关键区域采用一个 Writer，其他 Agent 只读 Review。
-- 依赖另一个分支输出的任务应等待前置分支验收后再开始，除非 Project Manager Role 明确设计了安全临时接口。
-- worktree 清理前必须确认没有未提交、未 push 的有效成果。
-
-## 4. Commit 纪律
+## 3. Commit
 
 - 一个 commit 尽量表达一个可审查目的。
-- 不混入无关格式化、重命名、依赖升级或个人环境文件。
-- commit 前检查实际 diff。
-- commit message 应说明变更意图。
-- 需要长期保留的工程成果必须进入对应 Git repo，不得只留在项目根目录未受 Git 管理的散文件里。
-- 需要交付给下一阶段时 push remote，并回传 exact SHA。
+- 不混入无关 refactor / formatting / dependency upgrade。
+- commit 前检查 diff。
+- 新 commit message/body 属于 restricted-content Active Surface。
+- secrets / credentials / sensitive data 不进入 Git。
 
-## 5. 最低 Git 验证
+Task ID 仅在达到 `TASK-LIFECYCLE-STANDARD.md` §1 门槛时需要出现在工程追踪中。
 
-根据项目适用性执行：
+## 4. Review modes
 
-```text
-pwd
-git remote -v
-git diff --check
-git status --short
-```
+### Normal small PR
 
-并配合项目自身 tests / lint / typecheck / build。
+PM 确认：
 
-其中：
+- current PR head；
+- changed files / diff；
+- scope；
+- applicable validation；
+- merge target。
 
-- `pwd` 用于确认当前工作路径处于正确项目边界内；
-- `git remote -v` 用于确认 repo ↔ GitHub remote 映射；
-- 要求干净工作树时确认 `git status` clean；不 clean 必须解释剩余变化来源。
+不要求单独 pin-style exact-SHA Evidence Package。
 
-## 6. exact-SHA Review
+### High-risk exact-SHA Review
 
-适用于核心 runtime、Contract/schema/API 边界、跨仓库集成、发布/pin/merge 前高风险检查、多 Agent 串接后的最终基线。
+主要用于：
 
-流程：
+- Contract / API / schema；
+- release / tag / pin；
+- core runtime；
+- high-risk refactor；
+- cross-repo integration；
+- migration；
+- multi-Agent fan-in；
+- security-sensitive change；
+- history rewrite。
 
-1. Writer push commit。
-2. 回传 branch + exact SHA。
-3. Reviewer / Project Manager Role 从 remote 独立确认 SHA 存在且对应正确 branch/repository。
-4. Review 针对该 SHA 的 diff、测试与行为。
-5. 只有 Review `PASS` 后，才能把该 SHA 标记为后续阶段 accepted / pinned baseline。
+Writer push → PM/Reviewer 验证 exact SHA → diff/tests/boundaries → `PASS/HOLD/NEEDS_CORRECTION`。
 
-不得把“Agent 说这是某 SHA”当作已验证事实，也不得因为本地某个 clone 有提交就假定对应 remote 已同步。
+## 5. Merge
 
-## 7. Merge
+- Agent 不拥有最终 merge acceptance。
+- PM Review 通过后 merge。
+- high-risk merge 前确认最终 head 与 reviewed exact SHA 一致。
+- normal PR 至少确认当前 head 未在 Review 后发生未审变更。
+- destructive history/tag/release 操作受 pre-authorization。
 
-- 只有 Project Manager Role 已验收为 `PASS` 的变更才能进入 merge。
-- `HOLD` 不 merge；先补证据或依赖。
-- `NEEDS_CORRECTION` 退回原 Writer 修正，除非 Project Manager Role 明确完成 Writer 交接。
-- merge 前重新确认目标 repository、目标 branch 与 head SHA，避免审查后 branch 漂移或在错误 clone 上操作。
-- 高风险 PR 的 Review 对象必须和最终 merge head 对齐。
-- 在项目沟通中优先使用该项目自己的角色名；全局这里的 `Project Manager Role` 只是职责类型。
+## 6. SAFE_REMOTE_FIRST
 
-## 8. 不进入 Git 的内容
+符合 `LOCAL-WORKSPACE-STANDARD.md` §6.2 的 docs/small text change 可以 remote-first；不要求先 local checkout。
 
-- 密钥、token、密码、Cookie、真实账号凭据。
-- 客户数据、敏感业务数据、私有日志 dump。
-- 本地机器专属临时文件。
-- 与项目交付无关的大型生成物，除非项目规范明确要求版本化。
-- `RESTRICTED-CONTENT-STANDARD.md` 禁止的内容。
+Code/tests/build/refactor/migration/runtime/security-sensitive work 默认 local-first。
 
-这类本地-only 内容如果项目确实需要，应留在 `/Users/hwang/Movies/Program/<project-name>/` 项目边界内的 local/temp/artifacts 类目录，并确保不会误提交。
+## 7. Restricted content
 
-## 9. Remote-only write 与 canonical truth 的关系
+只对**新/当前 Active Surface**强制 gate，包括新 branch/tag/release 名称、新 commit message、current PR/Issue/comment、current tree/config。
 
-- GitHub remote 是长期 source of truth；但 **canonical truth 的权威性不等于 remote-only 施工授权**。
-- repository content 默认从 canonical local checkout / worktree 施工，再 commit / push 到 remote。
-- 通过 GitHub API、Connector、Web Editor 或其他 remote 接口直接修改 repository tree 内容，受 `LOCAL-WORKSPACE-STANDARD.md` §12「Remote-only Write 限制」约束。
-- 区分 repository-tree write 与 GitHub control-plane action：Project Manager 的 read / Review comment / `PASS` / `HOLD` / `NEEDS_CORRECTION` / review request / PR metadata / Review 后 merge 属于 governance action，不因缺少 local write capability 而被禁止。
-- Owner 明确授权的 remote-first write 之后，必须完成 local sync closure；未完成同步闭环前不得视为任务完整闭环（见 `LOCAL-WORKSPACE-STANDARD.md` §12.7、§12.8）。
-- exact-SHA Review 只证明"被审查的这个 SHA 是什么"，不代表可以跳过 construction-site rule；Review `PASS` 不追溯性地授权错误的施工路径。
+历史 immutable Git/GitHub evidence 按 `RESTRICTED-CONTENT-STANDARD.md` 的 Legacy Evidence Set 处理，不因普通历史 wording 自动要求 rewrite/force push/tag recreation。
+
+## 8. Minimal validation
+
+按变更类型执行适用验证，不维护固定“所有任务必跑”的 Git 命令清单。
+
+- remote docs：base/head + diff + content checks；
+- local code：repo/origin/status + targeted tests；
+- high-risk：增加 exact SHA、broader regression、boundary/recovery checks。
