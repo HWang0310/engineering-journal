@@ -18,10 +18,11 @@
 **工程师身份**与**执行 backend / model**是两个不同概念。
 
 - 真正的 identity add / remove / rename 属于人员变化，需要 Owner 决定。
-- 同一个既有 engineer 改用 TeleAgent、HY4、Codex 或其它 backend，原则上属于 PM capability routing，**不自动构成新增人员**，不需要 Owner 逐次批准。
+- 同一个既有 engineer 改用另一个可用 backend/model，原则上属于 PM capability routing，**不自动构成新增人员**，不需要 Owner 逐次批准。
 - backend mapping 是 operational metadata，PM 可以更新；只有 identity 本身发生增删改名时才进入 Owner personnel decision。
 - temporary Reviewer / specialist 不因为参与一次任务就自动成为长期 project engineer。
 - backend 切换不得静默改变任务 ownership；谁是 Writer / Reviewer 仍需清楚。
+- 当前可用/退役 backend、认证等级与能力边界不在本文件硬编码，统一读取 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
 ## 3. Roster 只在有长期身份价值时使用
 
@@ -140,7 +141,9 @@ Temporary external Reviewer / specialist 可以作为 external collaborator 参�
 
 ## 4. Capability routing
 
-PM 根据任务需要选择 backend，不使用固定模型排名。考虑：
+PM 根据任务需要选择 backend，不使用固定模型排名。当前 backend capability certification 与 resource policy 见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
+
+考虑：
 
 - complexity；
 - risk；
@@ -148,7 +151,8 @@ PM 根据任务需要选择 backend，不使用固定模型排名。考虑：
 - blast radius；
 - architecture depth；
 - verification difficulty；
-- availability / quota。
+- availability / quota / cost；
+- backend certification evidence。
 
 一般：
 
@@ -157,6 +161,8 @@ PM 根据任务需要选择 backend，不使用固定模型排名。考虑：
 - highest-risk architecture / Contract / core runtime / extreme debugging → Deep Engineering resource。
 
 backend 选择可以在同一 engineer identity 下变化。不要因为“这个任务想用更强模型”就新增 project engineer；backend routing 同样不得把另一个 project scope 的 named engineer 变成当前项目 engineer。
+
+优先使用**达到任务最低认证等级且额度/成本更合适**的 backend；只有证据表明可靠性不足时才升级更强资源。`RETIRED` backend 不得默认 routing。
 
 ## 5. Staffing
 
@@ -179,7 +185,7 @@ PM 只启用当前阶段真正需要的人：
 
 ## 7. Dispatch transparency
 
-如果 Owner 需要手动把 Prompt 发给某个 Agent，PM 应简短告诉 Owner“当前 project / 发给谁 / 使用哪个 backend / 当前目标”。Task ID 仅在达到门槛时说明。
+如果 Owner 需要手动把 Prompt 发给某个 Agent，PM 应简短告诉 Owner“当前 project / 发给谁 / 使用哪个 backend/profile / 当前目标”。Task ID 仅在达到门槛时说明。
 
 如果 PM 能直接执行或直接调用工具，不为透明度机械增加一轮 Owner relay。
 
@@ -194,6 +200,7 @@ PM 只启用当前阶段真正需要的人：
 - Reviewer 静默变 Writer；
 - 为一次小任务要求 Owner 批准模型切换；
 - 因读取 dependency/plugin repo 的 roster，把 external named engineer 当成 current project engineer；
-- 用 backend routing 绕过 project-scoped roster membership。
+- 用 backend routing 绕过 project-scoped roster membership；
+- 因模型品牌名气跳过 capability evidence，或继续派发已标记 `RETIRED` 的 backend。
 
 最终目标：稳定 identity、清晰 project scope、合适 capability、低沟通成本和风险相称的工程吞吐。
