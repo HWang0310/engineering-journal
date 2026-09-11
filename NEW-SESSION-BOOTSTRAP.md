@@ -121,7 +121,7 @@ identity / roster、staffing、parallel dispatch 的 canonical 规则见 `AGENT-
 3. 从该 roster 恢复当前 project engineer identities；
 4. 最后才能进行 named engineer staffing / dispatch。
 
-不得先在一组已打开 repositories 中搜 engineer 名字，再反推谁属于 current project。
+不得先在一组已打开 repositories 中搜 engineer 名字，再反推谁属于当前 project。
 
 Repositories 如果只是为了当前问题被 inspected as dependency / plugin / parent / subproject / sibling / external project，它们自己的 roster **不会贡献 engineer identities 到 current project roster**。
 
