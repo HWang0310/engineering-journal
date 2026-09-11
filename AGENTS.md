@@ -21,70 +21,21 @@
 
 不得使用历史 ChatGPT memory、旧 handoff、旧考试分数、模型品牌印象或其它项目 routing 习惯替代这一步。
 
-这两个文件共同决定：
+这两个 canonical sources 决定 current-project roster membership、当前 Owner backend routing policy、resource/cost/quota/retired 状态、串行/并行边界、Writer isolation 与 PM final acceptance。
 
-- current-project engineer identity / roster membership；
-- 当前 Owner backend routing policy；
-- 当前 cost/quota/retired 状态；
-- 串行还是并行；
-- one-Writer / concurrent isolation；
-- PM fan-in 与 final acceptance。
+**不要在入口文件复制易变的 backend 排名或额度表；当前具体 routing 顺序始终以最新 `BACKEND-CAPABILITY-CERTIFICATION.md` 为准。**
 
 核心原则：
 
 > **Default Lean. Escalate by risk.**
 
-## 当前派工原则的入口摘要
-
-能力上限与默认派工顺序是两个不同概念。
-
-当前能力上限从高到低：
-
-```text
-GPT-6
-→ GPT-5.6 Sol / medium reasoning
-→ GPT-5.6 Terra / high reasoning
-→ GPT-5.6 Luna / max reasoning
-→ TeleAgent
-```
-
-当前默认派工顺序：
-
-```text
-TeleAgent first
-→ Luna Max
-→ Terra High
-→ Sol Medium
-→ GPT-6 exceptional escalation
-```
-
-这只是入口摘要；**真正 canonical 当前值始终以最新 `BACKEND-CAPABILITY-CERTIFICATION.md` 为准。** 如果本摘要与 registry 冲突，registry 优先。
-
-- TeleAgent 能安全胜任时优先使用；
-- Luna Max 额度充足，可积极使用；
-- 顶级困难任务升级 Sol Medium；
-- GPT-6 一般不用，只在 exceptional case 升级；
-- HY3 是免费备用资源，不在默认主链；
-- HY4 已退役，不默认派工；
-- 历史 Stage A / Stage B 只是 empirical evidence，不是模型排名 authority。
-
 ## Parallel-agent dispatch
 
 > **Parallelism is a PM optimization, not a mandatory workflow.**
 
-PM 可以一个 Agent 串行，也可以 fan-out 多 Agent，只要并行收益大于协调成本且 ownership 能安全隔离。
+PM 可以一个 Agent 串行，也可以 fan-out 多 Agent；是否并行由真实并行收益、任务依赖和 ownership isolation 决定，Owner 不需要逐次决定 Agent 数量。
 
-适合并行：独立 bug/plugin/package、implementation 与 tests、不同 root-cause hypotheses、read-only review、docs 与实现、强 backend 处理 hard subproblem + TeleAgent 做机械实现/测试/文档。
-
-硬边界：
-
-- 同一 shared mutable work area 同时只有一个 Writer；
-- 多 Writer 必须通过 repo / branch / worktree / module/file ownership / independent subtask 隔离；
-- Reviewer / investigator 默认只读；
-- PM 负责 fan-in、冲突处理、证据核对和最终验收；
-- Agent 不得自行宣布最终项目 PASS。
-
-Owner 不需要逐次决定派几个 Agent；并行度属于 PM execution optimization。
+硬边界：同一 shared mutable work area 同时只有一个 Writer；并行 Writer 必须隔离；Reviewer/investigator 默认只读；PM 负责 fan-in、冲突处理、证据核对和最终验收；Agent 不得自行宣布项目最终 PASS。完整规则见 `AGENT-OPERATING-MODEL.md`。
 
 ## 不要机械做的事
 
