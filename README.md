@@ -16,7 +16,7 @@ Owner 可以说：
 
 新会话先读取 remote 最新 default branch，再按 `NEW-SESSION-BOOTSTRAP.md` 判断当前任务走 Fast / Standard / High-risk。
 
-**任何新 PM 在第一次进行 Agent/backend 派工前，必须读取当前 `BACKEND-CAPABILITY-CERTIFICATION.md` 与 `AGENT-OPERATING-MODEL.md`。不要依赖历史聊天记忆、旧模型排名或旧考试分数恢复 routing policy。**
+**任何新 PM 在第一次进行 Agent/backend 派工前，必须读取当前 `AGENT-OPERATING-MODEL.md` 与 `BACKEND-CAPABILITY-CERTIFICATION.md`。不要依赖历史聊天记忆、旧模型排名、旧 handoff 或旧考试分数恢复 routing policy。**
 
 ## 默认治理模型
 
@@ -56,7 +56,7 @@ architecture、Contract/API/schema、release、migration、production destructiv
 - Owner：产品目标、优先级、风险接受、不可逆业务选择。
 - PM：技术方案、Agent/backend、串行/并行调度、Task ID、Git/worktree、测试、Reviewer、Review、merge。
 
-Owner 不承担工程流程管理，也不需要逐次决定“派几个 Agent”或“这次用哪个 backend”。
+Owner 不承担工程流程管理，也不需要逐次决定派几个 Agent 或每次用哪个 backend。
 
 ## Engineer identity 与 backend
 
@@ -68,43 +68,15 @@ Engineer identity != backend。
 
 Lean 单 Agent / PM+Writer 项目可以不用拟人化 roster；长期 multi-Agent named project 才维护 durable roster。
 
-身份/roster 规则详见 `AGENT-OPERATING-MODEL.md`；跨项目可复用的 backend 能力证据、当前可用/退役资源和 Owner routing policy 见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
+身份/roster 规则详见 `AGENT-OPERATING-MODEL.md`；跨项目可复用的 backend 能力证据、当前可用/退役资源和 **Owner routing policy** 见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
-## Backend routing（所有新 PM 必须遵守）
+## Backend routing
 
-当前 canonical routing 不由历史考试分数机械决定，而由 `BACKEND-CAPABILITY-CERTIFICATION.md` 中的 **Owner routing policy** 决定。
+`BACKEND-CAPABILITY-CERTIFICATION.md` 是当前 backend 能力阶梯、默认派工顺序、cost/quota、retired 状态和 empirical evidence 的 **single canonical source**。
 
-能力上限从高到低：
+任何新 PM 在实际 dispatch 前都必须读取它，并按其中最新 Owner routing policy 做选择。入口文件不复制具体模型排序，避免未来 resource policy 更新后发生漂移。
 
-```text
-GPT-6
-→ GPT-5.6 Sol / medium reasoning
-→ GPT-5.6 Terra / high reasoning
-→ GPT-5.6 Luna / max reasoning
-→ TeleAgent
-```
-
-默认派工顺序则从当前成本/额度更优的资源开始：
-
-```text
-TeleAgent first
-→ Luna Max
-→ Terra High
-→ Sol Medium
-→ GPT-6 exceptional escalation
-```
-
-因此：
-
-- TeleAgent 能安全胜任时默认优先 TeleAgent；
-- Luna Max 额度充足，可积极承担更复杂工作；
-- 证据表明当前资源不足时再升级 Terra High / Sol Medium；
-- GPT-6 只用于极少数 Sol 仍不足或复杂度/风险极高的场景；
-- HY3 作为当前可用免费备用资源，不在默认主链；
-- HY4 已退役，不得默认派工；
-- Luna normal 当前不作为默认 routing 候选。
-
-历史 Stage A / Stage B 考试只保留为 empirical evidence，不是当前模型排序 authority。除非 backend 明显换代、execution surface 变化或真实项目表现偏离预期，否则不需要继续为了排名重复考试。
+PM 的原则是：先使用足以安全胜任且当前成本/额度更优的资源；证据表明不足时再升级；历史考试分数仅作为 empirical evidence，不覆盖当前 Owner policy。
 
 ## Parallel-agent dispatch
 
@@ -112,16 +84,9 @@ TeleAgent first
 
 > **Parallelism is a PM optimization, not a mandatory workflow.**
 
-PM 可以按任务依赖关系决定一个 Agent 串行完成，或 fan-out 多个 Agent 并行。适合并行的典型场景包括独立 bug/plugin/package、implementation 与 tests、不同 root-cause hypothesis、read-only review、docs 与实现等。
+PM 可以一个 Agent 串行，也可以 fan-out 多个 Agent。能安全隔离、存在真实并行收益时就并行；强依赖同一核心文件/Contract 或前一步结果时就串行。
 
-硬边界不变：
-
-- 同一 shared mutable work area 同时只能有一个 Writer；
-- 多 Writer 必须通过 repo / branch / worktree / module/file ownership / independent subtask 隔离；
-- 并行结果由 PM fan-in、解决冲突、核对证据；
-- 所有 Agent 都只能提交 candidate evidence，最终 `PASS / NEEDS_CORRECTION / HOLD` 由 PM 决定。
-
-详见 `AGENT-OPERATING-MODEL.md` §5.1 与 `BACKEND-CAPABILITY-CERTIFICATION.md`。
+硬边界：同一 shared mutable work area 同时只有一个 Writer；多 Writer 必须隔离；PM 负责 fan-in、冲突处理、证据核对与最终 `PASS / NEEDS_CORRECTION / HOLD`。完整规则见 `AGENT-OPERATING-MODEL.md`。
 
 ## Local / Remote
 
