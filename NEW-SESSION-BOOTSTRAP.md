@@ -1,8 +1,10 @@
 # New Session Bootstrap Protocol
 
-本文件帮助新的 ChatGPT / Agent 会话快速回答一件事：
+本文件帮助新的 ChatGPT / Agent 会话快速回答两件事：
 
 > **这个项目、这个任务，到底需要多重的工程流程？**
+>
+> **如果需要派工，当前应该怎样选择 Agent/backend，以及是否值得并行？**
 
 核心原则：
 
@@ -21,8 +23,8 @@
    - `ENGINEERING-STANDARDS.md`
    - `RESTRICTED-CONTENT-STANDARD.md`
 3. **只在任务触发对应领域时**再读：
-   - Agent/roster/backend identity → `AGENT-OPERATING-MODEL.md`
-   - backend/model capability、resource availability、认证等级 → `BACKEND-CAPABILITY-CERTIFICATION.md`
+   - Agent/roster/backend identity、staffing、parallel dispatch → `AGENT-OPERATING-MODEL.md`
+   - backend/model capability、Owner routing policy、resource availability、cost/quota → `BACKEND-CAPABILITY-CERTIFICATION.md`
    - Task ID/recovery → `TASK-LIFECYCLE-STANDARD.md`
    - Prompt/handoff → `PROMPT-HANDOFF-STANDARD.md`
    - local/remote construction → `LOCAL-WORKSPACE-STANDARD.md`
@@ -30,7 +32,16 @@
    - Deep Engineering → `CODEX-RULES.md`
    - durable knowledge/memory → `KNOWLEDGE-ACCUMULATION.md`
 
-不要为了“必读清单”每个新会话机械加载全部标准。
+### Dispatch discovery invariant
+
+**只要当前任务将要派发任何 Agent/backend，PM 在第一次 dispatch 前必须读取最新：**
+
+- `AGENT-OPERATING-MODEL.md`
+- `BACKEND-CAPABILITY-CERTIFICATION.md`
+
+这一点不能被历史 ChatGPT memory、旧 handoff、旧考试分数、模型品牌印象或其它项目 routing 习惯替代。
+
+不要为了“必读清单”机械加载全部标准；但一旦要做 staffing/backend routing，上述两个文件属于必要事实源。
 
 目标项目自己的 current GitHub facts 高于历史 ChatGPT memory。
 
@@ -42,11 +53,14 @@ PM 自行决定：
 
 - task path；
 - Agent/backend；
+- 串行还是并行、需要几个 Agent；
 - Task ID 是否需要；
 - branch/worktree；
 - testing/review depth；
 - 是否需要 Reviewer；
 - 是否需要更新 Project Memory。
+
+Owner 不需要逐次决定模型、Agent 数量或并行方式，除非这些选择触及 Owner 专属的产品/不可逆决策边界。
 
 ## 4. 30 秒治理深度判断
 
@@ -84,9 +98,9 @@ Lean 默认：
 
 只有长期风险形态确实更高时才把更强治理变成项目默认。
 
-## 6. Roster / backend
+## 6. Roster / backend / dispatch
 
-identity / roster 的 canonical 规则见 `AGENT-OPERATING-MODEL.md`，尤其是 §3.2 Project-scoped Engineer Identity Boundary。backend 能力认证与当前 resource policy 见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
+identity / roster、staffing、parallel dispatch 的 canonical 规则见 `AGENT-OPERATING-MODEL.md`。当前 backend 能力阶梯、Owner routing policy、resource/cost/quota 与 empirical evidence 的 **single canonical source** 是 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
 ### 6.1 Named roster 恢复顺序
 
@@ -120,22 +134,41 @@ engineer_identity in current_project.canonical_roster
 - 需要 current project 新增 durable engineer 时，升级 Owner，按 current project roster add 规则处理；
 - 如果问题属于另一个 project，可以显式进入 cross-project handoff，由 external project 自己恢复 roster / staffing，再 handback current project 做 integration review。
 
-### 6.3 Backend capability routing
+### 6.3 Backend routing
 
-Roster membership 与 backend capability 是两个独立判断：
+Roster membership 与 backend routing 是两个独立判断：
 
-1. 先确认 engineer identity 属于 current project；
-2. 再根据 task risk / ambiguity 判断最低 capability need；
-3. 读取 `BACKEND-CAPABILITY-CERTIFICATION.md` 的当前认证与 resource policy；
-4. 从满足能力边界的 backend 中优先选择额度/成本更合适的资源；
-5. `RETIRED_DO_NOT_ROUTE` backend 不得默认派工；未认证 backend 不用于关键任务。
+1. 先确认 current project / engineer identity；
+2. 读取最新 `BACKEND-CAPABILITY-CERTIFICATION.md`；
+3. 按其中**当前 Owner routing policy**判断 capability、cost/quota、available/retired 状态；
+4. 选择足以安全胜任且当前资源策略更合适的 backend；
+5. 证据表明当前资源不足时，按 registry 当前 escalation policy 升级；
+6. 最后由 PM 对结果做独立验收。
 
-- durable named roster 存在时先从**当前 project** GitHub 恢复名字。
-- Lean 单 Agent / PM+Writer 项目不要求拟人化 roster，也不要求为了 dependency 建 roster。
-- backend switch 是 PM capability routing，不自动变成人员变更。
-- backend routing 不得用来绕过 project-scoped roster membership。
-- temporary external Reviewer / specialist 不因为一次协作加入 current project durable roster。
+**Bootstrap 不复制具体 backend 排名或额度表。** 如果历史聊天、旧 Prompt、旧 handoff、旧考试结果与当前 registry 冲突，以当前 registry 为准。
+
+历史 Stage A / Stage B 结果只是 empirical evidence，不是当前 routing authority，也不是每个新会话要重跑的流程。
+
+- durable named roster 存在时先从**当前 project** GitHub 恢复名字；
+- Lean 单 Agent / PM+Writer 项目不要求拟人化 roster，也不要求为了 dependency 建 roster；
+- backend switch 是 PM capability routing，不自动变成人员变更；
+- backend routing 不得用来绕过 project-scoped roster membership；
+- temporary external Reviewer / specialist 不因为一次协作加入 current project durable roster；
 - 真正 add/remove/rename current-project durable engineer identity 才升级 Owner。
+
+### 6.4 Parallel-agent decision
+
+> **Parallelism is a PM optimization, not a mandatory workflow.**
+
+PM 根据最新 `AGENT-OPERATING-MODEL.md` 判断是否值得 fan-out。存在真实并行收益并且 ownership 能隔离时可以并行；任务强依赖前一步输出、多人会争用同一核心文件/Contract 时应串行。
+
+Parallel safety invariant：
+
+- 同一 shared mutable work area 同时只有一个 Writer；
+- 多 Writer 必须通过 repo / branch / worktree / module/file ownership / independent subtask 隔离；
+- Reviewer / investigator 默认只读；
+- PM 负责 fan-in、冲突处理、证据核对和最终验收；
+- Agent 只能给出 candidate evidence，不能自行宣布项目最终 PASS。
 
 ## 7. Construction mode
 
@@ -157,10 +190,12 @@ canonical threshold 在 `TASK-LIFECYCLE-STANDARD.md` §1。
 - docs-only → content/diff/link/format；
 - small code → targeted tests；
 - high-risk/core → full relevant regression；
-- release → release-grade。
+- release → release-grade；
 - 普通小 PR → PM 看 current head + diff + applicable tests；
 - high-risk → exact-SHA + broader review；
 - independent Reviewer 按风险启用，不是默认仪式。
+
+无论单 Agent、串行、多 Agent 并行还是 specialist + implementer，最终 `PASS / NEEDS_CORRECTION / HOLD` 都由 PM 独立判断。
 
 ## 10. Project Memory
 
@@ -168,7 +203,7 @@ canonical threshold 在 `TASK-LIFECYCLE-STANDARD.md` §1。
 
 ordinary bug/docs/correction/temp reviewer/backend switch/refactor 由 GitHub PR/Issue/commit history 承载。
 
-Backend capability certification 是跨项目 routing evidence，维护在 `BACKEND-CAPABILITY-CERTIFICATION.md`，不复制进每个 project roster。
+Backend routing policy 是跨项目 operational evidence，维护在 `BACKEND-CAPABILITY-CERTIFICATION.md`，不复制进每个 project roster。
 
 ## 11. Restricted content
 
@@ -182,12 +217,13 @@ Backend capability certification 是跨项目 routing evidence，维护在 `BACK
 - Fast / Standard / High-risk；
 - 谁负责执行；
 - 选择哪个 backend/profile（需要 Owner 手动 dispatch 时）；
+- 如果使用多个 Agent，只有在对 Owner 有价值时简短说明并行分工；
 - Owner 当前是否需要行动；
 - 下一步谁推进。
 
 如果 named engineer dispatch 涉及多个 project/repository，主回复应明确该 engineer 属于 current project 还是 external/dependency project，避免跨项目身份串线。
 
-不要先给 Owner 一份内部治理清单。
+不要先给 Owner 一份内部治理清单，也不要让 Owner 充当多个 Agent 之间的信息中继。
 
 ## 13. Backward compatibility
 

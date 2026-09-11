@@ -12,9 +12,30 @@
 4. 当前 ChatGPT 默认承担 Project Manager Role；
 5. 目标项目 current GitHub facts 优先于聊天记忆。
 
+### Dispatch discovery hard requirement
+
+**只要当前任务准备派发任何 Agent/backend，新 PM 在第一次 dispatch 前必须额外读取：**
+
+- `AGENT-OPERATING-MODEL.md`
+- `BACKEND-CAPABILITY-CERTIFICATION.md`
+
+不得使用历史 ChatGPT memory、旧 handoff、旧考试分数、模型品牌印象或其它项目 routing 习惯替代这一步。
+
+这两个 canonical sources 决定 current-project roster membership、当前 Owner backend routing policy、resource/cost/quota/retired 状态、串行/并行边界、Writer isolation 与 PM final acceptance。
+
+**不要在入口文件复制易变的 backend 排名或额度表；当前具体 routing 顺序始终以最新 `BACKEND-CAPABILITY-CERTIFICATION.md` 为准。**
+
 核心原则：
 
 > **Default Lean. Escalate by risk.**
+
+## Parallel-agent dispatch
+
+> **Parallelism is a PM optimization, not a mandatory workflow.**
+
+PM 可以一个 Agent 串行，也可以 fan-out 多 Agent；是否并行由真实并行收益、任务依赖和 ownership isolation 决定，Owner 不需要逐次决定 Agent 数量。
+
+硬边界：同一 shared mutable work area 同时只有一个 Writer；并行 Writer 必须隔离；Reviewer/investigator 默认只读；PM 负责 fan-in、冲突处理、证据核对和最终验收；Agent 不得自行宣布项目最终 PASS。完整规则见 `AGENT-OPERATING-MODEL.md`。
 
 ## 不要机械做的事
 
@@ -24,7 +45,11 @@
 - 不因 docs-only change 跑完整 regression；
 - 不因普通历史 restricted wording 扫描/重写全部 Git history；
 - 不把每个 bugfix/correction 写进 durable Project Memory；
-- 不把同一规则完整复制到多个 standard。
+- 不把同一规则完整复制到多个 standard；
+- 不因有多个 Agent 可用就制造假并行；
+- 不明明可以安全并行却机械串行；
+- 不因历史考试分数高而忽略当前 Owner routing policy；
+- 不把免费资源理解成可以绕过安全/Review 边界。
 
 ## 什么时候升级
 

@@ -16,6 +16,8 @@ Owner 可以说：
 
 新会话先读取 remote 最新 default branch，再按 `NEW-SESSION-BOOTSTRAP.md` 判断当前任务走 Fast / Standard / High-risk。
 
+**任何新 PM 在第一次进行 Agent/backend 派工前，必须读取当前 `AGENT-OPERATING-MODEL.md` 与 `BACKEND-CAPABILITY-CERTIFICATION.md`。不要依赖历史聊天记忆、旧模型排名、旧 handoff 或旧考试分数恢复 routing policy。**
+
 ## 默认治理模型
 
 ### Lean Project（默认）
@@ -24,7 +26,7 @@ Owner 可以说：
 
 - PM + 0–1 Writer；
 - Reviewer 按风险临时启用；
-- 不要求每个任务 Issue / Task ID；
+- Task ID / Issue / worktree / project-memory refresh 都按需；
 - 不要求每个 PR 独立 Reviewer；
 - 单 Writer 不要求额外 worktree；
 - docs-only 不跑完整 regression；
@@ -52,9 +54,9 @@ architecture、Contract/API/schema、release、migration、production destructiv
 ## Owner / PM
 
 - Owner：产品目标、优先级、风险接受、不可逆业务选择。
-- PM：技术方案、Agent/backend、Task ID、Git/worktree、测试、Reviewer、Review、merge。
+- PM：技术方案、Agent/backend、串行/并行调度、Task ID、Git/worktree、测试、Reviewer、Review、merge。
 
-Owner 不承担工程流程管理。
+Owner 不承担工程流程管理，也不需要逐次决定派几个 Agent 或每次用哪个 backend。
 
 ## Engineer identity 与 backend
 
@@ -66,19 +68,25 @@ Engineer identity != backend。
 
 Lean 单 Agent / PM+Writer 项目可以不用拟人化 roster；长期 multi-Agent named project 才维护 durable roster。
 
-身份/roster 规则详见 `AGENT-OPERATING-MODEL.md`；跨项目可复用的模型/backend 能力证据、当前可用/退役资源和认证等级见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
+身份/roster 规则详见 `AGENT-OPERATING-MODEL.md`；跨项目可复用的 backend 能力证据、当前可用/退役资源和 **Owner routing policy** 见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
-## Backend capability routing
+## Backend routing
 
-PM 不凭模型品牌印象派工，也不把 backend profile 当成 engineer identity。
+`BACKEND-CAPABILITY-CERTIFICATION.md` 是当前 backend 能力阶梯、默认派工顺序、cost/quota、retired 状态和 empirical evidence 的 **single canonical source**。
 
-- 任务先确定所需最低 capability level；
-- 再从已认证 backend 中选择满足要求、额度/成本更合适的资源；
-- backend/profile 明显变化时可重新认证；
-- 退役资源不得继续默认 routing；
-- 统一入职考核见 `BACKEND-CAPABILITY-EXAM-V1.md`。
+任何新 PM 在实际 dispatch 前都必须读取它，并按其中最新 Owner routing policy 做选择。入口文件不复制具体模型排序，避免未来 resource policy 更新后发生漂移。
 
-目标：**用最低但足够安全可靠的已认证能力完成任务，证据不足时再升级。**
+PM 的原则是：先使用足以安全胜任且当前成本/额度更优的资源；证据表明不足时再升级；历史考试分数仅作为 empirical evidence，不覆盖当前 Owner policy。
+
+## Parallel-agent dispatch
+
+并行是 PM 的效率工具，不是固定流程：
+
+> **Parallelism is a PM optimization, not a mandatory workflow.**
+
+PM 可以一个 Agent 串行，也可以 fan-out 多个 Agent。能安全隔离、存在真实并行收益时就并行；强依赖同一核心文件/Contract 或前一步结果时就串行。
+
+硬边界：同一 shared mutable work area 同时只有一个 Writer；多 Writer 必须隔离；PM 负责 fan-in、冲突处理、证据核对与最终 `PASS / NEEDS_CORRECTION / HOLD`。完整规则见 `AGENT-OPERATING-MODEL.md`。
 
 ## Local / Remote
 
@@ -119,18 +127,19 @@ PM 不凭模型品牌印象派工，也不把 backend profile 当成 engineer id
 | File | Canonical responsibility |
 | --- | --- |
 | `ENGINEERING-STANDARDS.md` | Lean Project、Fast/Standard/High-risk、testing、Review、Project Memory、hard boundaries |
-| `NEW-SESSION-BOOTSTRAP.md` | 新会话快速选择治理深度 |
+| `NEW-SESSION-BOOTSTRAP.md` | 新会话快速选择治理深度，并在派工前发现当前 routing policy |
 | `TASK-LIFECYCLE-STANDARD.md` | Task ID threshold / idempotency / recovery |
-| `AGENT-OPERATING-MODEL.md` | engineer identity / roster / backend / staffing |
-| `BACKEND-CAPABILITY-CERTIFICATION.md` | backend/model capability certification、resource policy、routing evidence |
-| `BACKEND-CAPABILITY-EXAM-V1.md` | 统一 backend 入职考核题面与评分 rubric |
+| `AGENT-OPERATING-MODEL.md` | engineer identity / roster / backend usage / staffing / parallel dispatch / PM final acceptance |
+| `BACKEND-CAPABILITY-CERTIFICATION.md` | Owner routing policy、backend capability/cost/quota、empirical evidence、parallel routing |
+| `BACKEND-CAPABILITY-EXAM-V1.md` | 历史/按需 backend 入职考核题面与评分 rubric；不是当前排名 authority |
+| `BACKEND-CAPABILITY-LIVE-PRACTICAL-V1.md` | 历史/按需 live practical fixture；不是每个新 PM 的必跑流程 |
 | `PROMPT-HANDOFF-STANDARD.md` | Prompt 与 GitHub-native handoff |
 | `LOCAL-WORKSPACE-STANDARD.md` | local-first / SAFE_REMOTE_FIRST / worktree |
 | `GIT-GITHUB-STANDARD.md` | Git mechanics / review refs / merge |
 | `RESTRICTED-CONTENT-STANDARD.md` | Active Surface / Legacy Evidence gate |
 | `KNOWLEDGE-ACCUMULATION.md` | 可复用知识沉淀 |
 | `CODEX-RULES.md` | Deep Engineering 专项使用原则 |
-| `AGENTS.md` | Agent 入口和 cross-reference |
+| `AGENTS.md` | Agent/PM 启动入口和 cross-reference |
 | `JOURNAL.md` | 重大标准演进历史 |
 
 同一核心规则只在一个文件完整定义，其它文件只引用。
