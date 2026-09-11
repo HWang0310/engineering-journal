@@ -32,9 +32,16 @@
    - Deep Engineering → `CODEX-RULES.md`
    - durable knowledge/memory → `KNOWLEDGE-ACCUMULATION.md`
 
-**Dispatch discovery invariant：只要当前任务将要派发任何 Agent/backend，PM 在第一次 dispatch 前必须读取最新 `AGENT-OPERATING-MODEL.md` 与 `BACKEND-CAPABILITY-CERTIFICATION.md`。这一点不能被历史 ChatGPT memory、旧 handoff、旧考试分数或模型品牌印象替代。**
+### Dispatch discovery invariant
 
-不要为了“必读清单”每个新会话机械加载全部标准；但一旦要做实际 staffing/backend routing，上述两个文件属于当前决策的必要事实源。
+**只要当前任务将要派发任何 Agent/backend，PM 在第一次 dispatch 前必须读取最新：**
+
+- `AGENT-OPERATING-MODEL.md`
+- `BACKEND-CAPABILITY-CERTIFICATION.md`
+
+这一点不能被历史 ChatGPT memory、旧 handoff、旧考试分数、模型品牌印象或其它项目 routing 习惯替代。
+
+不要为了“必读清单”机械加载全部标准；但一旦要做 staffing/backend routing，上述两个文件属于必要事实源。
 
 目标项目自己的 current GitHub facts 高于历史 ChatGPT memory。
 
@@ -93,7 +100,7 @@ Lean 默认：
 
 ## 6. Roster / backend / dispatch
 
-identity / roster、staffing、parallel dispatch 的 canonical 规则见 `AGENT-OPERATING-MODEL.md`。当前 backend 能力阶梯、Owner routing policy、resource/cost/quota 与 empirical evidence 见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
+identity / roster、staffing、parallel dispatch 的 canonical 规则见 `AGENT-OPERATING-MODEL.md`。当前 backend 能力阶梯、Owner routing policy、resource/cost/quota 与 empirical evidence 的 **single canonical source** 是 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
 ### 6.1 Named roster 恢复顺序
 
@@ -127,64 +134,33 @@ engineer_identity in current_project.canonical_roster
 - 需要 current project 新增 durable engineer 时，升级 Owner，按 current project roster add 规则处理；
 - 如果问题属于另一个 project，可以显式进入 cross-project handoff，由 external project 自己恢复 roster / staffing，再 handback current project 做 integration review。
 
-### 6.3 Backend routing（新 PM 必须按当前 registry 执行）
+### 6.3 Backend routing
 
 Roster membership 与 backend routing 是两个独立判断：
 
 1. 先确认 current project / engineer identity；
 2. 读取最新 `BACKEND-CAPABILITY-CERTIFICATION.md`；
-3. 判断 task complexity / ambiguity / risk / recovery need；
-4. 先选择足以安全胜任且当前成本/额度更优的资源；
-5. 证据表明当前资源不足时再沿 capability escalation ladder 升级；
+3. 按其中**当前 Owner routing policy**判断 capability、cost/quota、available/retired 状态；
+4. 选择足以安全胜任且当前资源策略更合适的 backend；
+5. 证据表明当前资源不足时，按 registry 当前 escalation policy 升级；
 6. 最后由 PM 对结果做独立验收。
 
-当前 Owner routing policy 的**默认派工顺序**是：
+**Bootstrap 不复制具体 backend 排名或额度表。** 如果历史聊天、旧 Prompt、旧 handoff、旧考试结果与当前 registry 冲突，以当前 registry 为准。
 
-```text
-TeleAgent first
-→ GPT-5.6 Luna / max reasoning
-→ GPT-5.6 Terra / high reasoning
-→ GPT-5.6 Sol / medium reasoning
-→ GPT-6 exceptional escalation
-```
+历史 Stage A / Stage B 结果只是 empirical evidence，不是当前 routing authority，也不是每个新会话要重跑的流程。
 
-当前**能力上限顺序**是：
-
-```text
-GPT-6
-→ GPT-5.6 Sol / medium reasoning
-→ GPT-5.6 Terra / high reasoning
-→ GPT-5.6 Luna / max reasoning
-→ TeleAgent
-```
-
-因此：
-
-- TeleAgent 能安全胜任时默认优先 TeleAgent；
-- Luna Max 额度充足，可积极承担更复杂工作；
-- 真正顶级困难任务优先 Sol Medium；
-- GPT-6 一般不用，只做 exceptional escalation；
-- HY3 是当前可用免费备用资源，不在默认主链；
-- HY4 已退役，不得默认派工；
-- Luna normal 当前不作为默认候选；
-- 历史 Stage A / Stage B 分数只是 empirical evidence，不是当前排名 authority，也不是每个新会话要重新运行的流程。
-
-不要因为“某模型历史考试 100 分”覆盖 Owner 当前 routing policy；也不要因为 TeleAgent 免费就把明显超出它可靠边界的任务硬塞给它。
+- durable named roster 存在时先从**当前 project** GitHub 恢复名字；
+- Lean 单 Agent / PM+Writer 项目不要求拟人化 roster，也不要求为了 dependency 建 roster；
+- backend switch 是 PM capability routing，不自动变成人员变更；
+- backend routing 不得用来绕过 project-scoped roster membership；
+- temporary external Reviewer / specialist 不因为一次协作加入 current project durable roster；
+- 真正 add/remove/rename current-project durable engineer identity 才升级 Owner。
 
 ### 6.4 Parallel-agent decision
 
 > **Parallelism is a PM optimization, not a mandatory workflow.**
 
-在确定 backend 后，PM 判断任务是否值得 fan-out：
-
-- 独立 bug/plugin/package；
-- implementation 与 tests；
-- 不同 root-cause hypotheses；
-- read-only review / investigation；
-- docs 与实现；
-- 强 backend 处理 hard subproblem，TeleAgent 承担机械实现/测试/文档。
-
-如果存在真实并行收益并且 ownership 能隔离，可以同时派多个 Agent；如果任务强依赖前一步输出、多人会争用同一核心文件/Contract，则串行。
+PM 根据最新 `AGENT-OPERATING-MODEL.md` 判断是否值得 fan-out。存在真实并行收益并且 ownership 能隔离时可以并行；任务强依赖前一步输出、多人会争用同一核心文件/Contract 时应串行。
 
 Parallel safety invariant：
 
@@ -193,13 +169,6 @@ Parallel safety invariant：
 - Reviewer / investigator 默认只读；
 - PM 负责 fan-in、冲突处理、证据核对和最终验收；
 - Agent 只能给出 candidate evidence，不能自行宣布项目最终 PASS。
-
-- durable named roster 存在时先从**当前 project** GitHub 恢复名字；
-- Lean 单 Agent / PM+Writer 项目不要求拟人化 roster，也不要求为了 dependency 建 roster；
-- backend switch 是 PM capability routing，不自动变成人员变更；
-- backend routing 不得用来绕过 project-scoped roster membership；
-- temporary external Reviewer / specialist 不因为一次协作加入 current project durable roster；
-- 真正 add/remove/rename current-project durable engineer identity 才升级 Owner。
 
 ## 7. Construction mode
 
