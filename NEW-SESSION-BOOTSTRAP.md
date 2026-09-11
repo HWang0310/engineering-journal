@@ -45,6 +45,16 @@
 
 目标项目自己的 current GitHub facts 高于历史 ChatGPT memory。
 
+### Current-state-first recovery
+
+恢复长期项目时，默认先恢复 **CURRENT CONTROL-PLANE STATE**，而不是重放全部历史会话。
+
+如果项目存在最新 compact recovery / session-transfer state，先用它定位 current remote facts；不要默认重新携带旧 handoff、已收口 correction rounds、superseded SHA、stale metrics、obsolete routing decisions 或已结束的 parallel lanes。
+
+**SUPERSEDED / LEGACY EXECUTION HISTORY** 继续保留在 GitHub，仅在它会影响当前技术判断、recovery、provenance 或 audit 时按需读取。
+
+完整 Session Rollover / Control-Plane Compaction 规则见 `PROMPT-HANDOFF-STANDARD.md` §9。compact state 只是恢复索引，remote current facts 始终优先。
+
 ## 3. 默认角色
 
 当前 ChatGPT 默认承担 Project Manager Role；Owner 负责产品目标、优先级和必要业务决策。

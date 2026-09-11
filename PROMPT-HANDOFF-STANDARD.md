@@ -92,3 +92,45 @@ Fast Path 完成信号可以只是：
 - 同一 Agent 正在执行一个完整任务时，不再追加第二个完整任务。
 - 关键上下文来自 repository / PR / Task ID（有时），不依赖“你应该记得”。
 - 不把历史完整 Prompt 当作 durable project memory。
+
+## 9. Session Rollover / Control-Plane Compaction（canonical）
+
+长期 PM 会话可以在 accumulated execution history 已明显大于 current active state 时进行 session rollover。**没有固定 token、消息轮数或时间阈值。**
+
+PM 应区分：
+
+### CURRENT CONTROL-PLANE STATE
+
+只保留继续当前项目真正需要的活跃事实，例如：
+
+- current milestone / stage；
+- live branch / PR / Task references；
+- active lanes / ownership；
+- unresolved blockers / decisions；
+- current validation / merge state；
+- immediate next action。
+
+### SUPERSEDED / LEGACY EXECUTION HISTORY
+
+包括已经失效、但仍应保留 audit / provenance / recovery 价值的历史，例如：
+
+- merged / superseded SHA；
+- 已收口 correction rounds；
+- stale metrics；
+- obsolete routing decisions；
+- 已结束的 parallel lanes；
+- 不再决定当前行动的旧 handoff。
+
+这些历史继续保留在 GitHub durable history 中，但默认不继续携带到 PM active working context。
+
+当 important milestone / PR 已 merge、多轮 correction 已收口、active lanes 明显减少，且 current state 已远小于 accumulated historical state 时，PM 可以：
+
+1. 确认 durable truth 已存在于 GitHub；
+2. 当现有 PR / Issue / Project Memory 不足以直接恢复时，生成或更新一个 compact recovery / session-transfer state；
+3. 只记录 current active state、unresolved items 和 next action；
+4. 结束旧会话；
+5. 新 PM 按 `NEW-SESSION-BOOTSTRAP.md` 从 remote 恢复。
+
+compact recovery / session-transfer state 是 **current GitHub facts 的恢复索引**，不是新的并行 truth，也不能覆盖 remote branch / PR / commit / current canonical project state。
+
+不要为每个 milestone 强制 rollover；不要设置固定 token / turn threshold；如果当前会话仍清晰、current state 没有被历史噪声淹没，可以继续使用。
