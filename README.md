@@ -66,7 +66,19 @@ Engineer identity != backend。
 
 Lean 单 Agent / PM+Writer 项目可以不用拟人化 roster；长期 multi-Agent named project 才维护 durable roster。
 
-详见 `AGENT-OPERATING-MODEL.md`。
+身份/roster 规则详见 `AGENT-OPERATING-MODEL.md`；跨项目可复用的模型/backend 能力证据、当前可用/退役资源和认证等级见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
+
+## Backend capability routing
+
+PM 不凭模型品牌印象派工，也不把 backend profile 当成 engineer identity。
+
+- 任务先确定所需最低 capability level；
+- 再从已认证 backend 中选择满足要求、额度/成本更合适的资源；
+- backend/profile 明显变化时可重新认证；
+- 退役资源不得继续默认 routing；
+- 统一入职考核见 `BACKEND-CAPABILITY-EXAM-V1.md`。
+
+目标：**用最低但足够安全可靠的已认证能力完成任务，证据不足时再升级。**
 
 ## Local / Remote
 
@@ -110,6 +122,8 @@ Lean 单 Agent / PM+Writer 项目可以不用拟人化 roster；长期 multi-Age
 | `NEW-SESSION-BOOTSTRAP.md` | 新会话快速选择治理深度 |
 | `TASK-LIFECYCLE-STANDARD.md` | Task ID threshold / idempotency / recovery |
 | `AGENT-OPERATING-MODEL.md` | engineer identity / roster / backend / staffing |
+| `BACKEND-CAPABILITY-CERTIFICATION.md` | backend/model capability certification、resource policy、routing evidence |
+| `BACKEND-CAPABILITY-EXAM-V1.md` | 统一 backend 入职考核题面与评分 rubric |
 | `PROMPT-HANDOFF-STANDARD.md` | Prompt 与 GitHub-native handoff |
 | `LOCAL-WORKSPACE-STANDARD.md` | local-first / SAFE_REMOTE_FIRST / worktree |
 | `GIT-GITHUB-STANDARD.md` | Git mechanics / review refs / merge |
