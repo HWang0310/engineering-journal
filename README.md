@@ -16,6 +16,8 @@ Owner 可以说：
 
 新会话先读取 remote 最新 default branch，再按 `NEW-SESSION-BOOTSTRAP.md` 判断当前任务走 Fast / Standard / High-risk。
 
+**任何新 PM 在第一次进行 Agent/backend 派工前，必须读取当前 `BACKEND-CAPABILITY-CERTIFICATION.md` 与 `AGENT-OPERATING-MODEL.md`。不要依赖历史聊天记忆、旧模型排名或旧考试分数恢复 routing policy。**
+
 ## 默认治理模型
 
 ### Lean Project（默认）
@@ -24,7 +26,7 @@ Owner 可以说：
 
 - PM + 0–1 Writer；
 - Reviewer 按风险临时启用；
-- 不要求每个任务 Issue / Task ID；
+- Task ID / Issue / worktree / project-memory refresh 都按需；
 - 不要求每个 PR 独立 Reviewer；
 - 单 Writer 不要求额外 worktree；
 - docs-only 不跑完整 regression；
@@ -52,9 +54,9 @@ architecture、Contract/API/schema、release、migration、production destructiv
 ## Owner / PM
 
 - Owner：产品目标、优先级、风险接受、不可逆业务选择。
-- PM：技术方案、Agent/backend、Task ID、Git/worktree、测试、Reviewer、Review、merge。
+- PM：技术方案、Agent/backend、串行/并行调度、Task ID、Git/worktree、测试、Reviewer、Review、merge。
 
-Owner 不承担工程流程管理。
+Owner 不承担工程流程管理，也不需要逐次决定“派几个 Agent”或“这次用哪个 backend”。
 
 ## Engineer identity 与 backend
 
@@ -66,19 +68,60 @@ Engineer identity != backend。
 
 Lean 单 Agent / PM+Writer 项目可以不用拟人化 roster；长期 multi-Agent named project 才维护 durable roster。
 
-身份/roster 规则详见 `AGENT-OPERATING-MODEL.md`；跨项目可复用的模型/backend 能力证据、当前可用/退役资源和认证等级见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
+身份/roster 规则详见 `AGENT-OPERATING-MODEL.md`；跨项目可复用的 backend 能力证据、当前可用/退役资源和 Owner routing policy 见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
-## Backend capability routing
+## Backend routing（所有新 PM 必须遵守）
 
-PM 不凭模型品牌印象派工，也不把 backend profile 当成 engineer identity。
+当前 canonical routing 不由历史考试分数机械决定，而由 `BACKEND-CAPABILITY-CERTIFICATION.md` 中的 **Owner routing policy** 决定。
 
-- 任务先确定所需最低 capability level；
-- 再从已认证 backend 中选择满足要求、额度/成本更合适的资源；
-- backend/profile 明显变化时可重新认证；
-- 退役资源不得继续默认 routing；
-- 统一入职考核见 `BACKEND-CAPABILITY-EXAM-V1.md`。
+能力上限从高到低：
 
-目标：**用最低但足够安全可靠的已认证能力完成任务，证据不足时再升级。**
+```text
+GPT-6
+→ GPT-5.6 Sol / medium reasoning
+→ GPT-5.6 Terra / high reasoning
+→ GPT-5.6 Luna / max reasoning
+→ TeleAgent
+```
+
+默认派工顺序则从当前成本/额度更优的资源开始：
+
+```text
+TeleAgent first
+→ Luna Max
+→ Terra High
+→ Sol Medium
+→ GPT-6 exceptional escalation
+```
+
+因此：
+
+- TeleAgent 能安全胜任时默认优先 TeleAgent；
+- Luna Max 额度充足，可积极承担更复杂工作；
+- 证据表明当前资源不足时再升级 Terra High / Sol Medium；
+- GPT-6 只用于极少数 Sol 仍不足或复杂度/风险极高的场景；
+- HY3 作为当前可用免费备用资源，不在默认主链；
+- HY4 已退役，不得默认派工；
+- Luna normal 当前不作为默认 routing 候选。
+
+历史 Stage A / Stage B 考试只保留为 empirical evidence，不是当前模型排序 authority。除非 backend 明显换代、execution surface 变化或真实项目表现偏离预期，否则不需要继续为了排名重复考试。
+
+## Parallel-agent dispatch
+
+并行是 PM 的效率工具，不是固定流程：
+
+> **Parallelism is a PM optimization, not a mandatory workflow.**
+
+PM 可以按任务依赖关系决定一个 Agent 串行完成，或 fan-out 多个 Agent 并行。适合并行的典型场景包括独立 bug/plugin/package、implementation 与 tests、不同 root-cause hypothesis、read-only review、docs 与实现等。
+
+硬边界不变：
+
+- 同一 shared mutable work area 同时只能有一个 Writer；
+- 多 Writer 必须通过 repo / branch / worktree / module/file ownership / independent subtask 隔离；
+- 并行结果由 PM fan-in、解决冲突、核对证据；
+- 所有 Agent 都只能提交 candidate evidence，最终 `PASS / NEEDS_CORRECTION / HOLD` 由 PM 决定。
+
+详见 `AGENT-OPERATING-MODEL.md` §5.1 与 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
 ## Local / Remote
 
@@ -119,18 +162,19 @@ PM 不凭模型品牌印象派工，也不把 backend profile 当成 engineer id
 | File | Canonical responsibility |
 | --- | --- |
 | `ENGINEERING-STANDARDS.md` | Lean Project、Fast/Standard/High-risk、testing、Review、Project Memory、hard boundaries |
-| `NEW-SESSION-BOOTSTRAP.md` | 新会话快速选择治理深度 |
+| `NEW-SESSION-BOOTSTRAP.md` | 新会话快速选择治理深度，并在派工前发现当前 routing policy |
 | `TASK-LIFECYCLE-STANDARD.md` | Task ID threshold / idempotency / recovery |
-| `AGENT-OPERATING-MODEL.md` | engineer identity / roster / backend / staffing |
-| `BACKEND-CAPABILITY-CERTIFICATION.md` | backend/model capability certification、resource policy、routing evidence |
-| `BACKEND-CAPABILITY-EXAM-V1.md` | 统一 backend 入职考核题面与评分 rubric |
+| `AGENT-OPERATING-MODEL.md` | engineer identity / roster / backend usage / staffing / parallel dispatch / PM final acceptance |
+| `BACKEND-CAPABILITY-CERTIFICATION.md` | Owner routing policy、backend capability/cost/quota、empirical evidence、parallel routing |
+| `BACKEND-CAPABILITY-EXAM-V1.md` | 历史/按需 backend 入职考核题面与评分 rubric；不是当前排名 authority |
+| `BACKEND-CAPABILITY-LIVE-PRACTICAL-V1.md` | 历史/按需 live practical fixture；不是每个新 PM 的必跑流程 |
 | `PROMPT-HANDOFF-STANDARD.md` | Prompt 与 GitHub-native handoff |
 | `LOCAL-WORKSPACE-STANDARD.md` | local-first / SAFE_REMOTE_FIRST / worktree |
 | `GIT-GITHUB-STANDARD.md` | Git mechanics / review refs / merge |
 | `RESTRICTED-CONTENT-STANDARD.md` | Active Surface / Legacy Evidence gate |
 | `KNOWLEDGE-ACCUMULATION.md` | 可复用知识沉淀 |
 | `CODEX-RULES.md` | Deep Engineering 专项使用原则 |
-| `AGENTS.md` | Agent 入口和 cross-reference |
+| `AGENTS.md` | Agent/PM 启动入口和 cross-reference |
 | `JOURNAL.md` | 重大标准演进历史 |
 
 同一核心规则只在一个文件完整定义，其它文件只引用。
