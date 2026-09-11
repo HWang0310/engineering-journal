@@ -16,11 +16,11 @@
 | --- | --- | --- | --- |
 | GPT-6（Astra / Pro where applicable） | 顶级 | `OWNER_PRECERTIFIED_C4` | 最高复杂度/最高风险候选；Owner 明确免除本轮入职考核 |
 | GPT-5.6 Sol（High / 更高 reasoning profile） | 顶级 | `PENDING_EXAM` | 考核后决定 C3/C4 边界 |
-| GPT-5.6 Terra | 次顶级 | `PENDING_EXAM` | 考核后决定 Standard/Advanced/Deep 边界 |
-| GPT-5.6 Luna Max | 高额度执行池 | `PENDING_EXAM_NEW` | 新增 capability profile；重点验证是否可覆盖部分 Terra/Sol 工作 |
+| GPT-5.6 Terra | 次顶级 | `STAGE_A_C4_PROVISIONAL` | 纸面考核进入 C4 分数段；完成 Live Practical 后决定最终 C3/C4 边界 |
+| GPT-5.6 Luna Max | 高额度执行池 | `STAGE_A_C4_PROVISIONAL` | 纸面考核当前最佳；重点验证真实施工时是否可稳定覆盖 Terra/部分 Sol 工作 |
 | GPT-5.6 Luna（default/normal profile） | 高额度执行池 | `PENDING_EXAM` | 重点验证 Routine/Standard 上限 |
-| TeleAgent | 高额度执行池 | `PENDING_EXAM` | 作为实际 Agent execution platform 独立考核；记录当时可见 backend/version |
-| WorkBuddy HY3 | 当前免费执行池 | `PENDING_EXAM_NEW` | 按统一考核确认能力边界；当前可作为免费候选资源，若未来成本策略不再合适可直接退役 |
+| TeleAgent | 高额度执行池 | `STAGE_A_C3_CAPPED` | 技术题强，但出现明确 instruction-fidelity 错误；Live Practical 重点验证精确执行可靠性 |
+| WorkBuddy HY3 | 当前免费执行池 | `STAGE_A_C4_PROVISIONAL` | 纸面能力进入 C4 分数段；Live Practical 重点验证 Git/recovery 与真实施工稳定性 |
 | WorkBuddy HY4 | 退役 | `RETIRED_DO_NOT_ROUTE` | 因 Owner 成本策略退出默认 routing；除非 Owner 日后明确重新启用，否则不得派工 |
 
 资源价格/额度变化属于 operational policy，可以更新本表，不构成 engineer identity 变化。某 backend 因成本策略从 available 变为 `RETIRED_DO_NOT_ROUTE` 时，不需要修改任何 project roster。
@@ -139,18 +139,35 @@ PM routing 顺序：
 
 ## 7. Current certification results
 
-本轮结果尚未收齐。完成每个候选考核后，在这里记录：
+Written exam 是 Stage A provisional evidence；`C2+` 仍必须经过 Live Practical 才能形成 Final Certification。
 
 | Backend profile | Written score | Provisional | Live practical | Final certification | Strong areas | Do-not-route boundary | Evidence date |
 | --- | ---: | --- | --- | --- | --- | --- | --- |
 | GPT-6 | exempt | C4 | exempt | `C4 Deep / Owner pre-certified` | owner-designated top capability | hard boundaries still apply | 2026-09-11 |
 | GPT-5.6 Sol high+ | pending | pending | pending | pending | pending | pending | pending |
-| GPT-5.6 Terra | pending | pending | pending | pending | pending | pending | pending |
-| GPT-5.6 Luna Max | pending | pending | pending | pending | pending | pending | pending |
+| GPT-5.6 Terra | 99 | `C4 Deep provisional` | pending | pending | near-ceiling written result; async race, tenant isolation, Contract migration, verification discipline | final C4 withheld until Live Practical; submitted runtime did not expose exact model/reasoning profile | 2026-09-11 |
+| GPT-5.6 Luna Max | 100 | `C4 Deep provisional` | pending | pending | strongest written result; debugging, Git recovery, cross-project discipline, mixed-version migration | written exam has ceiling effect; do not use as unsupervised High-risk primary until Live Practical confirms stability | 2026-09-11 |
 | GPT-5.6 Luna normal | pending | pending | pending | pending | pending | pending | pending |
-| TeleAgent | pending | pending | pending | pending | pending | pending | pending |
-| WorkBuddy HY3 | pending | pending | pending | pending | pending | pending | pending |
+| TeleAgent | 94 | `C3 Advanced (instruction-fidelity cap)` | pending | pending | strong debugging, Git/recovery, cross-project and Contract reasoning | Q1 reversed the requested README correction direction; do not route unsupervised exact-scope changes until Live Practical proves instruction fidelity | 2026-09-11 |
+| WorkBuddy HY3 | 94 | `C4 Deep provisional` | pending | pending | strong governance judgment, tenant isolation, async debugging and Contract reasoning | Git/recovery answer had WIP-branch restoration ambiguity; High-risk Git/recovery routing waits for Live Practical | 2026-09-11 |
 | WorkBuddy HY4 | n/a | n/a | n/a | `RETIRED` | n/a | do not route by default | 2026-09-11 |
+
+### Stage A scoring notes — 2026-09-11
+
+按 `BACKEND-CAPABILITY-EXAM-V1.md` 的 Q1–Q7 rubric 评分：
+
+| Candidate | Q1 /10 | Q2 /10 | Q3 /20 | Q4 /15 | Q5 /15 | Q6 /20 | Q7 /10 | Total |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| GPT-5.6 Terra（Owner-labeled Terra High；runtime 未暴露精确 profile） | 10 | 10 | 20 | 15 | 14 | 20 | 10 | **99** |
+| GPT-5.6 Luna Max | 10 | 10 | 20 | 15 | 15 | 20 | 10 | **100** |
+| TeleAgent | 4 | 10 | 20 | 15 | 15 | 20 | 10 | **94** |
+| WorkBuddy HY3 | 9 | 10 | 20 | 14 | 12 | 19 | 10 | **94** |
+
+TeleAgent 的 Q1 technical/governance path 判断正确，但在实际流程、grep 与 commit message 中把目标修改方向从“错误的 `30000` 改回 `3000`”写反，因此不按 raw score 直接授予 C4 provisional，而先做 C3 capability cap，等待 Live Practical 验证精确指令执行可靠性。
+
+WorkBuddy HY3 的 written result 进入 C4 分数段，但 Git/recovery 方案在“创建 WIP branch 后何时回到原 feature、如何恢复 G”上存在执行顺序歧义；这不是 hard fail，但真实 Git practical 必须覆盖该边界。
+
+另有一份 Owner 标记为旧“Sol medium”的答卷，纸面得分 **98/100**（Q1 10 / Q2 10 / Q3 20 / Q4 14 / Q5 14 / Q6 20 / Q7 10），但候选自身只报告 `GPT-5 / default reasoning / Codex desktop`，且当前正式资源模型已改为 Sol / Terra / Luna tier，因此只保留为额外 benchmark，不填入 `GPT-5.6 Sol high+` 正式认证栏。
 
 ## 8. Relationship to project roster
 
