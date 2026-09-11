@@ -1,12 +1,12 @@
 # Agent Operating Model
 
-本文件定义跨项目稳定的角色类型、engineer identity、backend routing 与 staffing。目标是防止身份混乱，而不是建立组织架构管理系统。
+本文件定义跨项目稳定的角色类型、engineer identity、backend routing 与 staffing。目标是防止身份混乱，并让 PM 以最低必要成本获得可靠工程吞吐，而不是建立组织架构管理系统。
 
 ## 1. 全局角色类型
 
 | Role | 默认职责 |
 | --- | --- |
-| **Project Manager Role** | 技术判断、拆解、routing、Review、merge gate、Owner-facing closure |
+| **Project Manager Role** | 技术判断、拆解、routing、并行/串行调度、Review、merge gate、Owner-facing closure |
 | **Deep Engineering Role** | 高风险架构、Contract、复杂调试、深 Review |
 | **Execution Role** | 常规实现、测试、Git/docs/config |
 | **Owner** | 产品目标、优先级、风险接受、不可逆业务决定 |
@@ -22,7 +22,7 @@
 - backend mapping 是 operational metadata，PM 可以更新；只有 identity 本身发生增删改名时才进入 Owner personnel decision。
 - temporary Reviewer / specialist 不因为参与一次任务就自动成为长期 project engineer。
 - backend 切换不得静默改变任务 ownership；谁是 Writer / Reviewer 仍需清楚。
-- 当前可用/退役 backend、认证等级与能力边界不在本文件硬编码，统一读取 `BACKEND-CAPABILITY-CERTIFICATION.md`。
+- 当前 backend 排序、成本/额度和 routing policy 不在本文件重复定义，统一读取 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
 ## 3. Roster 只在有长期身份价值时使用
 
@@ -141,9 +141,9 @@ Temporary external Reviewer / specialist 可以作为 external collaborator 参�
 
 ## 4. Capability routing
 
-PM 根据任务需要选择 backend，不使用固定模型排名。当前 backend capability certification 与 resource policy 见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
+Backend 的当前能力阶梯、默认派工顺序、成本/额度策略和 empirical notes 由 `BACKEND-CAPABILITY-CERTIFICATION.md` 统一定义。本文件只定义 PM 如何使用这些资源。
 
-考虑：
+PM routing 需要同时考虑：
 
 - complexity；
 - risk；
@@ -152,28 +152,78 @@ PM 根据任务需要选择 backend，不使用固定模型排名。当前 backe
 - architecture depth；
 - verification difficulty；
 - availability / quota / cost；
-- backend certification evidence。
+- 当前 Owner routing policy；
+- backend 历史实战 evidence。
 
-一般：
+Canonical behavior：
 
-- 明确、机械、可验证 → ordinary execution resource；
-- 中高复杂度、跨文件语义一致性、复杂 recovery/review → high-capability execution/review resource；
-- highest-risk architecture / Contract / core runtime / extreme debugging → Deep Engineering resource。
+1. 不默认从最强 backend 开始；
+2. 优先选择足以胜任且成本/额度更优的资源；
+3. 当前 Owner policy 明确鼓励 **TeleAgent-first**：TeleAgent 能安全胜任时应优先使用；
+4. 不足时再按 registry 中的 capability escalation ladder 升级；
+5. 强 backend 可以只负责最难的 architecture/root-cause/Review，机械实现、tests、docs 等可以交给免费/高额度执行资源；
+6. backend 选择可以在同一 engineer identity 下变化，不构成 roster change；
+7. `RETIRED` backend 不得默认 routing。
 
-backend 选择可以在同一 engineer identity 下变化。不要因为“这个任务想用更强模型”就新增 project engineer；backend routing 同样不得把另一个 project scope 的 named engineer 变成当前项目 engineer。
-
-优先使用**达到任务最低认证等级且额度/成本更合适**的 backend；只有证据表明可靠性不足时才升级更强资源。`RETIRED` backend 不得默认 routing。
+不要因为“这个任务想用更强模型”就新增 project engineer；backend routing 也不得把另一个 project scope 的 named engineer 变成当前项目 engineer。
 
 ## 5. Staffing
 
 PM 只启用当前阶段真正需要的人：
 
-- **0 Writer**：PM 直接分析、Review或做安全的小型管理/remote docs 操作；
+- **0 Writer**：PM 直接分析、Review 或做安全的小型管理/remote docs 操作；
 - **1 Writer**：默认工程实现配置；
-- **2+ Writers**：只有独立工作流且有真实并行收益时；
+- **2+ Writers / Agents**：当工作流可安全隔离并存在真实并行收益时；
 - **Reviewer / specialist**：按风险临时启用，不要求写入长期 roster。
 
+Owner 不需要每次决定“分配几个工程师”。并行度属于 PM 的执行优化，只要不改变 durable roster、不跨越 Owner 决策边界即可。
+
 不要把“有更多 backend 可用”或“另一个依赖项目有更多 named engineers”理解为当前项目自动增加人员。
+
+### 5.1 Parallel-agent dispatch（canonical）
+
+> **Parallelism is a PM optimization, not a mandatory workflow.**
+
+PM 可以串行，也可以 fan-out 多个 Agent。判断标准是：**并行收益是否大于协调成本，并且 ownership 能否安全隔离。**
+
+适合并行的典型工作：
+
+- 多个互不依赖的 bug / plugin / package；
+- primary implementation 与独立 targeted tests；
+- 多个 root-cause hypotheses / investigation streams；
+- implementation 与 docs / migration notes；
+- read-only review、security/recovery review、edge-case analysis；
+- 强 backend 处理 hard subproblem，同时多个 TeleAgent 承担机械实现/测试/文档。
+
+典型形式：
+
+```text
+PM
+├─ Agent A：primary implementation
+├─ Agent B：tests / edge cases
+├─ Agent C：independent investigation
+└─ Specialist：hard subproblem / independent review
+```
+
+也允许：
+
+```text
+PM → one Agent → PM Review
+```
+
+如果任务高度串行、强依赖前一步输出、或多个 Agent 会同时争用同一核心文件/Contract，则不要为了“并行”强行拆分。
+
+#### Parallel safety invariant
+
+并行不改变 ownership hard boundary：
+
+- 同一 **shared mutable work area** 同时只能有一个 Writer；
+- 多 Writer 必须按独立 repo、branch/worktree、明确 file/module ownership 或真正独立 subtask 隔离；
+- Reviewer / investigator 默认只读，不得静默修改 Writer work area；
+- 如果两个并行结果需要 fan-in，由 PM 决定集成顺序、解决冲突并做最终验证；
+- 并行 Agent 都不得自行宣布项目最终 PASS。
+
+免费/无限额度不是降低安全边界的理由；它只意味着 PM 可以在**适合并行的独立工作流**中更积极地使用 TeleAgent 提升吞吐。
 
 ## 6. Writer / Reviewer ownership
 
@@ -182,14 +232,32 @@ PM 只启用当前阶段真正需要的人：
 - temporary Reviewer 不需要新增 durable identity。
 - ownership transfer 是 task-level 状态，不等于 roster change。
 - cross-project ownership transfer 必须同时明确 project scope；不能只转移人名而不说明当前管理的是哪个 project。
+- 多 Agent fan-out 后的 integration ownership 默认回到 PM 或 PM 明确指定的 integration Writer。
 
-## 7. Dispatch transparency
+## 7. PM final acceptance
+
+无论单 Agent、串行、多 Agent 并行还是 specialist + implementer 组合，最终状态都由项目 PM 独立验收。
+
+PM 至少需要根据任务风险检查适用证据：
+
+- scope / diff；
+- tests / validation；
+- branch / head / recovery facts（如适用）；
+- 并行结果之间是否冲突；
+- 是否有 Agent 越权扩大 scope；
+- hard boundaries 是否满足。
+
+Agent 可以提交 `PASS_CANDIDATE` / completion evidence，但不能替代 PM 的最终 `PASS / NEEDS_CORRECTION / HOLD`。
+
+## 8. Dispatch transparency
 
 如果 Owner 需要手动把 Prompt 发给某个 Agent，PM 应简短告诉 Owner“当前 project / 发给谁 / 使用哪个 backend/profile / 当前目标”。Task ID 仅在达到门槛时说明。
 
 如果 PM 能直接执行或直接调用工具，不为透明度机械增加一轮 Owner relay。
 
-## 8. Anti-patterns
+当 PM 使用多 Agent 并行时，只在对 Owner 有实际价值时说明并行分工；不要求 Owner充当 Agent 之间的信息中继。
+
+## 9. Anti-patterns
 
 - backend switch = personnel change；
 - 临时 Reviewer = durable roster expansion；
@@ -197,10 +265,14 @@ PM 只启用当前阶段真正需要的人：
 - 小项目为了形式维护四人以上角色表；
 - 因 quota 机械降级真正 Deep Engineering；
 - 因可用 Agent 多就制造假并行；
+- 明明可安全并行却机械串行导致不必要等待；
+- 多 Writer 无隔离地同时修改同一 shared mutable area；
 - Reviewer 静默变 Writer；
-- 为一次小任务要求 Owner 批准模型切换；
+- 为一次小任务要求 Owner 批准模型切换或 Agent 数量；
 - 因读取 dependency/plugin repo 的 roster，把 external named engineer 当成 current project engineer；
 - 用 backend routing 绕过 project-scoped roster membership；
-- 因模型品牌名气跳过 capability evidence，或继续派发已标记 `RETIRED` 的 backend。
+- 因历史考试分数高就无视当前 Owner routing policy；
+- 继续派发已标记 `RETIRED` 的 backend；
+- 把最终验收交给执行 Agent 自己宣布。
 
-最终目标：稳定 identity、清晰 project scope、合适 capability、低沟通成本和风险相称的工程吞吐。
+最终目标：稳定 identity、清晰 project scope、合适 capability、可控并行、低沟通成本和风险相称的工程吞吐。
