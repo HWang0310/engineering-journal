@@ -54,6 +54,7 @@ run("git", "config", "user.email", "fixture@example.invalid", cwd=seed)
 write(seed / "renderer_host" / "__init__.py", "")
 write(seed / "renderer_host" / "registry.py", '''from dataclasses import dataclass\n\n\n@dataclass(frozen=True)\nclass Renderer:\n    name: str\n    capabilities: frozenset[str]\n\n\nclass Registry:\n    def __init__(self, renderers):\n        self._renderers = list(renderers)\n\n    def choose(self, capability: str, preferred: str | None = None):\n        candidates = self._renderers\n        candidates[:] = [r for r in candidates if capability in r.capabilities]\n        if preferred is not None:\n            candidates.sort(key=lambda r: r.name != preferred)\n        return candidates[0] if candidates else None\n''')
 write(seed / "README.md", '''# Renderer Host Fixture\n\n`Registry.choose(capability, preferred=None)` selects one registered renderer.\n\nContract:\n- registration order is the default priority order;\n- `preferred` may affect only the current selection;\n- one request must not change which renderers are available to later requests;\n- public method signatures must remain unchanged in this exercise.\n''')
+write(seed / ".gitignore", "__pycache__/\n*.pyc\n")
 run("git", "add", ".", cwd=seed)
 run("git", "commit", "-m", "A: add renderer registry", cwd=seed)
 
