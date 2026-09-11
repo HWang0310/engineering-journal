@@ -21,7 +21,8 @@
    - `ENGINEERING-STANDARDS.md`
    - `RESTRICTED-CONTENT-STANDARD.md`
 3. **只在任务触发对应领域时**再读：
-   - Agent/roster/backend → `AGENT-OPERATING-MODEL.md`
+   - Agent/roster/backend identity → `AGENT-OPERATING-MODEL.md`
+   - backend/model capability、resource availability、认证等级 → `BACKEND-CAPABILITY-CERTIFICATION.md`
    - Task ID/recovery → `TASK-LIFECYCLE-STANDARD.md`
    - Prompt/handoff → `PROMPT-HANDOFF-STANDARD.md`
    - local/remote construction → `LOCAL-WORKSPACE-STANDARD.md`
@@ -85,7 +86,7 @@ Lean 默认：
 
 ## 6. Roster / backend
 
-canonical 规则见 `AGENT-OPERATING-MODEL.md`，尤其是 §3.2 Project-scoped Engineer Identity Boundary。
+identity / roster 的 canonical 规则见 `AGENT-OPERATING-MODEL.md`，尤其是 §3.2 Project-scoped Engineer Identity Boundary。backend 能力认证与当前 resource policy 见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
 ### 6.1 Named roster 恢复顺序
 
@@ -116,14 +117,22 @@ engineer_identity in current_project.canonical_roster
 
 - 不得直接把该 named engineer 当作 current project engineer 派工；
 - 不得因为另一个 repo / project roster 中出现了同名或其它 named engineer 就使用；
-- 需要当前 project 新增 durable engineer 时，升级 Owner，按当前 project roster add 规则处理；
-- 如果问题属于另一个 project，可以显式进入 cross-project handoff，由 external project 自己恢复 roster / staffing，再 handback 当前 project 做 integration review。
+- 需要 current project 新增 durable engineer 时，升级 Owner，按 current project roster add 规则处理；
+- 如果问题属于另一个 project，可以显式进入 cross-project handoff，由 external project 自己恢复 roster / staffing，再 handback current project 做 integration review。
 
-### 6.3 Lean / backend 保持不变
+### 6.3 Backend capability routing
+
+Roster membership 与 backend capability 是两个独立判断：
+
+1. 先确认 engineer identity 属于 current project；
+2. 再根据 task risk / ambiguity 判断最低 capability need；
+3. 读取 `BACKEND-CAPABILITY-CERTIFICATION.md` 的当前认证与 resource policy；
+4. 从满足能力边界的 backend 中优先选择额度/成本更合适的资源；
+5. `RETIRED_DO_NOT_ROUTE` backend 不得默认派工；未认证 backend 不用于关键任务。
 
 - durable named roster 存在时先从**当前 project** GitHub 恢复名字。
 - Lean 单 Agent / PM+Writer 项目不要求拟人化 roster，也不要求为了 dependency 建 roster。
-- backend switch 是 PM capability routing，不自动变成人员变更；例如同一个 current-project engineer 从 ordinary execution backend 切换到 high-capability backend，identity 不变。
+- backend switch 是 PM capability routing，不自动变成人员变更。
 - backend routing 不得用来绕过 project-scoped roster membership。
 - temporary external Reviewer / specialist 不因为一次协作加入 current project durable roster。
 - 真正 add/remove/rename current-project durable engineer identity 才升级 Owner。
@@ -159,6 +168,8 @@ canonical threshold 在 `TASK-LIFECYCLE-STANDARD.md` §1。
 
 ordinary bug/docs/correction/temp reviewer/backend switch/refactor 由 GitHub PR/Issue/commit history 承载。
 
+Backend capability certification 是跨项目 routing evidence，维护在 `BACKEND-CAPABILITY-CERTIFICATION.md`，不复制进每个 project roster。
+
 ## 11. Restricted content
 
 当前/new Active Surface 必须严格通过 hard gate。历史 immutable evidence 按 Legacy Evidence Set 处理；不要把普通历史 wording 变成每次任务的 full-history blocker。
@@ -170,6 +181,7 @@ ordinary bug/docs/correction/temp reviewer/backend switch/refactor 由 GitHub PR
 - 当前 project / task 判断；
 - Fast / Standard / High-risk；
 - 谁负责执行；
+- 选择哪个 backend/profile（需要 Owner 手动 dispatch 时）；
 - Owner 当前是否需要行动；
 - 下一步谁推进。
 
