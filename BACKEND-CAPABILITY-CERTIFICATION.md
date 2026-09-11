@@ -16,8 +16,8 @@
 | --- | --- | --- | --- |
 | GPT-6（Astra / Pro where applicable） | 顶级 | `OWNER_PRECERTIFIED_C4` | 最高复杂度/最高风险候选；Owner 明确免除本轮入职考核 |
 | GPT-5.6 Sol（High / 更高 reasoning profile） | 顶级 | `PENDING_EXAM` | 考核后决定 C3/C4 边界 |
-| GPT-5.6 Sol Medium | 次顶级 | `PENDING_EXAM` | 考核后决定 Standard/Advanced 边界 |
-| GPT-5.6 Luna Max | 高额度执行池 | `PENDING_EXAM_NEW` | 新增 capability profile；重点验证是否可覆盖部分 Medium/Sol 工作 |
+| GPT-5.6 Terra | 次顶级 | `PENDING_EXAM` | 考核后决定 Standard/Advanced/Deep 边界 |
+| GPT-5.6 Luna Max | 高额度执行池 | `PENDING_EXAM_NEW` | 新增 capability profile；重点验证是否可覆盖部分 Terra/Sol 工作 |
 | GPT-5.6 Luna（default/normal profile） | 高额度执行池 | `PENDING_EXAM` | 重点验证 Routine/Standard 上限 |
 | TeleAgent | 高额度执行池 | `PENDING_EXAM` | 作为实际 Agent execution platform 独立考核；记录当时可见 backend/version |
 | WorkBuddy HY4 | 退役 | `RETIRED_DO_NOT_ROUTE` | 因 Owner 成本策略退出默认 routing；除非 Owner 日后明确重新启用，否则不得派工 |
@@ -28,7 +28,8 @@
 
 当前 OpenAI 产品语义中：
 
-- `Medium` 是 GPT-5.6 Sol 的 reasoning level，不是独立 model family；
+- `Sol / Terra / Luna` 是 GPT-5.6 的三个 model tiers：旗舰、均衡、低成本/高吞吐；
+- `medium / high / max` 等属于 reasoning effort/profile 维度，不应与 model tier 混为一谈；
 - `Luna Max` 表示 GPT-5.6 Luna 使用 `max` reasoning effort 的 backend profile；
 - 因此认证对象必须记录 **model + reasoning profile + execution surface**，不能只写模糊的“GPT-5.6”。
 
@@ -52,7 +53,7 @@
 除 GPT-6 Owner-exempt 外，本轮候选使用同一套 closed-book reasoning exam：
 
 - GPT-5.6 Sol 高 reasoning profile；
-- GPT-5.6 Sol Medium；
+- GPT-5.6 Terra；
 - GPT-5.6 Luna Max；
 - GPT-5.6 Luna normal/default；
 - TeleAgent。
@@ -142,7 +143,7 @@ PM routing 顺序：
 | --- | ---: | --- | --- | --- | --- | --- | --- |
 | GPT-6 | exempt | C4 | exempt | `C4 Deep / Owner pre-certified` | owner-designated top capability | hard boundaries still apply | 2026-09-11 |
 | GPT-5.6 Sol high+ | pending | pending | pending | pending | pending | pending | pending |
-| GPT-5.6 Sol Medium | pending | pending | pending | pending | pending | pending | pending |
+| GPT-5.6 Terra | pending | pending | pending | pending | pending | pending | pending |
 | GPT-5.6 Luna Max | pending | pending | pending | pending | pending | pending | pending |
 | GPT-5.6 Luna normal | pending | pending | pending | pending | pending | pending | pending |
 | TeleAgent | pending | pending | pending | pending | pending | pending | pending |
