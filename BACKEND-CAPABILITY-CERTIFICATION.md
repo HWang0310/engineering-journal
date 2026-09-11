@@ -20,9 +20,10 @@
 | GPT-5.6 Luna Max | 高额度执行池 | `PENDING_EXAM_NEW` | 新增 capability profile；重点验证是否可覆盖部分 Terra/Sol 工作 |
 | GPT-5.6 Luna（default/normal profile） | 高额度执行池 | `PENDING_EXAM` | 重点验证 Routine/Standard 上限 |
 | TeleAgent | 高额度执行池 | `PENDING_EXAM` | 作为实际 Agent execution platform 独立考核；记录当时可见 backend/version |
+| WorkBuddy HY3 | 当前免费执行池 | `PENDING_EXAM_NEW` | 按统一考核确认能力边界；当前可作为免费候选资源，若未来成本策略不再合适可直接退役 |
 | WorkBuddy HY4 | 退役 | `RETIRED_DO_NOT_ROUTE` | 因 Owner 成本策略退出默认 routing；除非 Owner 日后明确重新启用，否则不得派工 |
 
-资源价格/额度变化属于 operational policy，可以更新本表，不构成 engineer identity 变化。
+资源价格/额度变化属于 operational policy，可以更新本表，不构成 engineer identity 变化。某 backend 因成本策略从 available 变为 `RETIRED_DO_NOT_ROUTE` 时，不需要修改任何 project roster。
 
 ### Vendor profile naming
 
@@ -56,7 +57,8 @@
 - GPT-5.6 Terra；
 - GPT-5.6 Luna Max；
 - GPT-5.6 Luna normal/default；
-- TeleAgent。
+- TeleAgent；
+- WorkBuddy HY3。
 
 同一轮必须尽量保持：
 
@@ -147,6 +149,7 @@ PM routing 顺序：
 | GPT-5.6 Luna Max | pending | pending | pending | pending | pending | pending | pending |
 | GPT-5.6 Luna normal | pending | pending | pending | pending | pending | pending | pending |
 | TeleAgent | pending | pending | pending | pending | pending | pending | pending |
+| WorkBuddy HY3 | pending | pending | pending | pending | pending | pending | pending |
 | WorkBuddy HY4 | n/a | n/a | n/a | `RETIRED` | n/a | do not route by default | 2026-09-11 |
 
 ## 8. Relationship to project roster
@@ -160,4 +163,4 @@ PM routing 顺序：
 3. PM 再从本 registry 选择适合的 certified backend profile；
 4. 后续 backend 切换不改变该 identity。
 
-因此“新增 GPT-5.6 Luna Max 能力”在全局层面表现为 **新增可认证 backend capability**；真正的员工名字仍在具体 project scope 内创建，防止跨项目身份串线。
+因此“新增 GPT-5.6 Luna Max / WorkBuddy HY3 能力”在全局层面表现为 **新增可认证 backend capability**；真正的员工名字仍在具体 project scope 内创建，防止跨项目身份串线。
