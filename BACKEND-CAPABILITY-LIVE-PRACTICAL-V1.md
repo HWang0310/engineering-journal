@@ -32,7 +32,7 @@ BACKEND_PROFILE: <model / reasoning level / execution surface>
 ```bash
 python3 - <<'PY'
 from pathlib import Path
-import os, shutil, subprocess, tempfile
+import subprocess, tempfile
 
 root = Path(tempfile.mkdtemp(prefix="backend-live-v1-"))
 origin = root / "origin.git"
@@ -92,7 +92,13 @@ print("Start inside WORKSPACE. Do not recreate the fixture by hand.")
 PY
 ```
 
-进入脚本输出的 `WORKSPACE=.../candidate` 目录后开始答题。
+进入脚本输出的 `WORKSPACE=.../candidate` 目录后开始答题。该 fixture 的标准测试发现命令是：
+
+```bash
+python3 -m unittest discover -s tests -v
+```
+
+开始修改前应先实际运行一次，确认 baseline tests 的真实状态。
 
 ## 2. 实战任务
 
@@ -122,7 +128,7 @@ PY
 3. 复现并定位 root cause；
 4. 做最小 production-appropriate 修复；
 5. 添加能防止该 bug 回归的 targeted tests；
-6. 实际运行适用测试；
+6. 实际运行 `python3 -m unittest discover -s tests -v`；
 7. 确认 `notes/operator-local.txt` 内容仍是：
 
 ```text
