@@ -65,6 +65,39 @@ Writer push → PM/Reviewer 验证 exact SHA → diff/tests/boundaries → `PASS
 - normal PR 至少确认当前 head 未在 Review 后发生未审变更。
 - destructive history/tag/release 操作受 pre-authorization。
 
+### 5.1 Parallel fan-in / base migration remote ancestry invariant
+
+当 parallel lane / PR 声称已经 merge/rebase 到当前 target branch，或 sibling work 已先 merge、当前 PR 需要重新基于最新 target 做 fan-in 时，PM 在 merge acceptance 前必须以 **remote Git facts** 验证 base migration。
+
+至少确认：
+
+- live target branch SHA；
+- live PR head SHA；
+- `merge-base(target, head)`；
+- live target 是否为 PR head ancestor；如果不是，必须明确为什么该 ancestry 仍符合当前 merge strategy；
+- PR 相对 live target 的 current changed-file / diff surface；
+- changed-file / diff surface 是否重新包含已经 merged 的 sibling work；
+- package / handoff / base metadata 是否与 remote Git ancestry 一致。
+
+以下都**不能单独证明** base migration 已完成：
+
+- Agent self-report，例如“已 rebase 到最新 main”；
+- package / manifest / handoff 中记录的新 base SHA；
+- GitHub `mergeable=true`。
+
+如果 Agent 声称已更新到最新 target，但 remote 显示：
+
+- merge-base 仍对应旧 target；
+- current target 不是 head ancestor 且没有符合当前 merge strategy 的明确原因；
+- 已 merged sibling work 重新进入 PR surface；
+- metadata 与 remote ancestry 不一致；
+
+则 PM 应 `HOLD`，先修复 branch/base，再继续 fan-in。
+
+能通过普通 merge / rebase 修复时优先普通方式。任何 force push / history rewrite 仍遵守现有 pre-authorization 规则。
+
+**本 invariant 是 parallel fan-in / claimed base migration 的轻量 remote mechanics verification；它本身不会把普通低风险 PR 自动升级为 exact-SHA deep review。** exact-SHA 仍只按任务真实风险和本文件 §4 的 Review mode 使用。
+
 ## 6. SAFE_REMOTE_FIRST
 
 符合 `LOCAL-WORKSPACE-STANDARD.md` §6.2 的 docs/small text change 可以 remote-first；不要求先 local checkout。
