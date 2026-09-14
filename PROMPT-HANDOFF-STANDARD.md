@@ -69,6 +69,18 @@ Fast Path 完成信号可以只是：
 
 有 Task ID 时可附 Task ID；无 Task ID 时不补造一个。
 
+### 5.1 Single active execution thread
+
+同一个实现任务默认只维护一个 **active execution / review thread**，避免 Issue 与 PR 同时复制完整 handoff、correction 和 validation history。
+
+- 尚无 implementation PR 时，Issue 可以承载 Task Contract、设计讨论、执行指令和当前 handoff；
+- implementation PR 创建后，PR 默认成为该实现工作的 active execution / review thread；
+- Issue 继续保留任务目标、why、scope、architecture / Owner decisions 等 durable task context，并可用简短状态或 PR reference 指向当前实现；
+- Agent handoff、PM correction、correction result、current validation 默认留在 active PR，不再向 Issue 重复复制同一全文；
+- design-only、multi-PR coordination、无 PR 任务或项目明确采用 issue-centric workflow 时，可以继续以 Issue 为 active thread。
+
+本规则不删除历史，也不改变 GitHub durable truth；它只减少同一 current state 在多个 GitHub surface 上的重复传播。
+
 ## 6. 什么时候需要完整 handoff
 
 只在关键事实无法从 GitHub/交付物恢复时，例如：
@@ -86,6 +98,24 @@ Fast Path 完成信号可以只是：
 `NEEDS_CORRECTION` 默认修当前变更，不因为 correction round 自动创建新 Task/Issue/Reviewer。
 
 只有修正本身已经成为独立目标或明显扩大风险边界时，才重新拆任务。
+
+### 7.1 Correction delta handoff
+
+同一 PR 的第二轮及后续 correction 默认使用 **delta handoff**，只报告相对上一轮已审状态的新事实。
+
+建议包含：
+
+- `PREVIOUS_REVIEWED_HEAD`（已知时）；
+- `CURRENT_HEAD`；
+- 本轮逐项解决了哪些 PM correction；
+- `FILES_CHANGED_THIS_ROUND`；
+- 本轮新增/变化的 validation evidence；
+- 仍然不变但对安全/边界有必要确认的关键 boundary；
+- blockers、status、next owner。
+
+默认不要重复粘贴完整任务背景、前几轮 handoff、未变化的文件清单、未变化的长测试日志或已经由 GitHub durable history 保存的 correction transcript。
+
+如果上一轮 reviewed head 不可确定、scope 已明显扩大、关键假设发生变化、出现 cross-cutting / high-risk 影响，PM 或 Agent 可以扩大 handoff 内容；delta handoff 不是隐藏变化的理由。
 
 ## 8. Context hygiene
 
