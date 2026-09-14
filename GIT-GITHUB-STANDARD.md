@@ -57,6 +57,56 @@ PM 确认：
 
 Writer push → PM/Reviewer 验证 exact SHA → diff/tests/boundaries → `PASS/HOLD/NEEDS_CORRECTION`。
 
+### 4.1 Correction review: delta-first
+
+同一 PR 已完成一轮 Review 并进入 `NEEDS_CORRECTION` 后，后续 correction round 默认采用 **delta-first review**，避免机械重读已经审过且未变化的历史内容。
+
+如果上一轮已审 head 为 `A`，当前 head 为 `B`，PM 默认先验证并审查：
+
+- `A...B` 的 correction delta；
+- 本轮新增或修改的文件 / patch；
+- 上一轮 blocking findings 是否逐项解决；
+- 本轮 validation evidence；
+- 是否出现 scope drift、boundary change 或新的风险。
+
+已经在 `A` 上审过、且 `A...B` 没有触及的 unchanged patch / historical correction transcript 默认不重新读取。
+
+以下情况应扩大到更广的 Review，而不是只看 delta：
+
+- correction 改变了上一轮成立的核心假设；
+- 修改触及 shared contract / cross-cutting behavior；
+- scope 明显扩大；
+- base / ancestry 变化使上一轮 diff 语义失效；
+- PM 无法确定上一轮 reviewed head；
+- 实际风险要求重新检查完整 surface。
+
+**Delta-first 是 correction round 的读取优化，不替代 final merge gate。** merge 前仍按当前任务风险确认 current PR head、current full changed-file surface、applicable validation、merge target；high-risk 仍遵守 exact-SHA Review。
+
+### 4.2 Review fact freshness / mutation-triggered refresh
+
+同一个连续 Review cycle 内，已经从 remote 验证且没有理由认为失效的 GitHub facts 可以复用，不要求为了仪式重复请求。
+
+典型可复用事实包括：
+
+- live target branch SHA；
+- current PR head SHA；
+- PR base / merge target；
+- changed-file list / diff surface；
+- 已读取的 current review state。
+
+当发生或合理怀疑发生会使事实失效的 mutation 时，才刷新对应事实。典型 trigger：
+
+- PR head 有新 push / rebase / force update；
+- target branch 因其它 merge / push 前进；
+- PR base 被 retarget；
+- 新 review / correction / handoff 改变 current review state；
+- merge 执行完成；
+- 外部动作可能改变当前判断所依赖的 remote state。
+
+不要因为一个 GitHub 请求完成后“保险起见”立即重复读取同一未变化事实。
+
+final merge 前仍必须满足本文件 §5 的 current-head要求；merge 后只重新验证当前任务 DoD 真正需要的事实。例如 main merge SHA 属于 release/recovery 证据时应确认；linked Issue 是否自动关闭，只有在 issue closure 本身属于任务 acceptance / lifecycle requirement 时才需要单独再读取。
+
 ## 5. Merge
 
 - Agent 不拥有最终 merge acceptance。
