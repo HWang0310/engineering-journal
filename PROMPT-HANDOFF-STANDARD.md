@@ -15,6 +15,8 @@ Fast Path 不要求 12 项模板。足够清楚即可，通常只需要：
 
 通用 workspace / Git / lifecycle / STOP / handoff 规则默认引用当前 `engineering-journal`，不在每个 Prompt 里重复。
 
+如果 Fast Path 被 dispatch 给 Agent，Prompt 必须绑定当前项目 canonical roster 中一个具体 named engineer；如果由 PM 直接完成，则不需要虚构 Agent identity。
+
 ## 2. Standard / High-risk Prompt
 
 只有风险和恢复价值增加时，才逐步加入：
@@ -32,14 +34,26 @@ Fast Path 不要求 12 项模板。足够清楚即可，通常只需要：
 
 High-risk Prompt 应低歧义，但不把规范全文复制进去。
 
+无论 Fast / Standard / High-risk，只要发生 dispatch，`Writer` / `Reviewer` 等 role label 都不能代替具体 named engineer identity。
+
 ## 3. Dispatch announcement
 
-只有 Owner 需要转发 Prompt 时，PM 才需要明确告诉 Owner：
+任何实际 dispatch 都必须先符合 `AGENT-OPERATING-MODEL.md` 的 project-scoped named dispatch invariant。
 
-- 发给哪个现有 engineer / Agent；
-- backend（如果这决定实际发送对象）；
-- Task ID（有时）；
+如果 Owner 需要手动把 Prompt 发给某个 Agent，PM 必须明确告诉 Owner：
+
+- 当前 project；
+- 发给当前项目哪个**具体 named engineer / Agent**；
+- backend/profile；
+- Task ID（达到门槛时）；
 - 一句话目标。
+
+不得只说“交给 Writer”“交给 Reviewer”“交给 TeleAgent/Codex”。Role 和 backend 都不是 engineer identity。
+
+如果当前项目没有可用的 canonical roster identity，PM 不能借用其它项目的名字，也不能用 generic Agent 顶替。此时只有两种合法路径：
+
+- PM 自己直接完成当前工作；
+- 确实需要新增 durable engineer 时，先按 `AGENT-OPERATING-MODEL.md` 走 Owner-approved roster add，再 dispatch。
 
 backend 变化不等于人员变化；规则见 `AGENT-OPERATING-MODEL.md`。
 
@@ -122,6 +136,7 @@ Fast Path 完成信号可以只是：
 - 同一 Agent 正在执行一个完整任务时，不再追加第二个完整任务。
 - 关键上下文来自 repository / PR / Task ID（有时），不依赖“你应该记得”。
 - 不把历史完整 Prompt 当作 durable project memory。
+- dispatch identity 必须来自当前 project roster，不从其它项目会话或 handoff 中借名字。
 
 ## 9. Session Rollover / Control-Plane Compaction（canonical）
 

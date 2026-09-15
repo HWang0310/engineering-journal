@@ -101,25 +101,28 @@ Owner 不需要逐次决定模型、Agent 数量或并行方式，除非这些�
 Lean 默认：
 
 - PM + 0–1 Writer；
+- PM 自己直接完成工作时可以没有 Writer；
+- 只要发生 Agent dispatch，就至少需要一个 current-project named engineer identity；
 - Reviewer 按风险临时启用；
 - Task ID / Issue / worktree / project-memory refresh 都按需；
-- 不要求长期 multi-agent roster；
+- 不要求完整 multi-agent organization；
 - docs-only 不跑完整 regression。
 
 只有长期风险形态确实更高时才把更强治理变成项目默认。
 
 ## 6. Roster / backend / dispatch
 
-identity / roster、staffing、parallel dispatch 的 canonical 规则见 `AGENT-OPERATING-MODEL.md`。当前 backend 能力阶梯、Owner routing policy、resource/cost/quota 与 empirical evidence 的 **single canonical source** 是 `BACKEND-CAPABILITY-CERTIFICATION.md`。
+identity / roster、staffing、named dispatch、parallel dispatch 的 canonical 规则见 `AGENT-OPERATING-MODEL.md`。当前 backend 能力阶梯、Owner routing policy、resource/cost/quota 与 empirical evidence 的 **single canonical source** 是 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
 ### 6.1 Named roster 恢复顺序
 
-在恢复或派发任何 named engineer 前，必须按以下顺序：
+在恢复或派发任何 engineer 前，必须按以下顺序：
 
 1. **resolve 当前正在管理的 project**；
-2. 定位该 project 自己的 canonical roster source（如果存在 durable named roster）；
-3. 从该 roster 恢复当前 project engineer identities；
-4. 最后才能进行 named engineer staffing / dispatch。
+2. 定位该 project 自己的 canonical roster source；
+3. 从该 roster 恢复 current project active engineer identities；
+4. 为当前任务选择一个**具体 named engineer identity**；
+5. 最后才能进行 backend/profile routing 和 dispatch。
 
 不得先在一组已打开 repositories 中搜 engineer 名字，再反推谁属于当前 project。
 
@@ -129,18 +132,23 @@ Repositories 如果只是为了当前问题被 inspected as dependency / plugin 
 
 ### 6.2 Dispatch invariant
 
-在派发 named engineer 前必须满足：
+任何 Agent dispatch 前必须满足：
 
 ```text
 current_project = resolved
 current_project.canonical_roster = resolved
-engineer_identity in current_project.canonical_roster
+dispatch_agent_identity = specific named identity
+dispatch_agent_identity in current_project.canonical_roster
+dispatch_agent_identity.status = active
+backend/profile = resolved separately
 ```
 
 不满足时：
 
-- 不得直接把该 named engineer 当作 current project engineer 派工；
+- 不得用 generic `Writer` / `Reviewer` / `Agent` 顶替；
+- 不得直接把另一个 project 的 named engineer 当作 current project engineer 派工；
 - 不得因为另一个 repo / project roster 中出现了同名或其它 named engineer 就使用；
+- PM 可以自己直接完成当前工作；
 - 需要 current project 新增 durable engineer 时，升级 Owner，按 current project roster add 规则处理；
 - 如果问题属于另一个 project，可以显式进入 cross-project handoff，由 external project 自己恢复 roster / staffing，再 handback current project 做 integration review。
 
@@ -148,7 +156,7 @@ engineer_identity in current_project.canonical_roster
 
 Roster membership 与 backend routing 是两个独立判断：
 
-1. 先确认 current project / engineer identity；
+1. 先确认 current project / concrete named engineer identity；
 2. 读取最新 `BACKEND-CAPABILITY-CERTIFICATION.md`；
 3. 按其中**当前 Owner routing policy**判断 capability、cost/quota、available/retired 状态；
 4. 选择足以安全胜任且当前资源策略更合适的 backend；
@@ -159,8 +167,9 @@ Roster membership 与 backend routing 是两个独立判断：
 
 历史 Stage A / Stage B 结果只是 empirical evidence，不是当前 routing authority，也不是每个新会话要重跑的流程。
 
-- durable named roster 存在时先从**当前 project** GitHub 恢复名字；
-- Lean 单 Agent / PM+Writer 项目不要求拟人化 roster，也不要求为了 dependency 建 roster；
+- named roster 必须从**当前 project** GitHub 恢复；
+- Lean 项目可以只有一个最小 named roster，不要求完整 multi-agent organization；
+- `Writer` / `Reviewer` 是 role labels，不是 dispatch identity；
 - backend switch 是 PM capability routing，不自动变成人员变更；
 - backend routing 不得用来绕过 project-scoped roster membership；
 - temporary external Reviewer / specialist 不因为一次协作加入 current project durable roster；
@@ -174,6 +183,7 @@ PM 根据最新 `AGENT-OPERATING-MODEL.md` 判断是否值得 fan-out。存在�
 
 Parallel safety invariant：
 
+- 每条 dispatch lane 必须绑定 current-project 具体 named engineer；
 - 同一 shared mutable work area 同时只有一个 Writer；
 - 多 Writer 必须通过 repo / branch / worktree / module/file ownership / independent subtask 隔离；
 - Reviewer / investigator 默认只读；
@@ -225,7 +235,7 @@ Backend routing policy 是跨项目 operational evidence，维护在 `BACKEND-CA
 
 - 当前 project / task 判断；
 - Fast / Standard / High-risk；
-- 谁负责执行；
+- 如果发生 dispatch，具体由当前项目哪个 named engineer 负责；
 - 选择哪个 backend/profile（需要 Owner 手动 dispatch 时）；
 - 如果使用多个 Agent，只有在对 Owner 有价值时简短说明并行分工；
 - Owner 当前是否需要行动；
@@ -237,6 +247,6 @@ Backend routing policy 是跨项目 operational evidence，维护在 `BACKEND-CA
 
 ## 13. Backward compatibility
 
-新规则对未来任务立即生效。老项目不要求批量迁移旧 Task、旧 roster、旧 handoff、旧 commit、旧 PR/Issue。
+新规则对未来任务立即生效。老项目不要求批量迁移旧 Task、旧 handoff、旧 commit、旧 PR/Issue。
 
-下一次自然维护对应 durable state 时再收敛；只有真实安全/法律/不可逆风险才启动专门 migration/purge。
+已有稳定 named engineers 的老项目如果 canonical roster 尚未落 GitHub，应在**下一次 Agent dispatch 前**先恢复并 backfill；除此之外下一次自然维护对应 durable state 时再逐步收敛。只有真实安全/法律/不可逆风险才启动专门 migration/purge。
