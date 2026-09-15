@@ -57,6 +57,30 @@ architecture、Contract/API/schema、release、migration、production destructiv
 
 Task ID threshold、roster、Prompt、workspace、Git、restricted gate 分别引用对应 canonical file。
 
+## Project Engineer Roster
+
+本 section 是 **engineering-journal project 唯一的 canonical project roster source**。命名项目的 roster 必须持久化到 GitHub project memory（`AGENT-OPERATING-MODEL.md` §3.2）；本 section 履行该义务。
+
+### Roster
+
+| Project Role Name | Global Role Type | Function | Status |
+|---|---|---|---|
+| **Steward** | Project Manager Role | Project Manager / final governor | active |
+| **Foundry** | Execution Role | Execution engineer / Writer | active |
+| **Sage** | Execution Role | Project engineer / Writer / researcher | active |
+| **Apex** | Execution Role | Project engineer / reviewer / Writer | active |
+
+### Roster rules
+
+1. Engineer identity 是 **project-scoped**：上述四个名字只属于 engineering-journal project。
+2. 不从其它 project / repository / session / handoff 自动继承 engineer identity。
+3. `Writer` / `Reviewer` 是 role label，不是 engineer identity。
+4. TeleAgent / Codex / GPT 系列 / WorkBuddy 等是 backend，不是 engineer identity；backend/profile 不固定写死在 roster 中。
+5. 每次 dispatch 时由 PM 根据最新 `BACKEND-CAPABILITY-CERTIFICATION.md` 单独 routing。
+6. 历史 backend assignment 不能覆盖当前 identity truth。
+7. 未来真正 add / remove / rename engineer identity 必须经过 Owner personnel decision。
+8. 完整 roster 不再复制到 README、HANDOFF 或其它文件；本 section 是唯一来源。
+
 ## 修改本仓库
 
 这类修改必须优先减少重复和矛盾：
