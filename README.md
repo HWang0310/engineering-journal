@@ -25,6 +25,8 @@ Owner 可以说：
 一般中小型个人 / AI-assisted software project 默认 Lean：
 
 - PM + 0–1 Writer；
+- PM 自己直接完成工作时可以没有 Writer；
+- 只要发生 Agent dispatch，就必须从当前项目自己的 canonical roster 中指定一个具体 named engineer；Lean 项目可以只维护一个最小 named roster；
 - Reviewer 按风险临时启用；
 - Task ID / Issue / worktree / project-memory refresh 都按需；
 - 不要求每个 PR 独立 Reviewer；
@@ -62,11 +64,13 @@ Owner 不承担工程流程管理，也不需要逐次决定派几个 Agent 或�
 
 Engineer identity != backend。
 
-同一 Writer 可以因任务需要切换 backend；这属于 PM capability routing，不自动变成人员变更。
+同一 engineer 可以因任务需要切换 backend；这属于 PM capability routing，不自动变成人员变更。
 
-只有真正新增/删除/改名长期 engineer identity 才属于 Owner personnel decision。
+只有真正新增/删除/改名 durable engineer identity 才属于 Owner personnel decision。
 
-Lean 单 Agent / PM+Writer 项目可以不用拟人化 roster；长期 multi-Agent named project 才维护 durable roster。
+`Writer` / `Reviewer` 是 role labels；TeleAgent / Codex / GPT-5.6 / GPT-6 / WorkBuddy 等是 backend 或 execution surface。**两者都不能代替当前项目 roster 中的具体 engineer name。**
+
+任何实际 dispatch 都必须先解析：当前 project → 当前项目 canonical roster → 具体 named engineer → backend/profile → task。不得从其它项目借用 engineer identity。
 
 身份/roster 规则详见 `AGENT-OPERATING-MODEL.md`；跨项目可复用的 backend 能力证据、当前可用/退役资源和 **Owner routing policy** 见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
@@ -86,7 +90,7 @@ PM 的原则是：先使用足以安全胜任且当前成本/额度更优的资�
 
 PM 可以一个 Agent 串行，也可以 fan-out 多个 Agent。能安全隔离、存在真实并行收益时就并行；强依赖同一核心文件/Contract 或前一步结果时就串行。
 
-硬边界：同一 shared mutable work area 同时只有一个 Writer；多 Writer 必须隔离；PM 负责 fan-in、冲突处理、证据核对与最终 `PASS / NEEDS_CORRECTION / HOLD`。完整规则见 `AGENT-OPERATING-MODEL.md`。
+硬边界：每条 dispatch lane 都绑定当前项目具体 named engineer；同一 shared mutable work area 同时只有一个 Writer；多 Writer 必须隔离；PM 负责 fan-in、冲突处理、证据核对与最终 `PASS / NEEDS_CORRECTION / HOLD`。完整规则见 `AGENT-OPERATING-MODEL.md`。
 
 ## Local / Remote
 
@@ -129,7 +133,7 @@ PM 可以一个 Agent 串行，也可以 fan-out 多个 Agent。能安全隔离�
 | `ENGINEERING-STANDARDS.md` | Lean Project、Fast/Standard/High-risk、testing、Review、Project Memory、hard boundaries |
 | `NEW-SESSION-BOOTSTRAP.md` | 新会话快速选择治理深度，并在派工前发现当前 routing policy |
 | `TASK-LIFECYCLE-STANDARD.md` | Task ID threshold / idempotency / recovery |
-| `AGENT-OPERATING-MODEL.md` | engineer identity / roster / backend usage / staffing / parallel dispatch / PM final acceptance |
+| `AGENT-OPERATING-MODEL.md` | engineer identity / project roster / named dispatch / backend usage / staffing / parallel dispatch / PM final acceptance |
 | `BACKEND-CAPABILITY-CERTIFICATION.md` | Owner routing policy、backend capability/cost/quota、empirical evidence、parallel routing |
 | `BACKEND-CAPABILITY-EXAM-V1.md` | 历史/按需 backend 入职考核题面与评分 rubric；不是当前排名 authority |
 | `BACKEND-CAPABILITY-LIVE-PRACTICAL-V1.md` | 历史/按需 live practical fixture；不是每个新 PM 的必跑流程 |
@@ -152,6 +156,7 @@ PM 可以一个 Agent 串行，也可以 fan-out 多个 Agent。能安全隔离�
 - customer / production sensitive data protection；
 - destructive / irreversible actions pre-authorization；
 - production DB destructive operations 高风险；
+- dispatch 必须使用 current-project named engineer identity；
 - one Writer per shared area；
 - concurrent Writers isolation；
 - architecture / Contract 深 Review；
