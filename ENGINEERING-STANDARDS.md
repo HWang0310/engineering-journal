@@ -50,7 +50,9 @@ Project Profile 只提供默认治理假设，不是新的状态机，也不要�
 Lean Project 默认：
 
 - 不要求完整 multi-Agent organization；
-- 不要求拟人化工程师名字；
+- PM 直接完成工作时可以没有 Writer；
+- **只要发生 Agent dispatch，就必须从当前项目自己的 GitHub canonical roster 中指定一个具体 named engineer；Lean 项目可以只有一个最小 named roster；**
+- `Writer` / `Reviewer` 是 role labels，不是实际 dispatch identity；
 - 不要求每个任务有 Issue / Task ID；
 - 不要求每个 PR 有独立 Reviewer；
 - 不要求每次 project-memory refresh；
@@ -58,6 +60,8 @@ Lean Project 默认：
 - 不要求全 repo historical scan；
 - 单 Writer 串行工作不要求额外 worktree；
 - docs-only 不跑完整 regression suite。
+
+named dispatch 与 project-scoped roster 的 canonical 规则见 `AGENT-OPERATING-MODEL.md`。
 
 ### Persistent higher-risk project
 
@@ -91,13 +95,15 @@ Lean Project 默认：
 
 Fast Prompt 只需任务特有信息：目标、必要事实/base、scope、验证、交付方式、特殊风险。
 
+如果 Fast Path 由 PM 直接完成，不需要为此虚构 Agent；如果 Fast Path 被 dispatch 给 Agent，则仍必须使用当前项目 roster 中具体 named identity。
+
 ### 4.2 Standard Path
 
 用于普通工程任务：有一定实现范围或恢复价值，但不触及高风险边界。
 
 默认：
 
-- one Writer；
+- one Writer；如果发生 dispatch，该 Writer 必须是当前项目 roster 中具体 active named engineer；
 - Task ID **仅在达到 `TASK-LIFECYCLE-STANDARD.md` §1 门槛时**使用；
 - branch / PR 按项目习惯和追踪价值使用；
 - targeted validation；
@@ -128,6 +134,7 @@ High-risk Path 按 `TASK-LIFECYCLE-STANDARD.md` §1 使用 Task ID，并按风�
 - secrets / credentials 不入库；
 - customer / production sensitive data protection；
 - destructive / irreversible action pre-authorization；
+- **任何 Agent dispatch 必须绑定当前 project canonical roster 中的具体 active named identity；backend 名称或泛化 role label 不能替代 engineer identity；**
 - one Writer per shared mutable area；
 - concurrent Writers isolation；
 - architecture / Contract major changes 深 Review；
@@ -158,7 +165,8 @@ Task ID threshold 的唯一 canonical 定义在 `TASK-LIFECYCLE-STANDARD.md` §1
 
 - 同一共享可变区域只有一个 Writer。
 - 并行 Writers 必须隔离 branch/worktree 或其它等价工作区。
-- Reviewer 默认只读；临时 Reviewer 不需要因此加入长期 roster。
+- 每条 dispatch lane 必须绑定当前项目具体 named engineer；不得用 `Agent A/B` 作为真实派工对象。
+- Reviewer 默认只读；临时 Reviewer 不因为一次任务自动成为新的 durable identity。
 - 单 Writer 串行小任务不因为“规范要求”额外创建 worktree。
 - A 的输出是 B 的输入时默认串行。
 
@@ -254,7 +262,7 @@ Project Memory 只记录**未来会改变工程判断的 durable truth**：
 - ordinary refactor；
 - 一次性执行日志。
 
-老项目不因本规则立即批量迁移。下一次自然维护相关 canonical state 时再逐步收敛。
+老项目不因本规则立即批量迁移。下一次自然维护相关 canonical state 时再逐步收敛；但如果下一步要 dispatch，而项目已有稳定 named engineers 却尚未落盘，应先按 `AGENT-OPERATING-MODEL.md` 恢复并写入 canonical roster。
 
 ## 14. Canonical-definition discipline
 
@@ -264,7 +272,7 @@ Project Memory 只记录**未来会改变工程判断的 durable truth**：
 
 - governance depth / Lean Project / testing / Review / Project Memory：本文件；
 - Task ID threshold：`TASK-LIFECYCLE-STANDARD.md`；
-- roster identity：`AGENT-OPERATING-MODEL.md`；
+- roster identity / named dispatch：`AGENT-OPERATING-MODEL.md`；
 - Prompt / handoff：`PROMPT-HANDOFF-STANDARD.md`；
 - local / SAFE_REMOTE_FIRST：`LOCAL-WORKSPACE-STANDARD.md`；
 - Git mechanics：`GIT-GITHUB-STANDARD.md`；
