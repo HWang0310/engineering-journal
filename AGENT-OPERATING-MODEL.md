@@ -11,7 +11,7 @@
 | **Execution Role** | 常规实现、测试、Git/docs/config |
 | **Owner** | 产品目标、优先级、风险接受、不可逆业务决定 |
 
-项目可以使用 Primary / Secondary 等更细 Execution Role，但不是所有项目必需。
+项目可以使用 Primary / Secondary 等更细 Execution Role，但不是所有项目必需。Role 是职责类型，不等于具体 engineer identity。
 
 ## 2. Engineer identity != backend（canonical）
 
@@ -20,48 +20,48 @@
 - 真正的 identity add / remove / rename 属于人员变化，需要 Owner 决定。
 - 同一个既有 engineer 改用另一个可用 backend/model，原则上属于 PM capability routing，**不自动构成新增人员**，不需要 Owner 逐次批准。
 - backend mapping 是 operational metadata，PM 可以更新；只有 identity 本身发生增删改名时才进入 Owner personnel decision。
-- temporary Reviewer / specialist 不因为参与一次任务就自动成为长期 project engineer。
 - backend 切换不得静默改变任务 ownership；谁是 Writer / Reviewer 仍需清楚。
+- `Writer`、`Reviewer`、`Execution Role`、`Deep Engineering Role` 等是 role labels，**不是可用于实际 dispatch 的 engineer identity**。
+- TeleAgent、Codex、GPT-5.6、GPT-6、WorkBuddy 等是 backend / execution surface，**不是 engineer identity**。
 - 当前 backend 排序、成本/额度和 routing policy 不在本文件重复定义，统一读取 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
-## 3. Roster 只在有长期身份价值时使用
+## 3. Project roster / named dispatch（canonical）
 
-Roster 是解决跨会话身份漂移的工具，不是所有项目的默认组织图。
+Roster 是解决跨会话身份漂移和派工归属的项目级事实。项目可以保持极简 roster，但**只要发生 Agent dispatch，就必须先解析当前项目自己的具体命名 engineer identity**。
 
-### Lean Project
+### 3.1 Lean Project
 
-单 Agent、PM + 1 Writer、短生命周期或低复杂度项目可以只使用：
+Lean 不等于匿名派工。
 
-```text
-PM
-Writer
-```
+- 如果 PM 自己直接分析、Review、调用工具或完成安全的小型工作，没有发生 Agent dispatch，可以没有 Writer。
+- 如果 PM 要把任何工作交给 Agent/backend 执行，必须从当前项目 GitHub canonical roster 中选择一个**具体命名 engineer**。
+- Lean Project 可以只维护一个最小 named roster，例如 PM + 1 named execution engineer；不要求完整 multi-Agent organization。
+- 不得用泛化的 `Writer` / `Reviewer` / `Agent A` 代替实际派工对象。
+- 不得因为 backend 叫 TeleAgent / Codex 就把 backend 名称当作工程师名字。
 
-也可以完全不使用拟人化角色名。无需为了模型名称创建长期 engineer identity。
+### 3.2 Canonical project roster source
 
-### Durable named roster
+任何会发生 Agent dispatch 的项目，都必须在**该项目自己的 GitHub durable state** 中维护 canonical roster source。形式可以很轻量，但至少能够恢复：
 
-只有项目确实长期使用多个命名工程师、且这些 identity 会跨会话/跨阶段复用时，才要求 durable named roster。
+- engineer name / identity；
+- project role；
+- active / replaced state；
+- 必要时的 ownership notes。
 
-如果项目已有 durable named roster：
+backend mapping 可以记录，但不是 identity 本身。
+
+如果项目已有 named roster：
 
 - 必须沿用现有名字；
-- GitHub 中维护一个 canonical roster source；
-- 记录至少：project role/name、active/replaced state；backend mapping 可记录但不是 identity；
-- rename/replacement history 只在发生时记录；
-- 其它 README/HANDOFF/Issue 不复制完整 roster。
+- 不得因为新会话重新命名同一角色；
+- rename / replacement history 只在实际发生时记录；
+- 其它 README / HANDOFF / Issue 不复制完整 roster，避免多份 truth。
 
-新项目没有长期 named roster 需求时，不创建 roster bureaucracy。
+历史项目已有稳定 named identities 但尚未落 GitHub 时，应在**下一次需要 dispatch 之前**先恢复并 backfill canonical roster；不要求为了无关 Fast Path 批量迁移。
 
-### 3.1 Project Roster Memory（canonical）
+### 3.3 Project-scoped Engineer Identity Boundary（canonical）
 
-当 durable named roster **确实存在**时，GitHub project memory 是 identity truth。新会话必须先恢复已有 named identities，再命名长期 engineer。
-
-历史项目有稳定 named identities 但尚未落 GitHub 时，在下一次自然维护相关 project memory 时 backfill；不要求批量 migration，不阻塞无关 Fast Path。
-
-### 3.2 Project-scoped Engineer Identity Boundary（canonical）
-
-Engineer identity 是 **project-scoped durable identity**。一个 named engineer 只有属于**当前正在管理的 project scope**，并存在于该项目的 canonical roster，才可以作为当前项目 engineer 参与 named staffing / dispatch。
+Engineer identity 是 **project-scoped durable identity**。一个 named engineer 只有属于**当前正在管理的 project scope**，并存在于该项目的 canonical roster，才可以作为当前项目 engineer 参与 staffing / dispatch。
 
 > **Engineer identity is project-scoped. A named engineer recorded in project A does not automatically become an engineer of project B, even when A is a dependency, plugin, subproject, parent project, or sibling project of B. Reading another project's repository or roster does not change the current project's staffing. A named engineer may only be treated as a current-project engineer when that identity exists in the current project's canonical roster, or when the Owner explicitly approves adding it.**
 
@@ -69,12 +69,13 @@ Engineer identity 是 **project-scoped durable identity**。一个 named enginee
 
 Repository boundary 与 project boundary 不是同一个概念。一个 project 可以显式包含多个 repositories，并共享一个 declared canonical roster；但**不能仅凭 repository dependency / plugin / parent-child / sibling / product-ecosystem 关系推断 roster 共享**。
 
-因此在使用 named engineer 前必须先 resolve：
+因此在任何 dispatch 前必须先 resolve：
 
 1. 当前正在管理的 `current_project`；
-2. 当前项目 declared canonical roster source（如果存在 durable named roster）；
-3. 该 roster 中的 engineer identities；
-4. 最后才进行 named staffing / dispatch。
+2. 当前项目 declared canonical roster source；
+3. 该 roster 中 active engineer identities；
+4. 当前任务的具体 `engineer_identity`；
+5. 最后才选择 backend/profile 并 dispatch。
 
 如果多个 repositories 确实属于同一个 project scope，必须由当前项目的 GitHub project-control facts 明确表达 shared project / shared canonical roster；没有这种明确声明时，默认按**独立 project scopes**处理。
 
@@ -94,22 +95,25 @@ Repository boundary 与 project boundary 不是同一个概念。一个 project 
 
 #### Dispatch invariant
 
-在派发 named engineer 前必须满足：
+任何 Agent dispatch 前必须满足：
 
 ```text
 current_project = resolved
 current_project.canonical_roster = resolved
-engineer_identity in current_project.canonical_roster
+dispatch_agent_identity = specific named identity
+dispatch_agent_identity in current_project.canonical_roster
+dispatch_agent_identity.status = active
+backend/profile = resolved separately
 ```
 
 如果不满足：
 
-- 不得把该 named engineer 当作当前项目 engineer 直接派工；
-- 不得因为在另一个 repo / project 中看到了该 identity 就使用；
+- 不得用 generic `Writer` / `Reviewer` / `Agent` 作为替代派工对象；
+- 不得把另一个 project 的 named engineer 借来当前项目使用；
+- 不得因为在另一个 repo / project 中看到了该 identity 就直接派工；
 - 不得通过 backend routing、模型切换或 temporary staffing 绕过 roster membership；
-- 如果希望把该 identity 变成当前项目的 durable engineer，必须按当前项目 roster add 规则由 Owner 明确批准，并写入当前项目 canonical roster。
-
-Lean Project 没有 durable named roster 时仍可使用 generic `PM` / `Writer`，本 invariant 不要求为 dependency 或临时协作额外创建 named roster。
+- PM 可以选择自己直接完成当前工作；
+- 如果确实需要新增 durable engineer identity，必须由 Owner 明确批准，并先写入当前项目 canonical roster，再 dispatch。
 
 #### Cross-project work
 
@@ -123,7 +127,7 @@ Cross-project work 必须区分：
 ```text
 Current Project PM
 → cross-project handoff / issue to External Project
-→ External Project PM resolves its own roster and staffing
+→ External Project PM resolves its own roster and named staffing
 → External Project implements / verifies
 → handback result / PR / release fact
 → Current Project PM performs integration review
@@ -137,7 +141,7 @@ Current Project → External Project Named Engineer
 
 除非当前上下文已经**明确切换到 external project scope**，并按该项目自己的 roster 派工；或者 Owner 已把该 engineer 正式加入 current project roster。
 
-Temporary external Reviewer / specialist 可以作为 external collaborator 参与一次性 review/advice，但不会因此成为 current project durable engineer，也不改变 canonical roster。
+Temporary external specialist / reviewer 只有在作为明确 external collaborator 被识别时才能接受一次性工作；这不会让其自动成为 current project durable engineer，也不改变 canonical roster。
 
 ## 4. Capability routing
 
@@ -157,13 +161,14 @@ PM routing 需要同时考虑：
 
 Canonical behavior：
 
-1. 不默认从最强 backend 开始；
-2. 优先选择足以胜任且成本/额度更优的资源；
-3. 当前 Owner policy 明确鼓励 **TeleAgent-first**：TeleAgent 能安全胜任时应优先使用；
-4. 不足时再按 registry 中的 capability escalation ladder 升级；
-5. 强 backend 可以只负责最难的 architecture/root-cause/Review，机械实现、tests、docs 等可以交给免费/高额度执行资源；
-6. backend 选择可以在同一 engineer identity 下变化，不构成 roster change；
-7. `RETIRED` backend 不得默认 routing。
+1. 先确定 current-project named engineer identity，再选择 backend/profile；
+2. 不默认从最强 backend 开始；
+3. 优先选择足以胜任且成本/额度更优的资源；
+4. 当前 Owner policy 明确鼓励 **TeleAgent-first**：TeleAgent 能安全胜任时应优先使用；
+5. 不足时再按 registry 中的 capability escalation ladder 升级；
+6. 强 backend 可以只负责最难的 architecture/root-cause/Review，机械实现、tests、docs 等可以交给免费/高额度执行资源；
+7. backend 选择可以在同一 engineer identity 下变化，不构成 roster change；
+8. `RETIRED` backend 不得默认 routing。
 
 不要因为“这个任务想用更强模型”就新增 project engineer；backend routing 也不得把另一个 project scope 的 named engineer 变成当前项目 engineer。
 
@@ -171,10 +176,10 @@ Canonical behavior：
 
 PM 只启用当前阶段真正需要的人：
 
-- **0 Writer**：PM 直接分析、Review 或做安全的小型管理/remote docs 操作；
-- **1 Writer**：默认工程实现配置；
-- **2+ Writers / Agents**：当工作流可安全隔离并存在真实并行收益时；
-- **Reviewer / specialist**：按风险临时启用，不要求写入长期 roster。
+- **0 Writer**：PM 直接分析、Review 或做安全的小型管理/remote docs 操作，没有 Agent dispatch；
+- **1 Writer**：默认工程实现配置，必须是当前项目 roster 中一个具体 active named engineer；
+- **2+ Writers / Agents**：当工作流可安全隔离并存在真实并行收益时，每条 lane 都必须绑定当前项目具体 named engineer；
+- **Reviewer / specialist**：按风险启用；只要发生实际 dispatch，同样必须明确具体 identity 或明确 external collaborator identity。
 
 Owner 不需要每次决定“分配几个工程师”。并行度属于 PM 的执行优化，只要不改变 durable roster、不跨越 Owner 决策边界即可。
 
@@ -193,22 +198,22 @@ PM 可以串行，也可以 fan-out 多个 Agent。判断标准是：**并行收
 - 多个 root-cause hypotheses / investigation streams；
 - implementation 与 docs / migration notes；
 - read-only review、security/recovery review、edge-case analysis；
-- 强 backend 处理 hard subproblem，同时多个 TeleAgent 承担机械实现/测试/文档。
+- 强 backend 处理 hard subproblem，同时多个低成本 backend 承担机械实现/测试/文档。
 
 典型形式：
 
 ```text
 PM
-├─ Agent A：primary implementation
-├─ Agent B：tests / edge cases
-├─ Agent C：independent investigation
-└─ Specialist：hard subproblem / independent review
+├─ <project-agent-name-A>：primary implementation
+├─ <project-agent-name-B>：tests / edge cases
+├─ <project-agent-name-C>：independent investigation
+└─ <project-agent-name-D>：hard subproblem / independent review
 ```
 
 也允许：
 
 ```text
-PM → one Agent → PM Review
+PM → <one current-project named agent> → PM Review
 ```
 
 如果任务高度串行、强依赖前一步输出、或多个 Agent 会同时争用同一核心文件/Contract，则不要为了“并行”强行拆分。
@@ -223,16 +228,17 @@ PM → one Agent → PM Review
 - 如果两个并行结果需要 fan-in，由 PM 决定集成顺序、解决冲突并做最终验证；
 - 并行 Agent 都不得自行宣布项目最终 PASS。
 
-免费/无限额度不是降低安全边界的理由；它只意味着 PM 可以在**适合并行的独立工作流**中更积极地使用 TeleAgent 提升吞吐。
+免费/无限额度不是降低安全边界的理由；它只意味着 PM 可以在**适合并行的独立工作流**中更积极地使用合适 backend 提升吞吐。
 
 ## 6. Writer / Reviewer ownership
 
 - 同一 shared mutable area 只有一个 Writer。
+- Writer / Reviewer 是 role；实际派工必须绑定具体 named identity。
 - Reviewer 默认只读；发现问题退回 Writer，或由 PM 明确 transfer ownership。
-- temporary Reviewer 不需要新增 durable identity。
+- temporary Reviewer 不因为一次任务自动变成新的 durable project identity；如果由当前项目已有 engineer 承担，则沿用其现有 identity。
 - ownership transfer 是 task-level 状态，不等于 roster change。
 - cross-project ownership transfer 必须同时明确 project scope；不能只转移人名而不说明当前管理的是哪个 project。
-- 多 Agent fan-out 后的 integration ownership 默认回到 PM 或 PM 明确指定的 integration Writer。
+- 多 Agent fan-out 后的 integration ownership 默认回到 PM 或 PM 明确指定的 current-project named integration Writer。
 
 ## 7. PM final acceptance
 
@@ -251,16 +257,25 @@ Agent 可以提交 `PASS_CANDIDATE` / completion evidence，但不能替代 PM �
 
 ## 8. Dispatch transparency
 
-如果 Owner 需要手动把 Prompt 发给某个 Agent，PM 应简短告诉 Owner“当前 project / 发给谁 / 使用哪个 backend/profile / 当前目标”。Task ID 仅在达到门槛时说明。
+任何实际 dispatch 都应能明确回答四件事：
 
-如果 PM 能直接执行或直接调用工具，不为透明度机械增加一轮 Owner relay。
+- 当前 project；
+- 发给当前项目哪个具体 named engineer / Agent；
+- 使用哪个 backend/profile；
+- 当前目标是什么。
 
-当 PM 使用多 Agent 并行时，只在对 Owner 有实际价值时说明并行分工；不要求 Owner充当 Agent 之间的信息中继。
+如果 Owner 需要手动把 Prompt 发给 Agent，PM 应把这四项直接告诉 Owner。Task ID 仅在达到门槛时说明。
+
+如果 PM 能直接执行或直接调用工具，没有发生 Agent dispatch，则不为透明度机械增加一轮 Owner relay。
+
+当 PM 使用多 Agent 并行时，只在对 Owner 有实际价值时说明并行分工；不要求 Owner 充当 Agent 之间的信息中继。
 
 ## 9. Anti-patterns
 
 - backend switch = personnel change；
-- 临时 Reviewer = durable roster expansion；
+- backend 名称 = engineer identity；
+- generic `Writer` / `Reviewer` / `Agent A` = 实际 dispatch identity；
+- 从其它项目借用 named engineer；
 - 每个 Task 创建新名字；
 - 小项目为了形式维护四人以上角色表；
 - 因 quota 机械降级真正 Deep Engineering；
@@ -275,4 +290,4 @@ Agent 可以提交 `PASS_CANDIDATE` / completion evidence，但不能替代 PM �
 - 继续派发已标记 `RETIRED` 的 backend；
 - 把最终验收交给执行 Agent 自己宣布。
 
-最终目标：稳定 identity、清晰 project scope、合适 capability、可控并行、低沟通成本和风险相称的工程吞吐。
+最终目标：稳定 identity、清晰 project scope、具体 named dispatch、合适 capability、可控并行、低沟通成本和风险相称的工程吞吐。
