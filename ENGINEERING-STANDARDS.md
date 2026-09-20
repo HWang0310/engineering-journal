@@ -271,6 +271,7 @@ Project Memory 只记录**未来会改变工程判断的 durable truth**：
 当前 canonical owners：
 
 - governance depth / Lean Project / testing / Review / Project Memory：本文件；
+- fresh recovery / history traversal / Recovery Budget：`NEW-SESSION-BOOTSTRAP.md`；
 - Task ID threshold：`TASK-LIFECYCLE-STANDARD.md`；
 - roster identity / named dispatch：`AGENT-OPERATING-MODEL.md`；
 - Prompt / handoff：`PROMPT-HANDOFF-STANDARD.md`；
