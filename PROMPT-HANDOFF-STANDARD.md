@@ -138,6 +138,18 @@ Fast Path 完成信号可以只是：
 - 不把历史完整 Prompt 当作 durable project memory。
 - dispatch identity 必须来自当前 project roster，不从其它项目会话或 handoff 中借名字。
 
+- fresh recovery 的历史读取遵守 `NEW-SESSION-BOOTSTRAP.md` 的 History Traversal / Recovery Budget；旧 handoff、旧 correction transcript、superseded design 默认不是 active context。
+
+### 8.1 Active correction / historical handoff recovery
+
+- active PR 多轮 correction 后，fresh Reviewer 默认只恢复 current head、latest unresolved review / current handoff，以及 delta review 必需的 previous reviewed SHA；
+- 已收口的早期 review/correction transcript 不重新全文加载，除非出现明确 `HISTORY_READ_TRIGGER`；
+- merged PR 的 correction history 属于 durable audit trail；
+- historical handoff / session-transfer 默认 provenance only；
+- repository 中存在多个 handoff 时，必须通过 current project facts 明确哪个是 current canonical control-plane source。
+
+完整 recovery traversal 规则只在 `NEW-SESSION-BOOTSTRAP.md` 定义，本文件不复制 trigger/budget 全表。
+
 ## 9. Session Rollover / Control-Plane Compaction（canonical）
 
 长期 PM 会话可以在 accumulated execution history 已明显大于 current active state 时进行 session rollover。**没有固定 token、消息轮数或时间阈值。**
