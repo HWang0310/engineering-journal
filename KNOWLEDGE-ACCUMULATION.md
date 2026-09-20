@@ -45,6 +45,22 @@ Project Memory 只记录 durable truth。canonical 行为见 `ENGINEERING-STANDA
 
 GitHub Issue / PR / commit history 已足以承载临时工程历史。
 
+### 3.1 Current truth 与 historical provenance 分工
+
+长期项目默认按职责分离：
+
+- **Project Memory / current HANDOFF / control-plane**：现在是什么状态；
+- **canonical Contract / ADR**：当前规则、边界与“为什么”；
+- **OPEN Issue / OPEN PR**：当前 actionable execution / review state；
+- **Issue / PR / commit history**：历史上发生了什么；
+- **Archive / SUPERSEDED material**：保留历史材料和 provenance。
+
+同一历史内容不要为了“方便恢复”重新复制到多个 current-truth surface。
+
+Project Memory 不承担“给每个 closed Issue 做摘要”的职责；closed history 保留在 GitHub，需要时按 `NEW-SESSION-BOOTSTRAP.md` 的 `HISTORY_READ_TRIGGER` 定向读取。
+
+旧 design/spec/plan 即使仍可搜索，只要已经 archived / superseded，就不能因为搜索命中而覆盖 current canonical Contract / ADR。
+
 ## 4. Project roster knowledge
 
 具体 engineer 名字只属于目标项目，不反向沉淀为全局固定名字。

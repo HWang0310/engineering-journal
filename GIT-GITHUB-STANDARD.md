@@ -9,6 +9,22 @@
 - 当前事实优先使用 remote branch / PR / commit。
 - high-risk accepted baseline 使用 exact SHA。
 
+### 1.1 Issue / PR sequence 与 Active Queue Hygiene
+
+GitHub Issue / PR number 只表示 repository-local durable sequence，不表示 active task 数量，也不构成 historical traversal 指令。
+
+- `Issue #500` 不得被解释成“需要恢复 #1–#499”；
+- fresh recovery 默认查询 OPEN Issue / OPEN PR；closed / merged history 的读取触发条件由 `NEW-SESSION-BOOTSTRAP.md` 的 History Traversal / Recovery Budget 定义；
+- Issue 完成后及时 close；
+- PR merge 后，对应 Issue 若没有独立未完成 acceptance，应 close completed；
+- 被新 Contract / architecture 明确 supersede 的 Issue 应 close as `not_planned` / superseded，而不是长期留在 active queue；
+- registration-only Issue 完成注册后 close completed，未来作为 provenance reference；
+- 长期 HOLD Issue 只有确实仍可能恢复执行、并且保留 open 能表达 actionable state 时才继续 open。
+
+目标：**OPEN queue 表达当前 actionable state；closed/merged objects 保留 durable provenance。**
+
+不要求为了新规则批量整理全部历史；自然维护或 current-state ambiguity 真正影响 recovery 时再轻量 cleanup。
+
 ## 2. Branch / worktree
 
 - 是否需要 branch 由变更追踪和项目策略决定；PR-based 项目通常使用 branch。
