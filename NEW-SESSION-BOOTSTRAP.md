@@ -55,6 +55,84 @@
 
 完整 Session Rollover / Control-Plane Compaction 规则见 `PROMPT-HANDOFF-STANDARD.md` §9。compact state 只是恢复索引，remote current facts 始终优先。
 
+### History Traversal / Recovery Budget（canonical）
+
+长期项目的 fresh recovery 默认只恢复 **current actionable state**，不按 GitHub 历史总量扩张。
+
+> **Closed history is durable provenance, not default working context.**
+>
+> **Recover current state first; traverse history only on evidence-triggered demand.**
+
+#### Fresh recovery algorithm
+
+默认按最短链路恢复：
+
+```text
+latest engineering-journal
+→ target project live main / default branch
+→ current compact HANDOFF / CURRENT CONTROL-PLANE STATE（如有）
+→ current project canonical roster
+→ current canonical Contract / ADR / architecture authority（当前任务需要时）
+→ OPEN Issue / OPEN PR
+→ current active review / validation state
+→ follow explicit provenance pointers only when triggered
+```
+
+**OPEN-first 是默认查询策略。** Issue / PR 编号只是 repository-local durable sequence；`#500` 不代表存在 500 个 active tasks，也不得触发“遍历 #1–#499”。
+
+#### Recovery Budget
+
+Recovery Budget 是读取原则，不是固定 token、文件数或对象数限制：
+
+- 默认读取 current control-plane、当前任务需要的 canonical authority、OPEN Issue / OPEN PR 和 current review state；
+- historical closed / merged / archived / superseded objects **默认读取 0 个**；
+- 只有当前证据触发 provenance need 时才扩展；
+- 扩展时优先 direct pointer、newest relevant object、exact referenced SHA/PR/Issue，而不是 breadth-first scan；
+- 已解决当前 trigger 后停止继续向历史扩散。
+
+禁止以“为了保险多看看”为理由机械遍历历史。
+
+#### HISTORY_READ_TRIGGER
+
+只有至少一个 trigger 成立时才进入历史对象：
+
+- current HANDOFF / Issue / PR / Contract / ADR / release / benchmark 的 explicit reference；
+- current facts 存在 unresolved contradiction，需要确认哪个事实被 supersede；
+- provenance / audit / incident verification；
+- regression origin / bug archaeology；
+- 当前 architecture decision 的 rationale 确实影响本轮判断；
+- migration / release / commit ancestry；
+- active correction 的 previous reviewed SHA / directly relevant earlier review state；
+- Owner 或任务明确要求历史审计。
+
+没有 trigger：**STOP historical traversal**。
+
+#### Current-State Precedence
+
+搜索、恢复或工具返回多个候选事实时，默认优先级：
+
+1. live default branch / current remote Git facts；
+2. current canonical Contract / ADR / architecture authority；
+3. current compact HANDOFF / Project Memory / CURRENT CONTROL-PLANE STATE；
+4. OPEN Issue / OPEN PR / current active review state；
+5. latest accepted release facts；
+6. CLOSED Issue / merged PR / historical commit discussion；
+7. ARCHIVED / SUPERSEDED design、plan、handoff、legacy execution material。
+
+更长、更详细或搜索排名更靠前的旧文本，不得仅因为信息量大就覆盖 current canonical fact。
+
+如果 current sources 自身冲突，先按 canonical ownership、live remote facts 和明确 supersession 状态解决冲突；只有必要时再沿 provenance pointer 读取历史。
+
+#### Correction / design recovery
+
+- 已 merged PR 的 correction rounds 默认只作为 durable audit trail，不进入 fresh recovery。
+- active PR 默认恢复 current head、latest unresolved review / current handoff，以及 delta review 必需的 previous reviewed SHA；不重放已经收口的早期 correction transcript。
+- historical HANDOFF / session-transfer 默认 archive/provenance only；如果存在多个 handoff，项目必须能明确哪个是 current canonical control-plane source。
+- 标记为 `SUPERSEDED` / `RELEASED` / `ARCHIVED` 的旧 design/spec/plan 默认不参与 current architecture recovery。
+- current architecture 默认以 current canonical Contract / ADR / live implementation / active design 为准；historical design 只在 provenance/rationale trigger 下读取。
+
+目标是让 fresh recovery 成本接近 **O(current active state)**，而不是 **O(total project history)**。
+
 ## 3. 默认角色
 
 当前 ChatGPT 默认承担 Project Manager Role；Owner 负责产品目标、优先级和必要业务决策。
