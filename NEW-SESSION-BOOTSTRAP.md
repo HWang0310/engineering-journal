@@ -140,34 +140,13 @@ Recovery Budget 是读取原则，不是固定 token、文件数或对象数限�
 
 目标是让 fresh recovery 成本接近 **O(current active state)**，而不是 **O(total project history)**。
 
-### CORE RULES + ON-DEMAND RULES
-
-Bootstrap 读取分为两层：
-
-**CORE RULES（始终读取）：**
-
-- latest remote truth（current default branch + HEAD）;
-- current project facts;
-- current canonical roster（用于 dispatch）;
-- current task / Issue / PR;
-- applicable hard boundaries（restricted-content Active Surface gate、one Writer、PM final acceptance）;
-- History Traversal / Recovery Budget（本节已定义）。
-
-**ON-DEMAND RULES（按任务触发读取）：**
-
-- backend ranking / quota / staffing policy → PM 在第一次 dispatch 前读取（Dispatch discovery invariant）;已被 PM routed 的 Execution Agent 不需要重新研读 backend policy;
-- Task ID / lifecycle → 达到门槛时;
-- Prompt / handoff format → 需要 dispatch / handoff 时;
-- local / remote construction → 需要施工时;
-- Deep Engineering → 触发深水任务时。
-
-不要为"必读清单"机械加载全部标准；restricted-content hard gate 不因本节削弱——它是 CORE RULE，不是 on-demand。
-
 ### PM bootstrap vs Execution Agent bootstrap
 
-**PM bootstrap** 只恢复分类 risk、恢复 current project state 和决定 routing 所需的最小 current facts。
+CORE RULES + ON-DEMAND RULES 的 canonical definition 在 §2。以下补充两者的 bootstrap 差异：
 
-**Execution Agent** 已被 PM routed，不需要重新研读 backend ranking / quota / staffing policy；Agent 应聚焦 PM 提供的 task-specific delta、named engineer identity、backend assignment 和 task 验证要求。
+**PM bootstrap** 只恢复分类 risk、恢复 current project state 和决定 routing 所需的最小 current facts（§2 CORE RULES）。
+
+**Execution Agent** 已被 PM routed，不需要重新研读 backend ranking / quota / staffing policy（§2 ON-DEMAND RULES 中的 dispatch/routing 项）；Agent 应聚焦 PM 提供的 task-specific delta、named engineer identity、backend assignment 和 task 验证要求。
 
 ## 3. 默认角色
 
