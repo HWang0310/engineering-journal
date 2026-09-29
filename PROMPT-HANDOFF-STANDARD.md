@@ -36,6 +36,30 @@ High-risk Prompt 应低歧义，但不把规范全文复制进去。
 
 无论 Fast / Standard / High-risk，只要发生 dispatch，`Writer` / `Reviewer` 等 role label 都不能代替具体 named engineer identity。
 
+### 2.1 Prompt delivery integrity / Markdown boundary safety
+
+当完整 Agent Prompt 以 Markdown fenced block 作为**单一可复制容器**交付时，外层 fence 是 Prompt 的 copy boundary，必须保持完整。
+
+- Prompt 正文不得直接输出能够被 Markdown parser 识别为**当前 outer fence 结束边界**的 nested fence。
+- Prompt 内需要说明 SQL、JSON、Python、shell、YAML、Mermaid、自定义语言标记或其它 fenced block 时，默认优先用自然语言描述内部代码块，而不真正嵌套同级 fence。
+- 如果确实必须展示 literal fence syntax，应使用不会关闭 outer fence 的 Markdown-safe 结构，例如更长的 outer fence、不同 delimiter，或把 fence 写成文字/转义表达。
+- 本规则约束的是 **copy integrity**，不是强制所有 Prompt 都使用 Markdown fence；如果产品提供 writing block、prompt editor、附件或原生 Copy 容器，可以使用该原生边界。
+- Prompt 外的 PM 解释与 Prompt 本体应分离；不要把非 Prompt 说明意外混入可复制容器。
+- 对长 Prompt，Markdown boundary 完整性属于交付质量，而不是纯排版问题。
+
+**Anti-pattern：** outer Prompt 使用 three-backtick fence，正文中的 SQL/JSON 等示例又直接输出同级 three-backtick fenced block，导致内部 closing fence 被解释为 outer Prompt 的结束位置，后续正文跳出 copy boundary。
+
+**Preferred pattern：** 保持一个连续 outer Prompt boundary；正文改为“在普通 SQL fenced block 中放入 `SELECT ...`”之类的自然语言说明，而不实际嵌套同级 fence。
+
+输出可复制 Prompt 前做一次轻量 boundary self-check：
+
+- outer copy boundary 只有预期的 opening / closing；
+- Prompt 正文不存在能够提前关闭 outer boundary 的 fence；
+- 全部 Prompt 内容仍位于预期容器内；
+- 非 Prompt 的 PM 说明仍位于容器外；
+- 一次复制可以获得完整 Prompt。
+
+
 ## 3. Dispatch announcement
 
 任何实际 dispatch 都必须先符合 `AGENT-OPERATING-MODEL.md` 的 project-scoped named dispatch invariant。
