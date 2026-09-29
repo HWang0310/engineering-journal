@@ -16,21 +16,28 @@
 
 ## 2. 先读取 remote 最新事实
 
+恢复或启动时按 CORE RULES + ON-DEMAND RULES（本节后文定义）分层读取，不机械全文加载所有标准。
+
 1. 读取 `engineering-journal` 当前 remote default branch 和 exact HEAD。
-2. 首先读取：
-   - `README.md`
-   - `NEW-SESSION-BOOTSTRAP.md`
-   - `ENGINEERING-STANDARDS.md`
-   - `RESTRICTED-CONTENT-STANDARD.md`
-3. **只在任务触发对应领域时**再读：
-   - Agent/roster/backend identity、staffing、parallel dispatch → `AGENT-OPERATING-MODEL.md`
-   - backend/model capability、Owner routing policy、resource availability、cost/quota → `BACKEND-CAPABILITY-CERTIFICATION.md`
-   - Task ID/recovery → `TASK-LIFECYCLE-STANDARD.md`
-   - Prompt/handoff → `PROMPT-HANDOFF-STANDARD.md`
-   - local/remote construction → `LOCAL-WORKSPACE-STANDARD.md`
-   - branch/PR/review/merge → `GIT-GITHUB-STANDARD.md`
-   - Deep Engineering → `CODEX-RULES.md`
-   - durable knowledge/memory → `KNOWLEDGE-ACCUMULATION.md`
+2. **CORE RULES（始终读取）：**
+   - latest remote truth（current default branch + HEAD）;
+   - 目标项目 current facts / `AGENTS.md`（含 project roster，适用时）;
+   - current task / Issue / PR;
+   - hard-boundary invariants：restricted-content Active Surface gate 是 CORE RULE，不因 on-demand 削弱;
+   - History Traversal / Recovery Budget（本节后文定义）。
+3. **ON-DEMAND RULES（按 task / risk / ambiguity 触发读取）：**
+   - governance depth / execution envelope / Verification Budget → `ENGINEERING-STANDARDS.md`（task 需要判断 risk tier 或 execution matrix 时）;
+   - restricted-content full canonical definition → `RESTRICTED-CONTENT-STANDARD.md`（task 涉及 Active Surface 判断或需要完整 gate 定义时）;
+   - Agent/roster/backend identity、staffing、parallel dispatch → `AGENT-OPERATING-MODEL.md`（dispatch/routing 真正需要时）;
+   - backend/model capability、Owner routing policy、resource availability、cost/quota → `BACKEND-CAPABILITY-CERTIFICATION.md`（dispatch/routing 真正需要时）;
+   - Task ID/recovery → `TASK-LIFECYCLE-STANDARD.md`（达到门槛时）;
+   - Prompt/handoff → `PROMPT-HANDOFF-STANDARD.md`（需要 dispatch / handoff 时）;
+   - local/remote construction → `LOCAL-WORKSPACE-STANDARD.md`（需要施工时）;
+   - branch/PR/review/merge → `GIT-GITHUB-STANDARD.md`（需要 Git 操作时）;
+   - Deep Engineering → `CODEX-RULES.md`（触发深水任务时）;
+   - durable knowledge/memory → `KNOWLEDGE-ACCUMULATION.md`（需要知识沉淀判断时）。
+
+Ordinary recovery 不要求全文读取 `README.md`、`ENGINEERING-STANDARDS.md`、`RESTRICTED-CONTENT-STANDARD.md`；但 restricted-content Active Surface hard gate 本身是 CORE RULE，不因不读全文而削弱——只是不机械预加载完整标准文档，当 task 涉及 Active Surface 判断时再按需读取完整定义。
 
 ### Dispatch discovery invariant
 
@@ -132,6 +139,14 @@ Recovery Budget 是读取原则，不是固定 token、文件数或对象数限�
 - current architecture 默认以 current canonical Contract / ADR / live implementation / active design 为准；historical design 只在 provenance/rationale trigger 下读取。
 
 目标是让 fresh recovery 成本接近 **O(current active state)**，而不是 **O(total project history)**。
+
+### PM bootstrap vs Execution Agent bootstrap
+
+CORE RULES + ON-DEMAND RULES 的 canonical definition 在 §2。以下补充两者的 bootstrap 差异：
+
+**PM bootstrap** 只恢复分类 risk、恢复 current project state 和决定 routing 所需的最小 current facts（§2 CORE RULES）。
+
+**Execution Agent** 已被 PM routed，不需要重新研读 backend ranking / quota / staffing policy（§2 ON-DEMAND RULES 中的 dispatch/routing 项）；Agent 应聚焦 PM 提供的 task-specific delta、named engineer identity、backend assignment 和 task 验证要求。
 
 ## 3. 默认角色
 

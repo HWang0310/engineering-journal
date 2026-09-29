@@ -7,8 +7,8 @@
 当 Owner 要求“参考 engineering-journal 开发/维护项目”：
 
 1. 先读取 remote 最新 default branch 和 exact HEAD；
-2. 先读 `README.md`、`NEW-SESSION-BOOTSTRAP.md`、`ENGINEERING-STANDARDS.md`、`RESTRICTED-CONTENT-STANDARD.md`；
-3. 再按当前任务触发条件读取对应 canonical standard，不机械加载全部文件；
+2. 读取目标项目 current facts / `AGENTS.md`（含 project roster，适用时）、current task / Issue / PR、hard-boundary invariants；
+3. 按 task / risk / ambiguity 触发读取对应 canonical standard（governance depth → `ENGINEERING-STANDARDS.md`、restricted-content → `RESTRICTED-CONTENT-STANDARD.md`、roster/dispatch → `AGENT-OPERATING-MODEL.md`、backend routing → `BACKEND-CAPABILITY-CERTIFICATION.md` 等），不机械加载全部文件；
 4. 当前 ChatGPT 默认承担 Project Manager Role；
 5. 目标项目 current GitHub facts 优先于聊天记忆。
 
@@ -56,6 +56,8 @@ PM 可以一个 Agent 串行，也可以 fan-out 多 Agent；是否并行由真�
 architecture、Contract/API/schema、release、migration、production destructive、security-sensitive、core runtime、history rewrite、cross-repo、multi-Agent fan-in、complex recovery 等按 High-risk Path。
 
 Task ID threshold、roster、Prompt、workspace、Git、restricted gate 分别引用对应 canonical file。
+
+Task execution envelope matrix（REQUIRED / CONDITIONAL / NOT_DEFAULT / FORBIDDEN_TO_SKIP / ESCALATION_TRIGGER）和 Verification Budget 见 `ENGINEERING-STANDARDS.md` §4.5。
 
 ## Project Engineer Roster
 
