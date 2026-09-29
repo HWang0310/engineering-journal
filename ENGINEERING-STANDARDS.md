@@ -150,7 +150,7 @@ High-risk Path 按 `TASK-LIFECYCLE-STANDARD.md` §1 使用 Task ID，并按风�
 
 | | FAST | STANDARD | HIGH_RISK |
 |---|---|---|---|
-| **REQUIRED** | fresh relevant base/current facts; targeted validation; diff/scope review; changed-surface Active Surface gate; PM merge/acceptance gate | targeted tests; affected-subsystem relevant regression when applicable; PM Review | targeted + broader/full relevant regression; relevant security/data/Contract/boundary validation; live/runtime acceptance when materially required; exact-SHA Review; recovery/rollback and pre-authorization where applicable; strict merge gate |
+| **REQUIRED** | fresh relevant base/current facts; targeted validation; diff/scope review; changed-surface Active Surface gate; PM merge/acceptance gate | targeted validation/tests as applicable; affected-subsystem relevant regression when applicable; PM Review | targeted + broader/full relevant regression; relevant security/data/Contract/boundary validation; live/runtime acceptance when materially required; exact-SHA Review; recovery/rollback and pre-authorization where applicable; strict merge gate |
 | **CONDITIONAL** | branch/PR（按追踪价值） | branch/PR; Task ID（达到门槛时）; Issue / handoff（确有价值时） | independent read-only Reviewer; full Evidence Package; Restatement / Plan Gate |
 | **NOT_DEFAULT** | Issue; Task ID; 完整 lifecycle; 独立 Reviewer; 完整 handoff; 额外 worktree; Evidence Package 大清单 | entire-repo regression; exact-SHA deep review; 完整 Evidence Package | — |
 | **FORBIDDEN_TO_SKIP** | named dispatch（发生 dispatch 时）; Active Surface gate; PM Review | named dispatch; Active Surface gate; PM Review; targeted validation | named dispatch; Active Surface gate; exact-SHA Review; boundary/security/data validation; PM merge gate |
