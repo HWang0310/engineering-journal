@@ -17,6 +17,27 @@ Fast Path 不要求 12 项模板。足够清楚即可，通常只需要：
 
 如果 Fast Path 被 dispatch 给 Agent，Prompt 必须绑定当前项目 canonical roster 中一个具体 named engineer；如果由 PM 直接完成，则不需要虚构 Agent identity。
 
+### 1.5 Issue as durable contract, Prompt as execution delta
+
+当 Agent 可以访问目标 GitHub 时：
+
+> **Issue is the durable task contract; Prompt is the execution delta.**
+
+Default execution Prompt 只携带 Agent 无法从 Issue / current project facts 可靠推导的内容：
+
+- project;
+- concrete named engineer;
+- backend/profile（Owner 需要手动 relay 时）;
+- Task ID（达到门槛时）;
+- TASK_RISK;
+- Issue / PR reference;
+- fresh-base requirement;
+- critical task-specific delta / safety boundary;
+- stop / merge boundary;
+- expected deliverable.
+
+默认不把完整 Issue 复制进 Prompt。完整 self-contained Prompt 仅在 GitHub / Issue 访问不可用或当前执行面确实需要时使用。
+
 ## 2. Standard / High-risk Prompt
 
 只有风险和恢复价值增加时，才逐步加入：
@@ -118,6 +139,16 @@ Fast Path 完成信号可以只是：
 - design-only、multi-PR coordination、无 PR 任务或项目明确采用 issue-centric workflow 时，可以继续以 Issue 为 active thread。
 
 本规则不删除历史，也不改变 GitHub durable truth；它只减少同一 current state 在多个 GitHub surface 上的重复传播。
+
+### 5.2 Tiered handoff
+
+Handoff 按风险分层，保持简洁：
+
+- **FAST**: status + PR/commit reference + validation summary + blockers;
+- **STANDARD**: add non-obvious validation, deviations / risks, unresolved items;
+- **HIGH_RISK**: add exact head, boundary / security / data evidence, recovery / rollback, approval / local-only evidence when applicable.
+
+PM 能查询 GitHub / CI 时不手动重复 branch / files / SHA / test counts 等 facts，除非这些 facts locally 不可得或 risk-relevant。
 
 ## 6. 什么时候需要完整 handoff
 

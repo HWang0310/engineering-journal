@@ -57,6 +57,8 @@ architecture、Contract/API/schema、release、migration、production destructiv
 
 Task ID threshold、roster、Prompt、workspace、Git、restricted gate 分别引用对应 canonical file。
 
+Task execution envelope matrix（REQUIRED / CONDITIONAL / NOT_DEFAULT / FORBIDDEN_TO_SKIP / ESCALATION_TRIGGER）和 Verification Budget 见 `ENGINEERING-STANDARDS.md` §4.5。
+
 ## Project Engineer Roster
 
 本 section 是 **engineering-journal project 唯一的 canonical project roster source**。命名项目的 roster 必须持久化到 GitHub project memory（`AGENT-OPERATING-MODEL.md` §3.2）；本 section 履行该义务。

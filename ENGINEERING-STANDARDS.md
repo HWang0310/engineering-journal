@@ -144,6 +144,28 @@ High-risk Path 按 `TASK-LIFECYCLE-STANDARD.md` §1 使用 Task ID，并按风�
 - Owner 保留产品方向和不可逆业务决策；
 - restricted-content **ACTIVE SURFACE** hard gate。
 
+### 4.5 Task execution envelope（canonical）
+
+每个 task tier 的执行 envelope 由五类约束定义，使 Agent 能快速判断任何任务的 REQUIRED / CONDITIONAL / NOT_DEFAULT / FORBIDDEN_TO_SKIP / ESCALATION_TRIGGER：
+
+| | FAST | STANDARD | HIGH_RISK |
+|---|---|---|---|
+| **REQUIRED** | fresh relevant base/current facts; targeted validation; diff/scope review; changed-surface Active Surface gate; PM merge/acceptance gate | targeted tests; affected-subsystem relevant regression when applicable; PM Review | targeted + broader/full relevant regression; relevant security/data/Contract/boundary validation; live/runtime acceptance when materially required; exact-SHA Review; recovery/rollback and pre-authorization where applicable; strict merge gate |
+| **CONDITIONAL** | branch/PR（按追踪价值） | branch/PR; Task ID（达到门槛时）; Issue / handoff（确有价值时） | independent read-only Reviewer; full Evidence Package; Restatement / Plan Gate |
+| **NOT_DEFAULT** | Issue; Task ID; 完整 lifecycle; 独立 Reviewer; 完整 handoff; 额外 worktree; Evidence Package 大清单 | entire-repo regression; exact-SHA deep review; 完整 Evidence Package | — |
+| **FORBIDDEN_TO_SKIP** | named dispatch（发生 dispatch 时）; Active Surface gate; PM Review | named dispatch; Active Surface gate; PM Review; targeted validation | named dispatch; Active Surface gate; exact-SHA Review; boundary/security/data validation; PM merge gate |
+| **ESCALATION_TRIGGER** | scope expansion; shared/durable state; Contract/API/schema; authentication/authorization; secrets; DB write/read boundary; concurrency; core runtime; migration; cross-repo; destructive operation; repeated fix failure / falling root-cause confidence; evidence of larger blast radius | 同 FAST triggers | — |
+
+> **Agents may escalate risk when evidence requires it; they must not silently downgrade risk to save time.**
+
+#### Verification Budget
+
+> `verification budget = risk-tier baseline + evidence-triggered additions`
+
+Risk-tier baseline 是该 tier 的 REQUIRED 项。Evidence-triggered additions 是执行中发现的实际证据需要的额外验证。风险越高，baseline 越高；Agent 可以在 evidence 支持时升级 risk tier，但不能为了减少验证而降级。
+
+High-risk 的 "full relevant regression" 指**与变更实际 blast radius 相关的完整回归**，不是机械地"跑仓库中每一个 test"——除非 blast radius 确实覆盖全 repo。
+
 ## 5. Task identity
 
 Task ID threshold 的唯一 canonical 定义在 `TASK-LIFECYCLE-STANDARD.md` §1。
