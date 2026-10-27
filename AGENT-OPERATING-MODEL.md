@@ -143,6 +143,21 @@ Current Project → External Project Named Engineer
 
 Temporary external specialist / reviewer 只有在作为明确 external collaborator 被识别时才能接受一次性工作；这不会让其自动成为 current project durable engineer，也不改变 canonical roster。
 
+### 3.5 Cross-project engineer-name reservation（canonical）
+
+`ENGINEER-NAME-REGISTRY.md` 是跨项目工程师名称保留的**唯一 canonical 全局账本**：任何项目正式使用过的命名 engineer / PM 身份名称，今后不得分配给不同的新项目。它是名称 availability index，**不是全局人员组织，也不授权从其它项目 dispatch 工程师**；各项目 canonical roster 仍是 membership / staffing 的唯一权威。
+
+为新的 project engineer、PM identity，或对 durable identity 做 add / rename 时：
+
+1. **先查全局 registry**：fresh 读取 `ENGINEER-NAME-REGISTRY.md`（默认分支最新版本）；
+2. **只提出可用名称**：候选名的 normalized key（casefold + trim，ASCII 大小写不敏感）不得与任何已保留名称相同，也要避开显而易见的视觉混淆变体；
+3. **Owner 批准**：identity add / rename 属于 Owner personnel decision，必须获得 Owner 明确批准；
+4. **merge 前先登记**：先取得批准，再在 registry 中登记占用，然后才写入项目 roster / 派工；branch/PR 上的 reservation 在 merge 到 global default branch 前不是最终状态；
+5. **并发竞争门**：merge reservation 前、写入新项目 roster 前，重新读取 live registry，确认候选名仍未占用；两个并发 PR 不能同时 claim 同一 normalized name，冲突即 STOP 并改选其它已批准名称；
+6. **永久占用**：已退役、已改名、被替代、归档项目的名称也永久保留，不得复用。
+
+本文件只引用 registry，不复制其中完整名称表。仅当发生命名 / roster 变更时才读取全局 registry，ordinary execution / recovery 不加载全表。
+
 ## 4. Capability routing
 
 Backend 的当前能力阶梯、默认派工顺序、成本/额度策略和 empirical notes 由 `BACKEND-CAPABILITY-CERTIFICATION.md` 统一定义。本文件只定义 PM 如何使用这些资源。

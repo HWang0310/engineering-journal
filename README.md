@@ -74,6 +74,8 @@ Engineer identity != backend。
 
 身份/roster 规则详见 `AGENT-OPERATING-MODEL.md`；跨项目可复用的 backend 能力证据、当前可用/退役资源和 **Owner routing policy** 见 `BACKEND-CAPABILITY-CERTIFICATION.md`。
 
+为新的 project engineer / PM 命名、或对 durable identity 做 add / rename 前，必须 fresh 读取 `ENGINEER-NAME-REGISTRY.md` 检查名称占用（跨项目名称保留 registry，非全局人员名册；ordinary dispatch 不读取）。
+
 ## Backend routing
 
 `BACKEND-CAPABILITY-CERTIFICATION.md` 是当前 backend 能力阶梯、默认派工顺序、cost/quota、retired 状态和 empirical evidence 的 **single canonical source**。
@@ -131,6 +133,7 @@ PM 可以一个 Agent 串行，也可以 fan-out 多个 Agent。能安全隔离�
 | File | Canonical responsibility |
 | --- | --- |
 | `ENGINEERING-STANDARDS.md` | Lean Project、Fast/Standard/High-risk、testing、Review、Project Memory、hard boundaries |
+| `ENGINEER-NAME-REGISTRY.md` | 跨项目工程师名称保留 registry（命名新工程师/PM、durable identity add/rename 前查重；非全局人员名册） |
 | `NEW-SESSION-BOOTSTRAP.md` | 新会话快速选择治理深度，并在派工前发现当前 routing policy |
 | `TASK-LIFECYCLE-STANDARD.md` | Task ID threshold / idempotency / recovery |
 | `AGENT-OPERATING-MODEL.md` | engineer identity / project roster / named dispatch / backend usage / staffing / parallel dispatch / PM final acceptance |
