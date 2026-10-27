@@ -2,6 +2,10 @@
 
 只记录工程规范体系的重大演进。最新在前；普通项目进度、Task 日志和完整 Prompt 不进入这里。
 
+## 2026-10
+
+- **2026-10-27 — Cross-project engineer-name reservation registry：** 新增 `ENGINEER-NAME-REGISTRY.md` 作为跨项目工程师名称保留的唯一 canonical 全局账本。已核实 18 个历史命名 engineer / PM 名称（`Apex`、`Atlas`、`Axiom`、`Curator`、`Forge`、`Foundry`、`Helix`、`Inkstone`、`Ledger`、`Mason`、`Nexus`、`NOVA`、`Orion`、`Rivet`、`Sage`、`Scout`、`Scribe`、`Steward`）并如实登记其 canonical project claims 与既有重名（如 `Axiom`/`Forge`/`Mason`/`Rivet` 跨项目 pre-existing collision）、改名历史（`Curator` → `Inkstone`）；已退役/已改名名称永久保留，不自动重命名或重新分配任何现有身份。`AGENT-OPERATING-MODEL.md` §3.5 增加 canonical 命名规则：命名前 fresh 查 registry → 只提出可用名称 → Owner 批准 → merge 前登记占用 → merge 前 re-read live registry 防并发 claim → 冲突 STOP。registry 是名称 availability index，不是全局人员名册，不替代 project-scoped roster，也不授权跨项目 dispatch。`NEW-SESSION-BOOTSTRAP.md` 将 registry 列为 ON-DEMAND（仅命名/roster 变更时读取），ordinary execution/recovery 不加载全表。
+
 ## 2026-09
 - **2026-09-29 — Risk-tiered execution and verification budget：** 将 `Default Lean. Escalate by risk.` 从原则升级为可操作矩阵。新增 `ENGINEERING-STANDARDS.md` §4.5 Task execution envelope：FAST / STANDARD / HIGH_RISK 三档各定义 REQUIRED、CONDITIONAL、NOT_DEFAULT、FORBIDDEN_TO_SKIP、ESCALATION_TRIGGER 五类约束；新增 Verification Budget 原则 `verification budget = risk-tier baseline + evidence-triggered additions`，Agent 可按 evidence 升级 risk 但不可静默降级。`PROMPT-HANDOFF-STANDARD.md` 新增 §1.5（Issue = durable task contract，Prompt = execution delta）和 §5.2（tiered handoff：FAST/STANDARD/HIGH_RISK 分层简洁回传）。`NEW-SESSION-BOOTSTRAP.md` 新增 CORE RULES + ON-DEMAND RULES 和 PM vs Execution Agent bootstrap 区分，减少不必要全文档加载。`AGENTS.md` 增加 §4.5 cross-reference。不新建第二套 risk taxonomy，不削弱 hard safety boundaries、Markdown boundary safety、PM final acceptance / merge gate。
 

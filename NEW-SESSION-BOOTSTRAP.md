@@ -29,6 +29,7 @@
    - governance depth / execution envelope / Verification Budget → `ENGINEERING-STANDARDS.md`（task 需要判断 risk tier 或 execution matrix 时）;
    - restricted-content full canonical definition → `RESTRICTED-CONTENT-STANDARD.md`（task 涉及 Active Surface 判断或需要完整 gate 定义时）;
    - Agent/roster/backend identity、staffing、parallel dispatch → `AGENT-OPERATING-MODEL.md`（dispatch/routing 真正需要时）;
+   - 命名新工程师 / 新增或改名 durable identity → `ENGINEER-NAME-REGISTRY.md`（全局名称保留 registry，**仅**在发生命名 / roster 变更时读取；ordinary execution / recovery 与既有 identity routing 不加载全表）;
    - backend/model capability、Owner routing policy、resource availability、cost/quota → `BACKEND-CAPABILITY-CERTIFICATION.md`（dispatch/routing 真正需要时）;
    - Task ID/recovery → `TASK-LIFECYCLE-STANDARD.md`（达到门槛时）;
    - Prompt/handoff → `PROMPT-HANDOFF-STANDARD.md`（需要 dispatch / handoff 时）;
