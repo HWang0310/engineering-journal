@@ -25,6 +25,10 @@
 
 **不要在入口文件复制易变的 backend 排名或额度表；当前具体 routing 顺序始终以最新 `BACKEND-CAPABILITY-CERTIFICATION.md` 为准。**
 
+### 一句话知识库包指令（按需）
+
+Owner 在数据分析/收入业务会话明确说 **“参考项目规范 https://github.com/HWang0310/engineering-journal，把本知识整理成知识包”** 时，PM 须按需读取 `KNOWLEDGE-ACCUMULATION.md` §3.2 / §3.2.1，独立统筹整理、已授权目的地、本机 Agent 落盘、GitHub 审核和双端验收；无需 Owner 再提供长 Prompt。此入口不适用于普通聊天、SQL 问答或无关内容项目；完整规则**只在**该 canonical 章节定义。
+
 核心原则：
 
 > **Default Lean. Escalate by risk.**

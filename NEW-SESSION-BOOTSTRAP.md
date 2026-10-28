@@ -37,7 +37,7 @@
    - branch/PR/review/merge → `GIT-GITHUB-STANDARD.md`（需要 Git 操作时）;
    - Deep Engineering → `CODEX-RULES.md`（触发深水任务时）;
    - durable knowledge/memory → `KNOWLEDGE-ACCUMULATION.md`（需要知识沉淀判断时）。
-   - Owner 明确要求将数据分析知识**保存为知识库包**（且目标项目已启用此工作流）→ `KNOWLEDGE-ACCUMULATION.md` §3.2 + 目标项目本地目录配置；普通问答/总结不触发。
+   - Owner 以固定短句 **“参考项目规范 https://github.com/HWang0310/engineering-journal，把本知识整理成知识包”**（或其它明确知识包保存指令）触发数据分析知识归档 → 按需读取 `KNOWLEDGE-ACCUMULATION.md` §3.2 / §3.2.1 及已获授权的归档目的项目配置；无需 Owner 再写长 Prompt，普通问答/总结不触发。
 
 Ordinary recovery 不要求全文读取 `README.md`、`ENGINEERING-STANDARDS.md`、`RESTRICTED-CONTENT-STANDARD.md`；但 restricted-content Active Surface hard gate 本身是 CORE RULE，不因不读全文而削弱——只是不机械预加载完整标准文档，当 task 涉及 Active Surface 判断时再按需读取完整定义。
 
