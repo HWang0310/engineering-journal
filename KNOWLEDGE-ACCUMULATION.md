@@ -80,10 +80,10 @@ Project Memory 不承担“给每个 closed Issue 做摘要”的职责；closed
 
 1. **识别本次业务主题与范围**：`本知识` 指当前业务会话/明确引用的当前成果中**已分析、已验证、可复用**的相关知识；从当前对话及可访问的权威文件/SQL/已确认结果恢复，不擅自引用无关项目、推测跨会话未见事实。自然推导主题文件名 `<业务主题>知识库包.md`，同名版本冲突 STOP 或按明确版本命名。
 2. **整理成可复用 Markdown**：以真实材料为准，包含业务背景及范围、已确认口径、计算和账期/单位规则、源表字段与关系/血缘、可复用 SQL/操作步骤、代表性已核验案例（脱敏）、验证证据及来源、适用限制、UNKNOWN/待确认/冲突。只写确有依据的部分；本业务不涉及的栏目可省略，不生成空模板、猜测或整段聊天流水账。
-3. **安全与现有归档核查**：从本业务项目或**已经获 Owner 授权的归档目的项目**的当前 `AGENTS.md` 读取目标配置；来源会话无需先建立自己的工程仓库/名册，若此类收入业务知识由 `HWang0310/revenue-ontology-ai` 接收，则以其当前 `AGENTS.md` 为目录和权限权威。检查本地/GitHub 是否有对应知识包并核对版本；按目的仓库 Private Repository Security 筛查内容。若内部资料不能安全进入 GitHub，先 `HOLD` 并给出最小安全处理选项，不能上传原文或把两份不同文件称为一致。
-4. **PM 派工而非只做 GitHub**：需要 Mac 本机落盘时，按本节 PM dispatch gate 主动选派**有本机实际访问能力的当前项目具名 Agent**。来源会话无法合法派工时，走归档目的项目 PM 的正式 GitHub-native handoff，由目的项目按自己的 roster 派 Agent；不得跨项目直接指派、不得让 Owner 充当长篇技术交接中转。
+3. **来源与归档目的地严格分离（必检）**：先识别 `SOURCE_PROJECT`（SQL、程序、口径的证据仓库）和 `ARCHIVE_PROJECT`（Owner 已批准的知识包持久化仓库），**不得推定两者相同**。归档路径以**已获 Owner 授权的归档目的项目**的最新 `AGENTS.md` 为优先权威，而不是要求来源仓库先配置归档目录；来源会话无需独立工程仓库或名册。若此类收入/数据分析知识的批准目的地为 `HWang0310/revenue-ontology-ai`，即使用其本地 `完整知识库包/` 和 GitHub `docs/knowledge-packs/` 的当前配置，数生、合作分成等源码实际来自 `hwang_github` 也不影响。**已存在有效归档目标时，来源仓库缺少配置不是 `HOLD` 理由，不得据此向 Owner 重复索要启用授权或改仓库决定。** 检查本地/GitHub 是否有对应知识包并核对版本；按**目的仓库** Private Repository Security 筛查内容。若内部资料不能安全进入 GitHub，先 `HOLD` 并给出最小安全处理选项，不能上传原文或把两份不同文件称为一致。
+4. **PM 必须实际派工/交接，不得停在建议**：需要 Mac 本机落盘时，按本节 PM dispatch gate 主动选派**有本机实际访问能力的当前项目具名 Agent**。来源会话无法合法派工时，且已识别归档目的项目，须通过可用的项目交接渠道**实际创建或提交可追踪的 GitHub-native handoff（Issue / PR 交接说明）**给目的项目 PM，由目的项目按自己的 roster 决定具名 Agent 和执行；不得跨项目直接指派。**“建议 Owner 为来源仓库新启用归档”或只交付可下载 Markdown 不能代替既有归档目的地的实际 handoff**。如果当前环境确实缺少发起交接/启动本机 Agent 的能力，要说明缺少的具体能力、已完成的工作与受阻操作，报 `PARTIAL / BLOCKED`；不能虚称已经派工，更不能为了弥补工具限制要求 Owner 重发长 Prompt。
 5. **归档、Review 和双端核验**：让执行 Agent 保存本机实际文件；同一份审核通过的 Markdown 经目的 GitHub 项目 branch/PR 与 PM Review 归档。**PR merge 仍须遵守原有 Owner 授权 gate，不得把此短句解释为自动批准 merge**。完成 merge 后核实本机路径真实存在、目标 `main` 文件存在、两个 SHA-256 一致。
-6. **简短结果回报**：只报告 `KNOWLEDGE_PACK`、`LOCAL_STATUS/PATH`、`GITHUB_STATUS/URL`、`SHA256_MATCH`、`BLOCKERS`、`STATUS`。只有两端真实保存且校验一致才写 `DUAL_ARCHIVE_COMPLETE`；等待合并/不可达/冲突时写 `PARTIAL / HOLD` 并说明**唯一必要的 Owner 决策**，不虚报成功。
+6. **简短结果回报**：只报告 `KNOWLEDGE_PACK`、`ARCHIVE_PROJECT`、`LOCAL_STATUS/PATH`、`GITHUB_STATUS/URL`、`HANDOFF/AGENT_STATUS`、`SHA256_MATCH`、`BLOCKERS`、`STATUS`。只有两端真实保存且校验一致才写 `DUAL_ARCHIVE_COMPLETE`；等待合并/不可达/冲突时写 `PARTIAL / HOLD`。**生成下载文件仅为 `DRAFT_READY`，不能把知识整理完成伪称为归档完成**；仅在出现真实需要 Owner 行使的审批权（如敏感内容入库或 PR merge）时才请求 Owner 最小决策。
 
 上述步骤是**一次短指令的默认执行语义**，不改变本节前述项目启用范围、资料安全、产品导入和业务记忆人工确认边界。
 
