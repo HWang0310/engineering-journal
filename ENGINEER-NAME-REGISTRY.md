@@ -17,8 +17,8 @@
 
 | Canonical name | Normalized key | 已核实 canonical project claims | Notes |
 | --- | --- | --- | --- |
-| Apex | apex | `engineering-journal` | |
 | Abacus | abacus | `hwang_github` (Owner-approved pending rename from Forge) | 2026-10-28 Owner approved; reserve ahead of project-roster migration |
+| Apex | apex | `engineering-journal` | |
 | Atlas | atlas | `deep-talk-studio` | |
 | Axiom | axiom | `revenue-ontology-ai`; `deeptalk-handdrawn-animation` | **既有历史重名**，双方均 active |
 | Curator | curator | `revenue-ontology-ai` | `deeptalk-handdrawn-animation` 中为 former name（2026-09-09 Owner 批准 `Curator` → `Inkstone`）；已退役旧名永久保留 |
