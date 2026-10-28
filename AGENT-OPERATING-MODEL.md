@@ -158,6 +158,14 @@ Temporary external specialist / reviewer 只有在作为明确 external collabor
 
 本文件只引用 registry，不复制其中完整名称表。仅当发生命名 / roster 变更时才读取全局 registry，ordinary execution / recovery 不加载全表。
 
+### 3.5.1 历史重名的跨项目唯一显示身份（canonical）
+
+为了让 Owner 可以区分历史遗留的重名工程师，**跨项目交接、派工说明、Owner 汇报与检索引用**必须使用稳定的复合显示身份 `<owner>/<repository>::<canonical engineer name>`（例如 `HWang0310/hwang_github::Forge` 与 `HWang0310/deep-talk-studio::Forge`），不得在存在重名时只写 `Forge`、`Mason` 等裸名。对于当前单一项目内部且语境无歧义的已有 handoff/脚本标识，仍可沿用 roster 名称；不得为了显示消歧去批量重写历史 Issue、PR、分支或 commit。
+
+复合显示身份只是**项目作用域 + 现有姓名的展示/引用规范**，**不是改名、创建新 engineer、取得跨项目派工权限、或占用新的 registry 名称**。项目 roster、PM 所属范围以及 backend 的边界完全不变。当前 legacy 冲突以最新 `ENGINEER-NAME-REGISTRY.md` 的事实为准；跨项目报告若有多位同名人员，须同时列出每位所属的 repository。
+
+如 Owner 决定**真正消除重名并更改 durable identity**，必须依本节原有程序逐一获取**具体的旧项目+旧名→新名 Owner 批准**、核对候选在全局 registry 中未占用，再维护 registry 的历史映射、目的项目 canonical roster 与当前活跃派工入口，并由各项目 PM Review/合并。保留历史 Issue、PR、commit、证据链与旧名永久占用；不能在尚未批准前用显示别名冒充已更名的工程师。
+
 ## 4. Capability routing
 
 Backend 的当前能力阶梯、默认派工顺序、成本/额度策略和 empirical notes 由 `BACKEND-CAPABILITY-CERTIFICATION.md` 统一定义。本文件只定义 PM 如何使用这些资源。

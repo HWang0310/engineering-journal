@@ -38,6 +38,19 @@
 
 合计 **18** 个已保留名称。表格中的 `Notes` 如实标注既有重名与改名历史；**不自动重命名或重新分配任何现有身份**。
 
+## 2.1 现有历史重名的唯一显示身份（不改名）
+
+以下四组名称在**不同项目的 canonical roster 中仍同时 active**。跨项目讨论、派工与汇报一律使用 `<owner>/<repo>::<name>` 消歧；具体 roster 身份尚未更名，所有旧名继续永久保留：
+
+| 原名 | 现有第一身份 | 现有第二身份 | 状态 |
+| --- | --- | --- | --- |
+| Forge | `HWang0310/deep-talk-studio::Forge` | `HWang0310/hwang_github::Forge` | historical collision / owner rename not yet approved |
+| Axiom | `HWang0310/revenue-ontology-ai::Axiom` | `HWang0310/deeptalk-handdrawn-animation::Axiom` | historical collision / owner rename not yet approved |
+| Mason | `HWang0310/revenue-ontology-ai::Mason` | `HWang0310/deeptalk-handdrawn-animation::Mason` | historical collision / owner rename not yet approved |
+| Rivet | `HWang0310/revenue-ontology-ai::Rivet` | `HWang0310/deeptalk-handdrawn-animation::Rivet` | historical collision / owner rename not yet approved |
+
+此表是项目级 roster 名称的**限定展示索引**，不是替代其 canonical project membership，也不增加全局已保留名称数量。真正 rename 仍须 Owner 对具体新名字批准，再按 `AGENT-OPERATING-MODEL.md` §3.5 / §3.5.1 完整迁移。
+
 ## 3. 占用新名称的流程（引用 canonical）
 
 新名称的登记流程（命名前查重 → 只提出可用名称 → Owner 批准 → merge 前 re-read 防并发 claim → durable registration → 永久占用）由 `AGENT-OPERATING-MODEL.md` §3.5 canonical 定义；本文件只维护已占用名称事实与比较规则，不重复定义流程。
