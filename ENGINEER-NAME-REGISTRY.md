@@ -18,13 +18,16 @@
 | Canonical name | Normalized key | 已核实 canonical project claims | Notes |
 | --- | --- | --- | --- |
 | Apex | apex | `engineering-journal` | |
+| Abacus | abacus | `hwang_github` (Owner-approved pending rename from Forge) | 2026-10-28 Owner approved; reserve ahead of project-roster migration |
 | Atlas | atlas | `deep-talk-studio` | |
 | Axiom | axiom | `revenue-ontology-ai`; `deeptalk-handdrawn-animation` | **既有历史重名**，双方均 active |
 | Curator | curator | `revenue-ontology-ai` | `deeptalk-handdrawn-animation` 中为 former name（2026-09-09 Owner 批准 `Curator` → `Inkstone`）；已退役旧名永久保留 |
 | Forge | forge | `deep-talk-studio`; `hwang_github` | **既有历史重名**，双方均 active |
+| Glyph | glyph | `deeptalk-handdrawn-animation` (Owner-approved pending rename from Axiom) | 2026-10-28 Owner approved; reserve ahead of project-roster migration |
 | Foundry | foundry | `engineering-journal` | |
 | Helix | helix | `revenue-ontology-ai` | |
 | Inkstone | inkstone | `deeptalk-handdrawn-animation` | 由 `Curator` rename 而来（2026-09-09） |
+| Spline | spline | `deeptalk-handdrawn-animation` (Owner-approved pending rename from Rivet) | 2026-10-28 Owner approved; reserve ahead of project-roster migration |
 | Ledger | ledger | `hwang_sryg` | |
 | Mason | mason | `revenue-ontology-ai`; `deeptalk-handdrawn-animation` | **既有历史重名**，双方均 active |
 | Nexus | nexus | `deep-talk-studio` | |
@@ -34,9 +37,10 @@
 | Sage | sage | `engineering-journal` | |
 | Scout | scout | `xhs-product-lab` | |
 | Scribe | scribe | `deep-talk-studio` | |
+| Stencil | stencil | `deeptalk-handdrawn-animation` (Owner-approved pending rename from Mason) | 2026-10-28 Owner approved; reserve ahead of project-roster migration |
 | Steward | steward | `engineering-journal` | |
 
-合计 **18** 个已保留名称。表格中的 `Notes` 如实标注既有重名与改名历史；**不自动重命名或重新分配任何现有身份**。
+合计 **22** 个已保留名称（原有 18 个 + Owner 批准改名预留 4 个）。表格中的 `Notes` 如实标注既有重名与改名历史；**不自动重命名或重新分配任何现有身份**。
 
 ## 2.1 现有历史重名的唯一显示身份（不改名）
 
@@ -50,6 +54,10 @@
 | Rivet | `HWang0310/revenue-ontology-ai::Rivet` | `HWang0310/deeptalk-handdrawn-animation::Rivet` | historical collision / owner rename not yet approved |
 
 此表是项目级 roster 名称的**限定展示索引**，不是替代其 canonical project membership，也不增加全局已保留名称数量。真正 rename 仍须 Owner 对具体新名字批准，再按 `AGENT-OPERATING-MODEL.md` §3.5 / §3.5.1 完整迁移。
+
+## 2.2 Owner 批准的全局去重迁移（2026-10-28）
+
+Owner 已明确批准四项 durable rename：`hwang_github::Forge → Abacus`，`deeptalk-handdrawn-animation::Axiom → Glyph`，`deeptalk-handdrawn-animation::Mason → Stencil`，`deeptalk-handdrawn-animation::Rivet → Spline`。新名称现已**预留**；此记录不等于项目 roster 已更名成功。**旧名 Forge/Axiom/Mason/Rivet 永久保留**，不得再次分配；原有项目与历史 Issue/PR/commit 保持溯源。完成项目 roster 迁移并核查后，更新本表中的历史 collision 状态及新名称的 `pending` 说明。
 
 ## 3. 占用新名称的流程（引用 canonical）
 
