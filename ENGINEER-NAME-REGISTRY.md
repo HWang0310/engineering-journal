@@ -39,8 +39,9 @@
 | Scribe | scribe | `deep-talk-studio` | |
 | Stencil | stencil | `deeptalk-handdrawn-animation` (Owner-approved pending rename from Mason) | 2026-10-28 Owner approved; reserve ahead of project-roster migration |
 | Steward | steward | `engineering-journal` | |
+| Vector | vector | `hwang_github` | 2026-10-30 Owner-approved new parallel Execution Engineer; same role as Abacus |
 
-合计 **22** 个已保留名称（原有 18 个 + Owner 批准改名预留 4 个）。表格中的 `Notes` 如实标注既有重名与改名历史；**不自动重命名或重新分配任何现有身份**。
+合计 **23** 个已保留名称（原有 18 个 + Owner 批准改名预留 4 个 + Owner 批准新增 1 个）。表格中的 `Notes` 如实标注既有重名与改名历史；**不自动重命名或重新分配任何现有身份**。
 
 ## 2.1 现有历史重名的唯一显示身份（不改名）
 
