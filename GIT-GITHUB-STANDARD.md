@@ -33,6 +33,44 @@ GitHub Issue / PR number 只表示 repository-local durable sequence，不表示
 - worktree 仅在并行、dirty-state isolation、high-risk isolation 等有实际价值时使用。
 - 删除 branch/worktree 前确认没有未提交/未 push 的有效成果。
 
+### 2.1 Task Branch Lifecycle & Post-Merge Cleanup
+
+本 section 只定义普通任务分支的创建、完成、merge 与清理语义；**不要求每个小任务都建 branch/PR，也不要求任何 repository 只保留 `main`**。长期 release / maintenance / support branch 始终保留，不按临时分支处理。
+
+#### Purpose / creation
+
+- branch 只在变更追踪、PR 或并行隔离有实际价值时创建；
+- 普通 task / feature / fix branch 默认是**短生命周期施工分支**；
+- 项目明确指定的 main / integration target 才是合并目标，通常为 `main`；
+- 长期 branch、明确 `HOLD` 的工作、尚未完成的 lane 不适用本节自动 merge / cleanup。
+
+#### Completion / merge
+
+- **"Writer says done" 或 "branch work finished" 不等于可合并。**
+- 普通短期任务分支：实现和适用验证完成后提交 PR，由 PM review / acceptance 后合并到项目指定集成分支（默认 `main`）。
+- Agent 不得自行把未验收成果合入 main；不得为了清理分支而提前合并未完成工作。
+
+#### Post-merge cleanup
+
+- PR merge 后，原 Writer / 有本地权限的执行者负责收尾；PM 对任务最终 closure 负责。
+- 清理前确认：PR 确实 `MERGED`；merge 结果已进入预期 target；branch 不承载其它 active PR / 独立工作；无未提交 / 未推送的有效成果。
+- local branch、remote branch、worktree 分别判断；**远端自动删除不可假设**。已合并且无其它用途的临时分支默认清理；长期分支保留。
+- 本地 target branch 只在工作区安全、无 dirty / unpushed work 且可安全同步时更新；不要求 remote-first docs change 立即建立 local sync task。
+
+#### Deletion safety
+
+- 未合并 / PR closed-unmerged / 有独有提交或有效改动 / dirty worktree / 用途不明 / 无法验证者，**一律保留并报告**。
+- 不以 `git branch -d` 单独作为"成果已合并"的证据（squash / rebase merge 的 ancestry 可能与线性 merge 不同）；删除命令被拒绝时不得改用 force。
+- 常规 cleanup 禁止 `git branch -D`、`git reset --hard`、`git clean -fd`、未经检查的 remote branch deletion 或 destructive worktree removal。
+- force / history rewrite 继续遵守既有 pre-authorization。
+- cleanup 只针对**原任务自身**的临时 branch / worktree；**不批量清理历史分支**，不借规范变更改动既有项目分支。
+
+#### Lean close-out
+
+- branch cleanup 是原任务的正常收尾，**不另建 Cleanup Issue / Task**。
+- final handoff 简要说明：merged PR / target、已清理或保留的 branch / worktree（及原因）、本地 target 是否同步；机器可推导信息不重复堆砌。
+- 无权限执行 local cleanup 时明确标记 `pending`，不得声称完成。
+
 ## 3. Commit
 
 - 一个 commit 尽量表达一个可审查目的。

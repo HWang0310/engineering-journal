@@ -2,6 +2,10 @@
 
 只记录工程规范体系的重大演进。最新在前；普通项目进度、Task 日志和完整 Prompt 不进入这里。
 
+## 2026-11
+
+- **2026-11-04 — Task branch lifecycle / post-merge cleanup：** 补齐 Git branch 从创建、开发、PR、merge 到 cleanup 的生命周期。`GIT-GITHUB-STANDARD.md` §2.1 成为 canonical 定义：普通 task/feature/fix branch 是短生命周期施工分支，实现与适用验证完成后走 PR，由 PM review / acceptance 后合并到项目指定集成分支（默认 `main`）；"Writer says done" 不等于可合并，不得为清理分支提前合并未完成工作。merge 后由原 Writer / 本地权限执行者收尾、PM 负责最终 closure：确认 PR `MERGED`、成果进入预期 target、branch 无其它 active PR / 独立工作、无未提交/未推送成果，再分别处理 local / remote / worktree；远端自动删除不可假设，已合并且无其它用途的临时分支默认清理，长期 release/maintenance/support branch 保留。删除安全：未合并 / closed-unmerged / 有独有提交 / dirty worktree / 用途不明者一律保留并报告；`git branch -d` 不能单独作为已合并证据（squash/rebase ancestry 可能不同），拒绝时不得改用 force；常规 cleanup 禁止 `-D`、`reset --hard`、`clean -fd`、未检查的 remote deletion 与 destructive worktree removal。cleanup 是原任务收尾，不另建 Cleanup Issue；不批量清理历史分支，不改变 One Writer / parallel isolation / PM final acceptance / SAFE_REMOTE_FIRST / risk-tiered verification 原则。
+
 ## 2026-10
 
 - **2026-10-27 — Cross-project engineer-name reservation registry：** 新增 `ENGINEER-NAME-REGISTRY.md` 作为跨项目工程师名称保留的唯一 canonical 全局账本。已核实 18 个历史命名 engineer / PM 名称（`Apex`、`Atlas`、`Axiom`、`Curator`、`Forge`、`Foundry`、`Helix`、`Inkstone`、`Ledger`、`Mason`、`Nexus`、`NOVA`、`Orion`、`Rivet`、`Sage`、`Scout`、`Scribe`、`Steward`）并如实登记其 canonical project claims 与既有重名（如 `Axiom`/`Forge`/`Mason`/`Rivet` 跨项目 pre-existing collision）、改名历史（`Curator` → `Inkstone`）；已退役/已改名名称永久保留，不自动重命名或重新分配任何现有身份。`AGENT-OPERATING-MODEL.md` §3.5 增加 canonical 命名规则：命名前 fresh 查 registry → 只提出可用名称 → Owner 批准 → merge 前登记占用 → merge 前 re-read live registry 防并发 claim → 冲突 STOP。registry 是名称 availability index，不是全局人员名册，不替代 project-scoped roster，也不授权跨项目 dispatch。`NEW-SESSION-BOOTSTRAP.md` 将 registry 列为 ON-DEMAND（仅命名/roster 变更时读取），ordinary execution/recovery 不加载全表。
